@@ -75,6 +75,24 @@ handle=function(v){
  if(v==='off'){document.getElementById('result').textContent='OFF';expr='';document.getElementById('expression').textContent='';return}
  oldHandle(v);
 };
+
+/* Exact prime factorisation is distinct from x! */
+const previousHandle=handle;
+handle=function(v){
+ if(v==='primefact'){
+  try{
+   let n=Math.round(value());
+   if(!Number.isSafeInteger(n)||n<2||Math.abs(n-value())>1e-10)throw Error("FACT requires an integer ≥ 2");
+   const factors=[];let m=n;
+   for(let p=2;p*p<=m && p<=1000000;p+=(p===2?1:2)){if(m%p===0){let pow=0;do{m/=p;pow++}while(m%p===0);factors.push(pow>1?p+'^'+pow:String(p));}}
+   if(m>1)factors.push(String(m));
+   document.getElementById('result').textContent=n+' = '+factors.join(' × ');
+  }catch(e){document.getElementById('result').textContent=e.message}
+  return;
+ }
+ if(v==='random'){append(String(Math.random()));return}
+ previousHandle(v);
+};
 panel.querySelector('.extgrid').hidden=false;
 render();
 })();
