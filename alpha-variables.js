@@ -20,11 +20,10 @@ function indicators(){
      b.appendChild(legend);
    }
    const label=b.querySelector(".keyname");
-   if(alphaMode && label)label.textContent=letter;
-   else if(label)label.textContent=inverse?(b.dataset.alt||b.dataset.main):b.dataset.main;
+   if(label)label.textContent=b.dataset.main;
  });
  const s=document.getElementById("shiftStatus");
- if(s) s.textContent=(inverse?"SHIFT ":"")+(alphaMode?"ALPHA":"")+(storePending?" STO":"");
+ if(s) s.textContent=alphaMode?"A":inverse?"S":"";
 }
 alphaButton.addEventListener("click",e=>{
  e.stopImmediatePropagation();alphaMode=!alphaMode;
