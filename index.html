@@ -175,9 +175,9 @@ function preview(){
 }
 function render(){
  $('expression').textContent=expr.replace(/\^2/g,'²').replace(/\^3/g,'³');$('mode').textContent=deg?'DEG':'RAD';
- $('shiftStatus').textContent=inverse?'SHIFT':'';
+ $('shiftStatus').textContent=inverse?'S':(alpha?'A':'');
  $('shift').classList.toggle('active',inverse);
- document.querySelectorAll('[data-main]').forEach(b=>{b.querySelector('.keyname').textContent=inverse?(b.dataset.alt||b.dataset.main):b.dataset.main});
+ document.querySelectorAll('[data-main]').forEach(b=>{b.querySelector('.keyname').textContent=b.dataset.main});
  preview();
 }
 function calculate(){if(!expr)return;
@@ -231,8 +231,8 @@ $('keys').addEventListener('click',e=>{
  handle(v);
 });
 function handle(v){
- if(v==='shift'){inverse=!inverse;render();return}
- if(v==='alpha'){alpha=!alpha;$('alpha').classList.toggle('active',alpha);return}
+ if(v==='shift'){inverse=!inverse;if(inverse)alpha=false;render();return}
+ if(v==='alpha'){alpha=!alpha;if(alpha)inverse=false;render();$('alpha').classList.toggle('active',alpha);return}
  if(v==='angle'){deg=!deg;render();return}
  if(v==='reset'){expr='';ans=0;memory=0;justCalculated=false;render();return}
  if(v==='sto'){if(Number.isFinite(ans))memory=ans;return}
