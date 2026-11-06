@@ -95,7 +95,12 @@
     else if(v==="logbase")v="logbase(";
     else if(v==="root")v="root(";
     if(v==="." && /(?:^|[^\d.])\d*\.\d*$/.test(currentText(rootNodes())))return;
-    rootNodes().push(token(v));
+    const nodes=rootNodes();
+    const last=nodes[nodes.length-1];
+    if((/^[0-9]$/.test(v)||v===".") && last && last.type==="text" &&
+       /^(?:\d+(?:\.\d*)?|\.\d+)$/.test(last.value)){
+      last.value+=v;
+    }else nodes.push(token(v));
     sync();
   }
   function backspace(){
