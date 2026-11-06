@@ -106,6 +106,8 @@
     else if(v==="tenexp")v="×10^";
     else if(v==="pi")v="π";
     else if(v==="econst")v="e";
+    else if(v==="random")v="Ran#";
+    else if(v==="comma")v=",";
     else if(v==="rnd"||v==="random")v=String(Math.random());
     else if(v==="ans")v="Ans";
     else if(v==="neg")v="−";
@@ -320,6 +322,7 @@
     if(/^[0-9.]$/.test(key))action=key;
     else if(key==="/")action=editor.path.length?"down":"÷";
     else if(key==="*")action="×";
+    else if(key===",")action="comma";
     else if(key==="-")action="−";
     else if(key==="+"||key==="("||key===")"||key==="^")action=key;
     else if(key==="Enter"||key==="=")action="=";
