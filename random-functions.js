@@ -64,6 +64,8 @@
   }
   function rewrite(input,ctx){
     let s=String(input);
+    // Preserve calculator-style implicit multiplication, e.g. 1000 Ran#.
+    s=s.replace(/(\d|\))(?=Ran#|RanInt#\(|Rnd\()/g,"$1×");
     s=replaceCall(s,"RanInt#",(arg,context)=>{
       const [a,b]=splitArguments(arg);
       const low=evaluateArgument(a,context),high=evaluateArgument(b,context);
