@@ -222,3 +222,37 @@ body:not(.light) .calculator .expression .template-active{
   .calculator .expression.typeset-expression math{font-size:26px!important}
   .calculator .result math{font-size:27px!important}
 }
+
+/* Crisp vector key legends: full-size radical stroke and unobscured bar. */
+#keys button[data-key="sqrt"] .keyname svg.root-key-icon{
+  display:block!important;
+  width:44px!important;
+  height:32px!important;
+  flex:none;
+  overflow:visible;
+  stroke-linecap:square;
+}
+#keys button[data-key="sqrt"] .upper svg.cube-key-icon{
+  display:block!important;
+  width:35px!important;
+  height:21px!important;
+  transform:translateY(-6px);
+  overflow:visible!important;
+}
+#keys button[data-key="sqrt"] .upper{
+  overflow:visible!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+}
+@media(max-width:700px){
+  #keys button[data-key="sqrt"] .keyname svg.root-key-icon{
+    width:35px!important;
+    height:27px!important;
+  }
+  #keys button[data-key="sqrt"] .upper svg.cube-key-icon{
+    width:29px!important;
+    height:17px!important;
+    transform:translateY(-4px);
+  }
+}
