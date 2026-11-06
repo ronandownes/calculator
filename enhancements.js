@@ -42,7 +42,7 @@ fmt=function(v){
 const status=(message)=>{document.getElementById('mode').title=message;};
 const panel=document.createElement('section');
 panel.className='extension-panel';
-panel.innerHTML='<h2>Scientific tools</h2><div class="extgrid"></div><p class="exthelp" id="exthelp">SHIFT swaps the visible key labels. Tap an operation, enter its arguments, then press =.</p><p class="extnote">Independent web calculator · not affiliated with Casio. For reference calculations, check rounding and domain restrictions.</p>';
+panel.innerHTML='<div class="extgrid" aria-label="Additional functions"></div><p class="exthelp" id="exthelp">SHIFT swaps the visible key labels. Tap an operation, enter its arguments, then press =.</p><p class="extnote">For reference calculations, check rounding and domain restrictions.</p>';
 document.querySelector('.side').prepend(panel);
 const extra=[
  ["nPr","npr"],["nCr","ncr"],["π","pi"],["e","econst"],["n√x","root"],["logₐx","logbase"],[",","comma"],["%","percent"],["x!","factorial"],["1/x","inversepower"],["x³","cube"],["10ˣ","pow10"],["eˣ","exp"],["∛x","cbrt"],["DEG/RAD","angle"],["SCI/FIX","precision"],["M+","mplus"],["M−","mminus"],["MR","recall"],["MS","sto"],["DMS → decimal","dms"],["Decimal → DMS","decimaldms"],["OFF","off"],["MENU","menu"]
@@ -53,7 +53,14 @@ const style=document.createElement('style');style.textContent='.extension-panel{
 grid.addEventListener('click',e=>{const b=e.target.closest('button[data-ext]');if(b)handle(b.dataset.ext);});
 function value(){return evaluate(complete(expr||'Ans'))}
 handle=function(v){
- if(v==='menu'||v==='opt'){menuOpen=!menuOpen;panel.querySelector('.extgrid').hidden=!menuOpen;status("Scientific tools");panel.scrollIntoView({block:'nearest',behavior:'smooth'});return}
+ if(v==='menu'||v==='opt'){
+  menuOpen=!menuOpen;
+  panel.querySelector('.extgrid').hidden=!menuOpen;
+  const side=document.querySelector('.side');
+  if(side)side.hidden=!menuOpen;
+  if(menuOpen)panel.scrollIntoView({block:'nearest',behavior:'smooth'});
+  return;
+ }
  if(v==='npr'||v==='ncr'||v==='pi'||v==='econst'||v==='percent'||v==='logbase'||v==='root'||v==='comma'){append(v);return}
  if(v==='mplus'){try{mem+=value();memory=mem}catch(e){document.getElementById('result').textContent=e.message}return}
  if(v==='mminus'){try{mem-=value();memory=mem}catch(e){document.getElementById('result').textContent=e.message}return}
@@ -93,6 +100,6 @@ handle=function(v){
  if(v==='random'){append(String(Math.random()));return}
  previousHandle(v);
 };
-panel.querySelector('.extgrid').hidden=false;
+panel.querySelector('.extgrid').hidden=true;
 render();
 })();
