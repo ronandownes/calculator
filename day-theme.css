@@ -256,3 +256,18 @@ body:not(.light) .calculator .expression .template-active{
     transform:translateY(-4px);
   }
 }
+
+/* SHIFT overlays: parallel to ALPHA's red outlines, but amber/orange. */
+#keys button.shift-ready .keyname,
+body.light #keys button.shift-ready .keyname,
+body:not(.light) #keys button.shift-ready .keyname {
+  outline:2.5px solid #f0a626!important;
+  outline-offset:-2px!important;
+  box-shadow:0 0 0 1px #f9bd64,0 2px 3px #0001!important;
+}
+#keys button.shift-ready .upper{
+  color:#c78c00!important;
+}
+body:not(.light) #keys button.shift-ready .upper{
+  color:#ffd36b!important;
+}
