@@ -403,8 +403,9 @@ function styleMathKeys(){
  const cubeLegend=rootKey?.querySelector('.upper');
  if(cubeLegend)cubeLegend.innerHTML='<svg class="cube-key-icon" viewBox="0 0 56 34" role="img" aria-label="Cube root" xmlns="http://www.w3.org/2000/svg"><text x="0" y="12" fill="currentColor" font-family="Arial, sans-serif" font-size="16" font-weight="800">3</text><path d="M11 20 H18 L23 30 L32 5 H54" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="miter"/><rect x="38" y="12" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"/></svg>';
 }
+function visibleMath(input){return String(input).replace(/\basin\(/g,'sin⁻¹(').replace(/\bacos\(/g,'cos⁻¹(').replace(/\batan\(/g,'tan⁻¹(').replace(/\^2/g,'²').replace(/\^3/g,'³')}
 function render(){
- $('expression').textContent=expr.replace(/\^2/g,'²').replace(/\^3/g,'³');$('mode').textContent=angleUnit==='grad'?'G':(deg?'D':'R');
+ $('expression').textContent=visibleMath(expr);$('mode').textContent=angleUnit==='grad'?'G':(deg?'D':'R');
  $('shiftStatus').textContent=inverse?'S':(alpha?'A':'');
  $('shift').classList.toggle('active',inverse);
  document.querySelectorAll('[data-main]').forEach(b=>{b.querySelector('.keyname').textContent=b.dataset.main});
@@ -414,7 +415,7 @@ function render(){
 function calculate(){if(!expr)return;
  try{const full=complete(expr),value=evaluate(full);ans=value;showResult(value);
   history.unshift({expr:full,value:fmt(value)});history=history.slice(0,30);renderHistory();
-  expr=full;justCalculated=true;$('expression').textContent=expr.replace(/\^2/g,'²').replace(/\^3/g,'³');
+  expr=full;justCalculated=true;$('expression').textContent=visibleMath(expr);
  }catch(e){$('result').textContent=e.message;$('result').classList.add('error')}
 }
 function append(v){
