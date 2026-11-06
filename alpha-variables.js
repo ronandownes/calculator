@@ -1,4 +1,4 @@
-/* ClassWiz-style ALPHA registers and on-screen store notation.
+/* Independent ALPHA registers and on-screen store notation.
    Independently coded; original calculator display is preserved. */
 (() => {
   "use strict";
@@ -46,7 +46,7 @@
         button.appendChild(legend);
       }
     });
-    document.getElementById("mode").textContent = deg ? "D" : "R";
+    document.getElementById("mode").textContent = angleUnit === "grad" ? "G" : deg ? "D" : "R";
     const status = document.getElementById("shiftStatus");
     if (status) status.textContent = inverse ? "S" : alphaMode ? "A" : "";
   }
