@@ -97,7 +97,7 @@ handle=function(v){
   }catch(e){document.getElementById('result').textContent=e.message}
   return;
  }
- if(v==='random'){append(String(Math.random()));return}
+ if(v==='random'){if(justCalculated){expr='';justCalculated=false;}append('Ran#');return}
  previousHandle(v);
 };
 panel.querySelector('.extgrid').hidden=true;
