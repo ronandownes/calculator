@@ -125,6 +125,15 @@
       return;
     }
 
+    if (alphaMode && !storePending && key === ".") {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      alphaMode = false;
+      append("RanInt#(");
+      indicators();
+      return;
+    }
+
     if (alphaMode && letter) {
       event.preventDefault();
       event.stopImmediatePropagation();
