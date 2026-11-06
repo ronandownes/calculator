@@ -1,0 +1,152 @@
+/* Four-dot calculator: pale, quiet day theme. No commercial branding. */
+:root { --ink:#171b21; --four-red:#e63329; --four-blue:#2d7dd2; --amber:#ffae39; }
+body.light {
+  background:#f7f9fc!important;
+  color:var(--ink)!important;
+  padding:9px 10px 30px!important;
+}
+.layout{max-width:800px!important;margin:auto!important;gap:0!important}
+body.light .calculator {
+  width:min(100%,660px)!important;
+  background:#f2f4f8!important;
+  border:2px solid #e1e4eb!important;
+  border-radius:41px!important;
+  padding:15px 24px 22px!important;
+  box-shadow:0 8px 23px #64748b25,inset 0 2px 2px #fff!important;
+  color:var(--ink)!important;
+}
+.calculator .brand{height:31px!important;display:flex!important;justify-content:flex-end!important;align-items:center!important;margin:0 6px 10px!important;}
+.calculator .brand svg{width:136px!important;height:26px!important;display:block!important;flex:none!important}
+body.light .calculator .screenframe{
+  background:#ced2d9!important;
+  border:2px solid #b9bec8!important;
+  border-radius:27px!important;
+  padding:11px!important;
+  margin:0 0 17px!important;
+  box-shadow:inset 0 2px 3px #0000000b!important;
+}
+body.light .calculator .screen{
+  height:195px!important;
+  padding:12px 20px 12px!important;
+  border:1px solid #b9c5b8!important;
+  border-radius:17px!important;
+  background:#dce9dd!important;
+  color:#111820!important;
+  box-shadow:inset 0 1px 4px #4b665815!important;
+}
+body.light .screen .status,body.light .screen .expression,body.light .screen .result{color:#111820!important;}
+body.light .calculator .status{font:700 17px/1.2 Georgia,serif!important;min-height:22px!important;}
+body.light .calculator .expression{
+  font-family:Georgia,'Times New Roman',serif!important;
+  font-size:32px!important;line-height:1.23!important;text-align:left!important;font-weight:500!important;
+}
+body.light .calculator .result{
+  font-family:Georgia,'Times New Roman',serif!important;font-size:38px!important;font-weight:600!important;
+}
+body.light .calculator .top,body.light .calculator .keys{
+  background:#f8fafc!important;border:0!important;border-left:1px solid #e5e8ee!important;border-right:1px solid #e5e8ee!important;
+}
+body.light .calculator .top{padding:12px 13px 7px!important;margin:0!important;border-top:1px solid #e5e8ee!important;border-radius:17px 17px 0 0!important}
+body.light .calculator .keys{padding:4px 13px 15px!important;border-bottom:1px solid #e5e8ee!important;border-radius:0 0 17px 17px!important;row-gap:1px!important;column-gap:8px!important}
+body.light .calculator .roundgroup .keylabel{
+  color:#333944!important;font-size:12px!important;font-weight:750!important;
+  min-height:16px!important;
+}
+body.light .calculator .roundgroup:first-child .keylabel{color:#156abb!important}
+body.light .calculator .roundgroup.alpha .keylabel{color:#e63329!important}
+body.light .calculator .roundgroup>button{
+  background:linear-gradient(#fff,#f8f9fb)!important;
+  border:2px solid #d5d9e0!important;border-radius:50%!important;
+  box-shadow:0 3px 5px #1f29371d,inset 0 2px 1px white!important;
+}
+body.light .calculator #shift.active{background:#e3f0ff!important;border-color:#2d7dd2!important}
+body.light .calculator #alpha.active{background:#ffedea!important;border-color:#e63329!important}
+body.light .calculator .nav{
+  background:#f4f6fa!important;border:7px solid #e4e7ed!important;border-radius:49%!important;
+  box-shadow:0 2px 4px #00000012!important;
+}
+body.light .calculator .nav button{
+  color:#2e333a!important;background:#f0f2f6!important;border:1px solid #d8dce4!important;
+}
+body.light #keys .keyname{
+  background:linear-gradient(180deg,#fff 0%,#fbfbfd 100%)!important;
+  color:#14181c!important;
+  border:1.4px solid #d7dce3!important;
+  border-radius:10px!important;
+  box-shadow:0 2px 2px #1a243022,0 0 0 1px #ffffff9c inset!important;
+  font-weight:760!important;
+}
+body.light #keys button.number .keyname{font-size:34px!important}
+body.light #keys .upper{
+  color:#c69a00!important;font-size:13px!important;font-weight:800!important;
+}
+body.light #keys .alpha-legend,
+body.light #keys .upper.alphas{color:#e63329!important}
+body.light #keys button[data-alpha].alpha-ready .keyname{
+  color:#14181c!important;outline:2px solid #e63329!important;outline-offset:-2px;
+}
+body.light #keys button[data-key="DEL"] .keyname,
+body.light #keys button[data-key="AC"] .keyname {
+  background:linear-gradient(#ffc76a,#ffa52a)!important;
+  color:#18130b!important;border-color:#f2a328!important;
+  box-shadow:0 2px 2px #cc8f3580!important;
+}
+body.light #keys button:active .keyname{background:#edf1f6!important;transform:translateY(1px)}
+body.light #keys button[data-key="DEL"]:active .keyname,
+body.light #keys button[data-key="AC"]:active .keyname {background:#ffd48c!important}
+#keys .keyname math[aria-label="Square root"]{
+  font-family:"Cambria Math","STIX Two Math","DejaVu Math TeX Gyre",serif;
+  font-size:30px!important;line-height:1!important;
+  font-style:normal!important;
+}
+#keys .keyname math mtext{font-size:0.65em}
+.calculator .theme-switch{
+  position:static!important;width:max-content!important;margin:15px auto 0!important;
+  padding:0!important;border:0!important;background:transparent!important;
+  box-shadow:none!important;max-width:none!important;z-index:auto!important;
+  display:flex!important;gap:3px!important;
+}
+.calculator .theme-switch button{
+  font-size:12px!important;font-weight:700!important;
+  padding:5px 13px!important;min-width:65px!important;min-height:28px!important;
+  border-radius:15px!important;box-shadow:none!important;
+}
+body.light .calculator .theme-switch button{
+  background:#fff!important;color:#6b7280!important;border:1px solid #dfe3e9!important;
+}
+body.light .calculator .theme-switch button[aria-pressed="true"]{
+  background:#dde6f3!important;color:#1c344f!important;border-color:#c9d5e7!important;
+}
+body:not(.light) .calculator .theme-switch button{background:#383838!important;color:white!important}
+body:not(.light) .calculator .theme-switch button[aria-pressed="true"]{background:#ffbe3f!important;color:#171717!important}
+.screen.lcd-menu-mode{justify-content:flex-start!important;}
+.screen.lcd-menu-mode>.status,.screen.lcd-menu-mode>.expression,.screen.lcd-menu-mode>.result{display:none!important}
+.lcd-menu{width:100%;color:#182018;font-family:'Courier New',Consolas,monospace;font-weight:700;font-size:clamp(17px,2.75vw,27px);line-height:1.35;white-space:nowrap;}
+.lcd-menu button{
+  color:inherit;background:transparent;border:0;display:block;text-align:left;
+  padding:0 3px;font:inherit;cursor:pointer;max-width:100%;
+}
+.lcd-menu button:hover,.lcd-menu button:focus-visible{outline:2px dashed #577559;outline-offset:1px;background:#c8dacb}
+.lcd-menu .angle-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 14px;max-width:92%;}
+.lcd-menu .angle-grid button:nth-child(3){grid-column:1}
+.lcd-menu .angle-mark{position:absolute;top:7px;right:19%;font-size:16px}
+.screen.lcd-menu-mode{position:relative}
+@media(max-width:700px){
+  body.light{padding:3px 4px 18px!important;}
+  body.light .calculator{padding:8px 8px 14px!important;border-radius:24px!important;}
+  .calculator .brand{margin:0 5px 7px!important}
+  .calculator .brand svg{width:118px!important;height:23px!important}
+  body.light .calculator .screenframe{padding:7px!important;margin-bottom:10px!important;}
+  body.light .calculator .screen{height:150px!important;padding:9px 11px!important;}
+  body.light .calculator .expression{font-size:26px!important}
+  body.light .calculator .result{font-size:31px!important}
+  body.light .calculator .top{padding:8px 4px 3px!important;gap:3px!important}
+  body.light .calculator .keys{padding:2px 5px 10px!important;column-gap:4px!important}
+  body.light .calculator .roundgroup .keylabel{font-size:9px!important}
+  body.light .calculator .roundgroup>button{width:36px!important;height:36px!important}
+  body.light .calculator .nav{height:66px!important;border-width:5px!important}
+  body.light #keys button.number .keyname{font-size:27px!important}
+  body.light #keys .upper,body.light #keys .alpha-legend{font-size:9px!important}
+  #keys .keyname math[aria-label="Square root"]{font-size:24px!important}
+  .lcd-menu{font-size:clamp(15px,4.1vw,23px);}
+}
