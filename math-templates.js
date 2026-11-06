@@ -60,15 +60,35 @@
     justCalculated=false;
     render();
   }
+  // The fraction key consumes the operand immediately to its left.
+  // For example 7 → fraction produces 7 above the bar, not 7 beside a
+  // new fraction (which would wrongly mean a mixed number).
+  function takeNumerator(nodes){
+    if(!nodes.length)return [];
+    const last=nodes[nodes.length-1];
+    if(last.type!=="text"){
+      if(!incomplete([last]))return [nodes.pop()];
+      return [];
+    }
+    const match=last.value.match(/(?:^|[+−×÷*\\/^(])((?:\\d+(?:\\.\\d*)?|\\.\\d+)|Ans|[A-FXYM])$/);
+    if(!match)return [];
+    const value=match[1];
+    if(value.length===last.value.length)nodes.pop();
+    else last.value=last.value.slice(0,-value.length);
+    return [token(value)];
+  }
   function template(type){
     if(!editor)createEditor();
     if(editor.calculated)createEditor();
+    const nodes=rootNodes();
+    const numerator=type==="frac"?takeNumerator(nodes):[];
     const n={id:nextId++,type};
-    if(type==="frac"){n.top=[];n.bottom=[];}
+    if(type==="frac"){n.top=numerator;n.bottom=[];}
     else if(type==="mixed"){n.whole=[];n.top=[];n.bottom=[];}
     else n.body=[];
-    rootNodes().push(n);
-    editor.path.push({node:n,slot:type==="frac"?"top":type==="mixed"?"whole":"body"});
+    nodes.push(n);
+    // A completed numerator makes the denominator the next input field.
+    editor.path.push({node:n,slot:type==="frac"&&numerator.length?"bottom":type==="frac"?"top":type==="mixed"?"whole":"body"});
     sync();
   }
   function literal(v){
