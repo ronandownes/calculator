@@ -108,6 +108,18 @@
       return;
     }
 
+    // ALPHA + decimal invokes the bounded random-integer function,
+    // unlike ordinary alphabetic memory registers.
+    if (alphaMode && key === ".") {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      alphaMode = false;
+      if (justCalculated) { expr = ""; justCalculated = false; }
+      append("RanInt#(");
+      indicators();
+      return;
+    }
+
     if (alphaMode && letter) {
       event.preventDefault();
       event.stopImmediatePropagation();
