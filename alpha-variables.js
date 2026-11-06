@@ -37,6 +37,11 @@
 
   function indicators() {
     alphaButton.classList.toggle("active", alphaMode);
+    alphaButton.dataset.alphaMode = alphaMode ? "true" : "false";
+    document.querySelectorAll("#keys button[data-altkey]").forEach(button => {
+      button.classList.toggle("shift-ready",
+        inverse && !!button.dataset.altkey && button.dataset.altkey !== button.dataset.key);
+    });
     document.querySelectorAll("#keys button[data-alpha]").forEach(button => {
       button.classList.toggle("alpha-ready", alphaMode || storePending);
       if (!button.querySelector(".alpha-legend")) {
