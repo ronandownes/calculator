@@ -180,10 +180,19 @@
   function nodeMarkup(node,steps){
     if(node.type==="text"){
       const value=node.value;
+      const inverseNames={asin:"sin",acos:"cos",atan:"tan"};
+      const inverse=value.match(/^(asin|acos|atan)\($/);
+      if(inverse){
+        const row=m("mrow"),sup=m("msup"),exponent=m("mrow");
+        exponent.append(m("mo","−"),m("mn","1"));
+        sup.append(m("mi",inverseNames[inverse[1]]),exponent);
+        row.append(sup,m("mo","("));
+        return row;
+      }
       if(/^\d+(\.\d+)?$/.test(value))return m("mn",value);
       if(/^[+−×÷=()!,^%]$/.test(value))return m("mo",value);
       if(value==="π")return m("mi",value);
-      return m("mtext",value);
+      return m("mtext",value.replace(/\basin\(/g,"sin⁻¹(").replace(/\bacos\(/g,"cos⁻¹(").replace(/\batan\(/g,"tan⁻¹("));
     }
     if(node.type==="frac"){
       const f=m("mfrac");
