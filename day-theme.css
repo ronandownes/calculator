@@ -150,3 +150,75 @@ body:not(.light) .calculator .theme-switch button[aria-pressed="true"]{backgroun
   #keys .keyname math[aria-label="Square root"]{font-size:24px!important}
   .lcd-menu{font-size:clamp(15px,4.1vw,23px);}
 }
+
+/* Editable MathML expressions: real fraction rules and radical vincula. */
+#keys button[data-key="frac"] .keyname math,
+#keys button[data-key="sqrt"] .keyname math{
+  display:inline-block;
+  font-family:"Cambria Math","STIX Two Math","Latin Modern Math",serif;
+  font-style:normal!important;
+  line-height:1!important;
+  font-weight:500!important;
+  color:inherit!important;
+}
+#keys button[data-key="frac"] .keyname math{font-size:27px!important}
+#keys button[data-key="sqrt"] .keyname math{font-size:29px!important}
+#keys button[data-key="sqrt"] .upper{
+  overflow:visible!important;
+  display:flex!important;
+  justify-content:center!important;
+  align-items:center!important;
+}
+#keys button[data-key="sqrt"] .upper math{
+  color:inherit!important;font-size:15px!important;
+  line-height:1!important;
+  font-weight:500!important;
+}
+#keys .keyname math mtext{font-size:0.54em!important}
+#keys button[data-key="sqrt"] .upper math mtext{font-size:0.7em!important}
+.calculator .expression.typeset-expression{
+  min-height:49px!important;
+  text-align:left!important;
+  display:flex!important;
+  align-items:flex-start!important;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  white-space:nowrap!important;
+  overflow-wrap:normal!important;
+  scrollbar-width:thin;
+}
+.calculator .expression.typeset-expression math{
+  font-family:"Cambria Math","STIX Two Math","Latin Modern Math",serif;
+  font-size:34px!important;
+  color:inherit!important;
+  white-space:nowrap!important;
+  min-height:40px;
+}
+.calculator .expression .template-slot{
+  cursor:text;
+  padding-inline:2px;
+  border-radius:3px;
+}
+.calculator .expression .template-active{
+  background:#d6e9fa!important;
+  box-shadow:0 2px 0 #2d7dd2!important;
+}
+.calculator .expression .template-placeholder{
+  color:#5c6674!important;
+  font-size:0.8em!important;
+}
+.calculator .result math{
+  font-family:"Cambria Math","STIX Two Math","Latin Modern Math",serif;
+  font-size:34px!important;
+  color:inherit!important;
+}
+body:not(.light) .calculator .expression .template-active{
+  background:#acbdaa!important;box-shadow:0 2px 0 #718d6a!important;
+}
+@media(max-width:700px){
+  #keys button[data-key="frac"] .keyname math{font-size:21px!important}
+  #keys button[data-key="sqrt"] .keyname math{font-size:22px!important}
+  #keys button[data-key="sqrt"] .upper math{font-size:12px!important}
+  .calculator .expression.typeset-expression math{font-size:26px!important}
+  .calculator .result math{font-size:27px!important}
+}
