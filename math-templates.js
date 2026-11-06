@@ -70,7 +70,7 @@
       if(!incomplete([last]))return [nodes.pop()];
       return [];
     }
-    const match=last.value.match(/(?:^|[+−×÷*\\/^(])((?:\\d+(?:\\.\\d*)?|\\.\\d+)|Ans|[A-FXYM])$/);
+    const match=last.value.match(/(?:^|[+−×÷*\/^(])(\d+(?:\.\d*)?|\.\d+|Ans|[A-FXYM])$/);
     if(!match)return [];
     const value=match[1];
     if(value.length===last.value.length)nodes.pop();
