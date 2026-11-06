@@ -273,6 +273,16 @@
     event.preventDefault();event.stopImmediatePropagation();
     handle(b.dataset.nav);
   },true);
+  // STOring a typeset expression should return to the ordinary register
+  // display before the existing ALPHA-variable handler stores the value.
+  document.addEventListener("click",event=>{
+    if(!editor || inverse)return;
+    const key=event.target.closest("#keys button[data-key='sto']");
+    if(!key)return;
+    expr=serialize(editor.nodes);
+    editor=null;
+    screen.classList.remove("typeset-expression");
+  },true);
   document.addEventListener("keydown",event=>{
     if(!editor || event.ctrlKey || event.metaKey || event.altKey)return;
     if(["INPUT","TEXTAREA"].includes(document.activeElement?.tagName))return;
