@@ -57,6 +57,8 @@ fieldset{border:0;padding:0;margin:0}.field{display:grid;grid-template-columns:7
 .contrast-line{display:flex;justify-content:space-between;align-items:center;font:700 22px Georgia,serif;margin:11px 0;gap:8px}
 .contrast-line button{background:transparent;border:0;font:700 25px Georgia,serif;cursor:pointer;color:#173420}
 .contrast-meter{font:600 15px monospace;letter-spacing:1px;white-space:nowrap}
+.compact-font .expression{font-size:22px!important}.compact-font .result{font-size:25px!important}
+.compact-font .menu-list button{font-size:15px!important}
 </style>
 </head>
 <body>
@@ -287,6 +289,8 @@ fieldset{border:0;padding:0;margin:0}.field{display:grid;grid-template-columns:7
       whole=Math.trunc(numerator/denominator);
       numerator=Math.abs(numerator)%denominator;
     }
+    if(state.inputOutput==="LineI/LineO")
+      return escapeHtml((whole===null?"":whole+" ")+numerator+"/"+denominator);
     return '<math xmlns="http://www.w3.org/1998/Math/MathML">'+
       (whole===null?'':'<mn>'+whole+'</mn>')+
       '<mfrac><mn>'+numerator+'</mn><mn>'+denominator+'</mn></mfrac></math>';
@@ -332,6 +336,8 @@ fieldset{border:0;padding:0;margin:0}.field{display:grid;grid-template-columns:7
       (state.numberFormat==="fix"?"FIX "+state.fixedDigits:"SCI "+state.sciDigits):
       state.view==="home"?"HOME":state.view==="calculate"?"Calculate":state.view==="menu"?"MENU":state.view;
     display.style.filter="contrast("+(0.74+state.contrast*0.055)+")";
+    display.classList.toggle("compact-font",
+      state.multiLineFont==="small"&&state.inputOutput.startsWith("LineI"));
     if(state.view==="home"){
       display.innerHTML='<div class="lcd-title">HOME</div><div class="home-grid">'+home.map((x,i)=>
         '<button data-choice="'+i+'" class="'+(i===state.selection?"selected":"")+'"><b>'+(i+1)+'</b>'+escapeHtml(x[0])+'<small>'+escapeHtml(x[1])+'</small></button>').join("")+'</div>';
@@ -368,7 +374,11 @@ fieldset{border:0;padding:0;margin:0}.field{display:grid;grid-template-columns:7
       display.innerHTML=list(items,title,m==="settings");
     } else if(state.view==="calculate")display.innerHTML=calcDisplay();
     else if(state.view==="stats"){
-      display.innerHTML='<div class="lcd-title">Statistics</div><div class="mini"><p>Enter values separated by commas, then EXE.</p></div><div class="expression">'+escapeHtml(state.stats||"0")+'</div>'+(state.message?'<div class="mini">'+escapeHtml(state.message)+'</div>':"");
+      display.innerHTML='<div class="lcd-title">Statistics</div><div class="mini"><p>'+
+        (state.freqOn?'Enter value:frequency pairs, e.g. 2:3,4:1.':
+          'Enter values separated by commas, then EXE.')+
+        '</p></div><div class="expression">'+escapeHtml(state.stats||"0")+
+        '</div>'+(state.message?'<div class="mini">'+escapeHtml(state.message)+'</div>':"");
     } else if(state.view==="table"){
       display.innerHTML='<div class="lcd-title">Table of values</div><div class="mini field"><label for="table-e">f(x)</label><input id="table-e" value="x^2" aria-label="Function of x"></div><div class="mini field"><label for="table-start">Start</label><input id="table-start" type="number" value="0"></div><div class="mini field"><label for="table-end">End</label><input id="table-end" type="number" value="5"></div><div class="mini field"><label for="table-step">Step</label><input id="table-step" type="number" value="1" step="any"></div><button class="mini-action" data-special="table">Generate</button>';
     } else if(state.view==="ratio"){
@@ -459,10 +469,23 @@ fieldset{border:0;padding:0;margin:0}.field{display:grid;grid-template-columns:7
   }
   function statsResult(){
     try{
-      const values=state.stats.split(",").map(x=>Number(x.trim()));
-      if(!values.length||values.some(x=>!Number.isFinite(x)))throw Error("Enter comma-separated numbers");
-      const n=values.length,mean=values.reduce((a,b)=>a+b,0)/n;
-      const sigma=Math.sqrt(values.reduce((a,b)=>a+(b-mean)**2,0)/n);
+      let pairs;
+      if(state.freqOn){
+        pairs=state.stats.split(",").map(part=>{
+          const match=part.trim().match(/^(-?\d+(?:\.\d+)?):(\d+)$/);
+          if(!match)throw Error("Enter value:frequency, e.g. 2:3,4:1");
+          return [Number(match[1]),Number(match[2])];
+        });
+      }else{
+        pairs=state.stats.split(",").map(x=>[Number(x.trim()),1]);
+      }
+      if(!state.stats.trim()||!pairs.length||pairs.some(([v,w])=>
+        !Number.isFinite(v)||!Number.isInteger(w)||w<1))
+        throw Error("Enter valid numbers and positive integer frequencies");
+      const n=pairs.reduce((a,[v,w])=>a+w,0);
+      if(n>1e8)throw Error("Too many observations");
+      const mean=pairs.reduce((a,[v,w])=>a+v*w,0)/n;
+      const sigma=Math.sqrt(pairs.reduce((a,[v,w])=>a+w*(v-mean)**2,0)/n);
       state.message="n = "+n+"   Mean = "+fmt(mean)+"   σ = "+fmt(sigma);
     }catch(e){state.message=e.message}
     render();
@@ -539,7 +562,7 @@ fieldset{border:0;padding:0;margin:0}.field{display:grid;grid-template-columns:7
       select(Number(cmd)-1);return;
     }
     if(state.view==="stats"){
-      if(/^[\d.,−]$/.test(cmd))state.stats+=cmd==="−"?"-":cmd;
+      if((state.freqOn?/^[\d.,:−]$/:/^[\d.,−]$/).test(cmd))state.stats+=cmd==="−"?"-":cmd;
       render();return;
     }
     if(state.view!=="calculate")return;
@@ -586,7 +609,7 @@ fieldset{border:0;padding:0;margin:0}.field{display:grid;grid-template-columns:7
     else if(k==="-"){e.preventDefault();press("−")}
     else if(k==="*"||k==="x"){e.preventDefault();press(k==="*"?"×":"x")}
     else if(k==="/"){e.preventDefault();press("÷")}
-    else if(k==="^"||k==="("||k===")"||k===","){e.preventDefault();press(k)}
+    else if(k==="^"||k==="("||k===")"||k===","||k===":"){e.preventDefault();press(k)}
   });
   window.addEventListener("pageshow",()=>render());
   render();
