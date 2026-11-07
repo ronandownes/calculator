@@ -156,5 +156,5 @@
   // The auxiliary controls remain accessible through the document but do not
   // replace the LCD menus or introduce a second calculator face.
   const selector=document.querySelector(".theme-switch");
-  if(selector)document.querySelector(".calculator").appendChild(selector);
+  if(selector)document.querySelector(".calculator .calc-toolbar").appendChild(selector);
 })();
