@@ -380,7 +380,13 @@ fieldset{border:0;padding:0;margin:0}.field{display:grid;grid-template-columns:7
         '</p></div><div class="expression">'+escapeHtml(state.stats||"0")+
         '</div>'+(state.message?'<div class="mini">'+escapeHtml(state.message)+'</div>':"");
     } else if(state.view==="table"){
-      display.innerHTML='<div class="lcd-title">Table of values</div><div class="mini field"><label for="table-e">f(x)</label><input id="table-e" value="x^2" aria-label="Function of x"></div><div class="mini field"><label for="table-start">Start</label><input id="table-start" type="number" value="0"></div><div class="mini field"><label for="table-end">End</label><input id="table-end" type="number" value="5"></div><div class="mini field"><label for="table-step">Step</label><input id="table-step" type="number" value="1" step="any"></div><button class="mini-action" data-special="table">Generate</button>';
+      display.innerHTML='<div class="lcd-title">Table of values</div>'+
+        '<div class="mini field"><label for="table-e">f(x)</label><input id="table-e" value="x^2" aria-label="Function of x"></div>'+
+        (state.tableMode==="both"?'<div class="mini field"><label for="table-g">g(x)</label><input id="table-g" value="x+1" aria-label="Second function"></div>':"")+
+        '<div class="mini field"><label for="table-start">Start</label><input id="table-start" type="number" value="0"></div>'+
+        '<div class="mini field"><label for="table-end">End</label><input id="table-end" type="number" value="5"></div>'+
+        '<div class="mini field"><label for="table-step">Step</label><input id="table-step" type="number" value="1" step="any"></div>'+
+        '<button class="mini-action" data-special="table">Generate</button>';
     } else if(state.view==="ratio"){
       display.innerHTML='<div class="lcd-title">Ratio a : b = c : x</div><div class="mini field"><label for="ra">a</label><input type="number" id="ra" value="2"></div><div class="mini field"><label for="rb">b</label><input type="number" id="rb" value="3"></div><div class="mini field"><label for="rc">c</label><input type="number" id="rc" value="8"></div><button class="mini-action" data-special="ratio">Find x</button>'+(state.ratio!==null?'<strong class="mini">x = '+escapeHtml(fmt(state.ratio))+'</strong>':"");
     } else if(state.view==="box"){
@@ -587,11 +593,21 @@ fieldset{border:0;padding:0;margin:0}.field{display:grid;grid-template-columns:7
       render();
     }else if(special==="table"){
       try{
-        const ex=$("table-e").value,st=Number($("table-start").value),en=Number($("table-end").value),step=Number($("table-step").value);
-        if(!step||!Number.isFinite(step)||!Number.isFinite(st)||!Number.isFinite(en)||(en-st)/step<0||(en-st)/step>30)throw Error("Choose a valid range (at most 31 rows)");
-        const rows=[];for(let x=st,count=0;count<31&&(step>0?x<=en+1e-10:x>=en-1e-10);x+=step,count++)rows.push([x,evaluate(ex,x)]);
-        display.innerHTML='<div class="lcd-title">Table</div><div class="tableview"><table><thead><tr><th>x</th><th>f(x)</th></tr></thead><tbody>'+
-          rows.map(r=>'<tr><td>'+escapeHtml(fmt(r[0]))+'</td><td>'+escapeHtml(fmt(r[1]))+'</td></tr>').join("")+'</tbody></table></div><button data-cmd="home" class="mini-action">HOME</button>';
+        const ex=$("table-e").value,second=state.tableMode==="both"?$("table-g").value:null;
+        const st=Number($("table-start").value),en=Number($("table-end").value),step=Number($("table-step").value);
+        if(!step||!Number.isFinite(step)||!Number.isFinite(st)||!Number.isFinite(en)||
+          (en-st)/step<0||(en-st)/step>30)throw Error("Choose a valid range (at most 31 rows)");
+        const rows=[];
+        for(let x=st,count=0;count<31&&(step>0?x<=en+1e-10:x>=en-1e-10);x+=step,count++){
+          const row=[x,evaluate(ex,x)];
+          if(second!==null)row.push(evaluate(second,x));
+          rows.push(row);
+        }
+        display.innerHTML='<div class="lcd-title">Table</div><div class="tableview"><table><thead><tr>'+
+          '<th>x</th><th>f(x)</th>'+(second===null?'':'<th>g(x)</th>')+'</tr></thead><tbody>'+
+          rows.map(row=>'<tr>'+row.map(value=>'<td>'+escapeHtml(fmt(value))+'</td>').join('')+
+          '</tr>').join('')+'</tbody></table></div>'+
+          '<button data-cmd="home" class="mini-action">HOME</button>';
       }catch(err){display.textContent=err.message}
     }
   });
