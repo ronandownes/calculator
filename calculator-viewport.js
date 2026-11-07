@@ -1,74 +1,87 @@
-/* Whole-calculator zoom controls. Retain regular scrolling and keyboard input. */
+/* Fit Height / Fit Width and independent, unrestricted-feeling pinch zoom.
+   Does not alter keys, calculations, or the browser's normal scroll gestures. */
 (() => {
   "use strict";
-  const calc=document.querySelector(".calculator");
-  const fit=document.getElementById("fitHeight");
-  const smaller=document.getElementById("zoomOut");
-  const larger=document.getElementById("zoomIn");
-  if(!calc||!fit||!smaller||!larger)return;
+  const calculator=document.querySelector(".calculator");
+  const fitHeightButton=document.getElementById("fitHeight");
+  const fitWidthButton=document.getElementById("fitWidth");
+  if(!calculator || !fitHeightButton || !fitWidthButton) return;
 
-  const MIN=0.70, MAX=1.60;
-  const clamp=n=>Math.min(MAX,Math.max(MIN,n));
+  const MIN=0.25, MAX=5;
   let scale=1;
-  let autoFit=window.innerWidth>=800 && window.innerHeight>=720;
-  let pinch=null;
+  let fitMode=innerWidth>=800 && innerHeight>=700 ? "height" : null;
+  let gesture=null;
+  let resizeQueued=false;
+  const clamp=n=>Math.min(MAX,Math.max(MIN,n));
 
-  function update(next){
-    scale=Math.round(clamp(next)*100)/100;
-    calc.style.zoom=String(scale);
-    fit.setAttribute("aria-pressed",String(autoFit));
-    fit.setAttribute("aria-label",autoFit?"Fit to height enabled; click for 100%":"Fit calculator to height");
-    fit.title=autoFit?"Fit to height on (click for 100%)":"Fit calculator to screen height";
-    smaller.disabled=scale<=MIN;
-    larger.disabled=scale>=MAX;
+  function setScale(next) {
+    if(!Number.isFinite(next))return;
+    scale=Math.round(clamp(next)*1000)/1000;
+    calculator.style.zoom=String(scale);
+    fitHeightButton.setAttribute("aria-pressed",String(fitMode==="height"));
+    fitWidthButton.setAttribute("aria-pressed",String(fitMode==="width"));
+    fitHeightButton.title=fitMode==="height"?"Fit Height (active)":"Fit Height";
+    fitWidthButton.title=fitMode==="width"?"Fit Width (active)":"Fit Width";
   }
-  function fitHeight(){
-    if(!autoFit)return;
-    // The current zoom changes the measured height; divide it out before refitting.
-    const measured=calc.getBoundingClientRect();
-    const unzoomedHeight=measured.height/scale;
-    if(!(unzoomedHeight>0))return;
-    const room=Math.max(200,window.innerHeight-measured.top-24);
-    update(Math.min(1,room/unzoomedHeight));
+  function fit(mode) {
+    if(mode!=="height" && mode!=="width")return;
+    fitMode=mode;
+    // Measurements are divided by current zoom to get the natural case size.
+    const rect=calculator.getBoundingClientRect();
+    const normalWidth=rect.width/scale;
+    const normalHeight=rect.height/scale;
+    if(!normalWidth || !normalHeight)return;
+    const viewportWidth=document.documentElement.clientWidth;
+    const viewportHeight=window.visualViewport?.height || innerHeight;
+    const margin=20;
+    const availableWidth=Math.max(160,viewportWidth-2*margin);
+    const availableHeight=Math.max(180,viewportHeight-Math.max(0,rect.top)-margin);
+    const target=mode==="height"?availableHeight/normalHeight:availableWidth/normalWidth;
+    setScale(target);
   }
-  function manualZoom(next){
-    autoFit=false;
-    update(next);
+  function manual(next){
+    fitMode=null;
+    setScale(next);
   }
-  fit.addEventListener("click",()=>{
-    autoFit=!autoFit;
-    if(autoFit)fitHeight();
-    else update(1);
-  });
-  smaller.addEventListener("click",()=>manualZoom(scale-0.1));
-  larger.addEventListener("click",()=>manualZoom(scale+0.1));
-  window.addEventListener("resize",()=>{if(autoFit)requestAnimationFrame(fitHeight)},{passive:true});
-  if(window.visualViewport)window.visualViewport.addEventListener("resize",()=>{if(autoFit)requestAnimationFrame(fitHeight)},{passive:true});
+  fitHeightButton.addEventListener("click",()=>fit("height"));
+  fitWidthButton.addEventListener("click",()=>fit("width"));
 
-  // Two-finger pinch inside the calculator changes its size, not the user's input.
-  const distance=touches=>{
-    const a=touches[0],b=touches[1];
+  function scheduleFit(){
+    if(!fitMode || resizeQueued)return;
+    resizeQueued=true;
+    requestAnimationFrame(()=>{resizeQueued=false;if(fitMode)fit(fitMode)});
+  }
+  addEventListener("resize",scheduleFit,{passive:true});
+  window.visualViewport?.addEventListener("resize",scheduleFit,{passive:true});
+
+  // Pinch inside calculator — at any time, even when fit mode was active.
+  const distance=t=>{
+    const a=t[0],b=t[1];
     return Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY);
   };
-  calc.addEventListener("touchstart",event=>{
-    if(event.touches.length===2)pinch={distance:distance(event.touches),scale};
+  calculator.addEventListener("touchstart",event=>{
+    if(event.touches.length===2){
+      gesture={startDistance:distance(event.touches),startScale:scale};
+    }
   },{passive:true});
-  calc.addEventListener("touchmove",event=>{
-    if(!pinch||event.touches.length!==2)return;
+  calculator.addEventListener("touchmove",event=>{
+    if(!gesture || event.touches.length!==2)return;
     event.preventDefault();
-    const ratio=distance(event.touches)/Math.max(1,pinch.distance);
-    manualZoom(pinch.scale*ratio);
+    manual(gesture.startScale*distance(event.touches)/Math.max(1,gesture.startDistance));
   },{passive:false});
-  calc.addEventListener("touchend",event=>{
-    if(event.touches.length<2)pinch=null;
+  calculator.addEventListener("touchend",event=>{
+    if(event.touches.length<2)gesture=null;
   },{passive:true});
-  calc.addEventListener("touchcancel",()=>{pinch=null;},{passive:true});
-  calc.addEventListener("wheel",event=>{
+  calculator.addEventListener("touchcancel",()=>{gesture=null},{passive:true});
+
+  // On precision trackpads, Ctrl+wheel is a pinch gesture in many browsers.
+  calculator.addEventListener("wheel",event=>{
     if(!event.ctrlKey)return;
     event.preventDefault();
-    manualZoom(scale+(event.deltaY<0?0.06:-0.06));
+    manual(scale*Math.exp(-event.deltaY*.012));
   },{passive:false});
-  calc.style.touchAction="pan-x pan-y";
-  update(1);
-  if(autoFit)requestAnimationFrame(fitHeight);
+  // Single-finger scrolling remains possible; do not force a pan or fullscreen mode.
+  calculator.style.touchAction="pan-x pan-y";
+  setScale(1);
+  if(fitMode) requestAnimationFrame(()=>fit(fitMode));
 })();
