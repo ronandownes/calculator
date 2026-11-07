@@ -87,6 +87,8 @@
     return (outer===1?"":outer)+"√"+root;
   }
   function formatExact(input,value) {
+    const settings=window.calculatorSettings;
+    if(settings&&(settings.format!=="norm"||settings.output==="mathDecimal"||settings.output==="lineDecimal"))return null;
     if(!Number.isFinite(value)||String(input).includes("→"))return null;
     const radical=radicalExpression(input);
     if(radical)return radical;
@@ -94,13 +96,28 @@
       const r=rationalExpression(input);
       if(!r||r.d===1n)return null;
       if(Math.abs(Number(r.n)/Number(r.d)-value)>Math.max(1e-10,Math.abs(value)*1e-10))return null;
+      if(settings?.fraction==="mixed" && (r.n>=r.d || r.n<=-r.d)) {
+        const whole=r.n/r.d;
+        const remainder=r.n<0n?(-r.n)%r.d:r.n%r.d;
+        if(remainder) return String(whole)+" "+String(remainder)+"/"+String(r.d);
+      }
       return String(r.n)+"/"+String(r.d);
     } catch (_) { return null; }
   }
   function paint() {
-    if(!justCalculated || expr!==lastExpression || !exactText)return;
-    display.classList.remove('error');
-    display.textContent=showingDecimal?decimalText:exactText;
+    if(!justCalculated || expr!==lastExpression)return;
+    const settings=window.calculatorSettings;
+    if(settings&&(settings.format!=="norm"||settings.output==="mathDecimal"||settings.output==="lineDecimal")){
+      display.classList.remove("error");
+      display.textContent=fmt(ans);
+      return;
+    }
+    const requestedExact=formatExact(complete(expr),ans);
+    if(requestedExact)exactText=requestedExact;
+    else exactText="";
+    if(!exactText)return;
+    display.classList.remove("error");
+    display.textContent=showingDecimal?fmt(ans):exactText;
   }
   calculate = function() {
     const input=complete(expr);
