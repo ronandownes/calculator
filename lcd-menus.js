@@ -20,20 +20,27 @@
     decimalMark:"dot",separators:false,font:"normal"
   };
   const previousFmt=fmt;
+  function formatForDisplay(text) {
+    const parts=text.split("×10^");
+    const mantissa=parts[0];
+    const m=/^(-?)(\\d+)(?:\\.(\\d+))?$/.exec(mantissa);
+    if(!m)return text;
+    const groups=settings.separators?m[2].replace(/\\B(?=(\\d{3})+(?!\\d))/g,settings.decimalMark==="comma"?".":","):m[2];
+    const decimal=m[3]===undefined?"":(settings.decimalMark==="comma"?",":".")+m[3];
+    return m[1]+groups+decimal+(parts.length>1?"×10^"+parts[1]:"");
+  }
   fmt=function(n){
     if(!Number.isFinite(n))return "Math ERROR";
-    if(settings.format==="fix")return Number(n).toFixed(settings.digits);
-    if(settings.format==="sci"){
-      const sig=settings.sciDigits;
-      return Number(n).toExponential(sig-1).replace(/e\+?(-?\d+)$/,"×10^$1");
-    }
-    if(settings.format==="norm"){
-      const a=Math.abs(n);
-      const lower=settings.norm===1?1e-2:1e-9;
-      if(a>0&&(a<lower||a>=1e10))
-        return Number(n).toExponential(9).replace(/e\+?(-?\d+)$/,"×10^$1");
-    }
-    return previousFmt(n);
+    let value;
+    if(settings.format==="fix")value=Number(n).toFixed(settings.digits);
+    else if(settings.format==="sci")value=Number(n).toExponential(settings.sciDigits-1).replace(/e\\+?(-?\\d+)$/,"×10^$1");
+    else if(settings.format==="norm"){
+      const a=Math.abs(n),lower=settings.norm===1?1e-2:1e-9;
+      value=(a>0&&(a<lower||a>=1e10))?
+        Number(n).toExponential(9).replace(/e\\+?(-?\\d+)$/,"×10^$1"):
+        previousFmt(n);
+    } else value=previousFmt(n);
+    return formatForDisplay(value);
   };
 
   const pages={
@@ -58,7 +65,7 @@
     separator:[["1","On"],["2","Off"]],
     font:[["1","Normal Font"],["2","Small Font"]],
     contrast:[["1","Light"],["2","Normal"],["3","Dark"]],
-    unavailable:[["1","Back to Calculate"]]
+    unavailable:[["1","Mode not yet available"]]
   };
   const hyperbolic={1:"sinh",2:"cosh",3:"tanh",4:"asinh",5:"acosh",6:"atanh"};
   let page=null,trail=[],choice="1",historyPosition=-1;
@@ -147,10 +154,10 @@
     else if(page==="table")settings.table=number==="1"?"single":"both";
     else if(page==="decimal")settings.decimalMark=number==="1"?"dot":"comma";
     else if(page==="separator")settings.separators=number==="1";
-    else if(page==="font")settings.font=number==="1"?"normal":"small";
+    else if(page==="font"){settings.font=number==="1"?"normal":"small";screen.classList.toggle("small-lcd-font",settings.font==="small");}
     else if(page==="contrast") {
       const col=({1:"#e5efe5",2:"#dce9dd",3:"#c7ddc9"})[number];
-      screen.style.background=col;
+      screen.style.setProperty("background",col,"important");
     }
     close();return true;
   }
