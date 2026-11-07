@@ -157,7 +157,7 @@
     else if(page==="font"){settings.font=number==="1"?"normal":"small";screen.classList.toggle("small-lcd-font",settings.font==="small");}
     else if(page==="contrast") {
       const col=({1:"#e5efe5",2:"#dce9dd",3:"#c7ddc9"})[number];
-      screen.style.setProperty("background",col,"important");
+      screen.style.setProperty("--lcd-tone",col);
     }
     close();return true;
   }
