@@ -986,106 +986,188 @@ body:not(.light) .outside-theme .theme-switch button{
   .calculator .screen .lcd-menu button{min-height:25px}
 }
 
-/* Maths site header reused on calculator without adding site navigation to the device. */
-body.light,
-body:not(.light){
-  padding-top:0!important;
+/* Sidebar, not a header: never consume calculator's vertical viewport. */
+body.light,body:not(.light) {
+  padding:0!important;
+  margin:0!important;
+  min-height:100dvh;
 }
-.site-header {
+body.light{background:#f7f8fa!important;}
+body:not(.light){background:#e9e9e9!important;}
+body .layout,body.light .layout,body:not(.light) .layout{
+  display:grid!important;
+  grid-template-columns:170px minmax(0,660px)!important;
+  grid-template-areas:"skins device";
+  gap:14px!important;
+  justify-content:center!important;
+  align-items:start!important;
+  width:min(100%,860px)!important;
+  max-width:860px!important;
+  margin:0 auto!important;
+  padding:5px 5px 24px!important;
+}
+.layout>.calculator{
+  grid-area:device;
+  justify-self:center;
+  margin:0!important;
+  min-width:0;
+  max-width:660px!important;
+  width:100%!important;
+}
+.skin-rail{
+  grid-area:skins;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:16px;
+  width:100%;
+  min-width:0;
+  padding:10px 4px 0;
+  background:transparent;
+  color:#1f2933;
+}
+.skin-rail .site-logo{
   display:flex;
   align-items:center;
   justify-content:flex-start;
-  gap:16px;
   width:100%;
-  min-height:80px;
-  padding:8px 18px;
+  min-width:0;
+  padding:5px 2px;
+  border-radius:9px;
   background:#fff;
-  color:#202124;
-  border-bottom:1px solid #dadce0;
-  box-sizing:border-box;
-}
-.site-header .site-logo {
-  display:flex;
-  align-items:center;
-  flex:none;
-  width:168px;
-  height:auto;
   text-decoration:none;
-  border:0;
 }
-.site-header .site-logo img {
-  width:168px;
-  height:auto;
+.skin-rail .site-logo img{
   display:block;
+  width:100%;
+  max-width:168px;
+  height:auto;
+  object-fit:contain;
 }
-.site-header .site-logo:focus-visible {
-  outline:3px solid #80b4ff;
-  outline-offset:3px;
+.skin-rail .site-logo:focus-visible{
+  outline:3px solid #2D7DD2;
+  outline-offset:2px;
 }
-.site-header .outside-theme,
-body.light .site-header .outside-theme,
-body:not(.light) .site-header .outside-theme{
+.skin-choice{display:flex;flex-direction:column;gap:6px;width:100%;}
+.skin-label{
+  font:700 12px/1.3 Arial,Helvetica,sans-serif;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  color:#697586;
+}
+.skin-rail .theme-switch,
+body.light .skin-rail .theme-switch,
+body:not(.light) .skin-rail .theme-switch{
   display:flex!important;
-  align-items:center!important;
-  justify-content:flex-start!important;
-  flex:none!important;
-  width:auto!important;
-  margin:0!important;
-  padding:0!important;
-  opacity:1!important;
-}
-.site-header .outside-theme .theme-switch,
-body.light .site-header .outside-theme .theme-switch,
-body:not(.light) .site-header .outside-theme .theme-switch{
-  display:flex!important;
-  flex-direction:row!important;
-  gap:5px!important;
-  justify-content:flex-start!important;
-  align-items:center!important;
-  width:auto!important;
+  position:static!important;
+  flex-direction:column!important;
+  align-items:stretch!important;
+  gap:7px!important;
+  width:100%!important;
+  max-width:none!important;
   margin:0!important;
   padding:0!important;
   background:transparent!important;
   border:0!important;
+  border-radius:0!important;
   box-shadow:none!important;
-  position:static!important;
+  transform:none!important;
 }
-.site-header .outside-theme .theme-switch button,
-body.light .site-header .outside-theme .theme-switch button,
-body:not(.light) .site-header .outside-theme .theme-switch button{
-  color:#5c6978!important;
-  background:#f7f9fc!important;
-  border:1px solid #e0e5ed!important;
-  width:35px!important;
-  min-width:35px!important;
-  height:35px!important;
-  min-height:35px!important;
-  border-radius:50%!important;
-  font-size:21px!important;
+.skin-rail .theme-switch button,
+body.light .skin-rail .theme-switch button,
+body:not(.light) .skin-rail .theme-switch button{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:9px!important;
+  min-height:40px!important;
+  width:100%!important;
+  min-width:0!important;
+  padding:7px 10px!important;
+  font:700 13px/1.3 Arial,Helvetica,sans-serif!important;
+  color:#39485a!important;
+  background:#fff!important;
+  border:1px solid #d2d9e2!important;
+  border-radius:9px!important;
+  box-shadow:none!important;
+  cursor:pointer!important;
 }
-.site-header .outside-theme .theme-switch button[aria-pressed="true"],
-body.light .site-header .outside-theme .theme-switch button[aria-pressed="true"],
-body:not(.light) .site-header .outside-theme .theme-switch button[aria-pressed="true"]{
-  background:#e4f0ff!important;
-  color:#245e99!important;
-  border-color:#94bde7!important;
+.skin-rail .theme-switch button span{font-size:20px;line-height:1;}
+.skin-rail .theme-switch button[aria-pressed="true"],
+body.light .skin-rail .theme-switch button[aria-pressed="true"],
+body:not(.light) .skin-rail .theme-switch button[aria-pressed="true"]{
+  background:#e5effb!important;
+  color:#1c5b98!important;
+  border-color:#83b2de!important;
 }
-.layout {margin-top:12px!important;}
-@media (max-width:700px) {
-  .site-header {
-    min-height:63px;
-    padding:6px 12px;
-    gap:10px;
+body:not(.light) .skin-label{color:#515d6e!important;}
+@media(min-width:761px) and (max-width:870px){
+  body .layout,body.light .layout,body:not(.light) .layout{
+    grid-template-columns:135px minmax(0,1fr)!important;
+    width:100%!important;
+    gap:9px!important;
   }
-  .site-header .site-logo, .site-header .site-logo img {width:150px;}
-  .site-header .outside-theme .theme-switch button,
-  body.light .site-header .outside-theme .theme-switch button,
-  body:not(.light) .site-header .outside-theme .theme-switch button{
-    width:31px!important;
-    min-width:31px!important;
-    height:31px!important;
-    min-height:31px!important;
-    font-size:19px!important;
+  .skin-rail .theme-switch button,
+  body.light .skin-rail .theme-switch button,
+  body:not(.light) .skin-rail .theme-switch button{font-size:12px!important;}
+}
+/* Phone: give the calculator the FIRST screen, full device width.
+   The optional skin controls follow the device, not a space-consuming header. */
+@media(max-width:760px){
+  body .layout,body.light .layout,body:not(.light) .layout{
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:stretch!important;
+    gap:8px!important;
+    width:100%!important;
+    max-width:none!important;
+    margin:0!important;
+    padding:0 2px 22px!important;
   }
-  .layout{margin-top:6px!important;}
+  .layout>.calculator{
+    order:0!important;
+    grid-area:auto!important;
+    margin:0 auto!important;
+    width:100%!important;
+    max-width:660px!important;
+  }
+  .layout>.skin-rail{
+    order:1!important;
+    grid-area:auto!important;
+    width:100%!important;
+    max-width:660px!important;
+    align-self:center;
+    flex-direction:row!important;
+    align-items:center!important;
+    justify-content:space-between!important;
+    gap:8px;
+    padding:4px 8px 2px;
+  }
+  .skin-rail .site-logo{
+    width:126px;
+    max-width:40%;
+    flex:none;
+    padding:0;
+  }
+  .skin-rail .site-logo img{width:100%;height:auto;}
+  .skin-choice{width:auto;max-width:65%;gap:3px;align-items:flex-end;}
+  .skin-label{font-size:10px;}
+  .skin-rail .theme-switch,
+  body.light .skin-rail .theme-switch,
+  body:not(.light) .skin-rail .theme-switch{
+    flex-direction:row!important;
+    gap:4px!important;
+    width:auto!important;
+  }
+  .skin-rail .theme-switch button,
+  body.light .skin-rail .theme-switch button,
+  body:not(.light) .skin-rail .theme-switch button{
+    min-height:35px!important;
+    width:auto!important;
+    min-width:70px!important;
+    padding:4px 7px!important;
+    font-size:12px!important;
+    gap:4px!important;
+  }
+  .skin-rail .theme-switch button span{font-size:16px;}
 }
