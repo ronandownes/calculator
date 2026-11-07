@@ -934,3 +934,54 @@ body:not(.light) .outside-theme .theme-switch button{
   .calculator .top .roundgroup .keylabel{font-size:9px!important}
   .calculator .calc-header .calc-toolbar button{width:31px!important;min-width:31px!important;height:27px!important;min-height:27px!important;font-size:23px!important}
 }
+
+/* Long SETUP menus scroll inside the LCD. Physical arrow buttons control selection. */
+.calculator .screen.lcd-menu-mode{
+  position:relative!important;
+  overflow:hidden!important;
+}
+.calculator .screen .lcd-menu{
+  display:block;
+  width:100%;
+  max-width:100%;
+  max-height:100%;
+  height:100%;
+  overflow-x:hidden;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  scrollbar-width:thin;
+  scroll-behavior:smooth;
+  font-family:"Courier New",Consolas,monospace;
+  font-size:clamp(15px,2.65vw,24px);
+}
+.calculator .screen .lcd-menu[hidden]{display:none!important}
+.calculator .screen .lcd-menu .option-list{
+  display:flex;
+  flex-direction:column;
+  gap:0;
+}
+.calculator .screen .lcd-menu button{
+  display:block;
+  width:100%;
+  text-align:left;
+  border-radius:3px!important;
+  line-height:1.2!important;
+  font-family:inherit;
+  font-size:inherit;
+  font-weight:700;
+  min-height:29px;
+  padding:2px 3px;
+}
+.calculator .screen .lcd-menu button[aria-current="true"]{
+  background:#cfdfd2!important;
+  outline:1px solid #a4bca9!important;
+}
+.calculator .screen.lcd-menu-mode.small-lcd-font .lcd-menu button{font-size:16px}
+.calculator .screen.small-lcd-font .expression,
+.calculator .screen.small-lcd-font .expression.typeset-expression math{
+  font-size:clamp(21px,3vw,34px)!important;
+}
+@media(max-width:700px){
+  .calculator .screen .lcd-menu{font-size:clamp(14px,4vw,21px);}
+  .calculator .screen .lcd-menu button{min-height:25px}
+}
