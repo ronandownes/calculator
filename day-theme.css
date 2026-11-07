@@ -598,3 +598,134 @@ body.light #keys button[data-key="AC"] .keyname{
     aspect-ratio:1 / 1!important;
   }
 }
+
+/* Four-dot identity: blue second functions, red ALPHA registers.
+   This rule comes last deliberately, replacing legacy amber SHIFT styles. */
+:root{
+  --four-blue:#2D7DD2;
+  --four-red:#E63329;
+  --shift-label:#2D7DD2;
+  --secondary-ink:#2D7DD2;
+  --alpha-label:#E63329;
+  --alpha-ink:#E63329;
+}
+body:not(.light) {
+  --shift-label:#82BFFF;
+  --secondary-ink:#82BFFF;
+  --alpha-label:#FF7770;
+  --alpha-ink:#FF7770;
+}
+body.light #keys button .upper,
+body.light #keys button.shift-ready .upper,
+body.light #keys button[data-alpha] .upper{
+  color:#2D7DD2!important;
+}
+body:not(.light) #keys button .upper,
+body:not(.light) #keys button.shift-ready .upper,
+body:not(.light) #keys button[data-alpha] .upper{
+  color:#82BFFF!important;
+}
+body.light #keys button .upper svg,
+body:not(.light) #keys button .upper svg{
+  color:inherit!important;
+}
+body.light #keys button .alpha-legend,
+body.light #keys button .upper.alphas,
+body.light .calculator .roundgroup.alpha .keylabel{
+  color:#E63329!important;
+}
+body:not(.light) #keys button .alpha-legend,
+body:not(.light) #keys button .upper.alphas,
+body:not(.light) .calculator .roundgroup.alpha .keylabel{
+  color:#FF7770!important;
+}
+body.light .calculator .top .roundgroup:first-child .keylabel{
+  color:#2D7DD2!important;
+}
+body:not(.light) .calculator .top .roundgroup:first-child .keylabel{
+  color:#82BFFF!important;
+}
+body.light .calculator #shift.active{
+  background:#E4F1FF!important;
+  border-color:#2D7DD2!important;
+}
+body:not(.light) .calculator #shift.active{
+  background:#37689C!important;
+  border-color:#82BFFF!important;
+}
+body.light #keys button.shift-ready .keyname{
+  outline:3px solid #2D7DD2!important;
+  outline-offset:-2px!important;
+  box-shadow:0 0 0 1px #83B7ED,0 2px 3px #0001!important;
+}
+body:not(.light) #keys button.shift-ready .keyname{
+  outline:3px solid #82BFFF!important;
+  outline-offset:-2px!important;
+  box-shadow:0 0 0 1px #4E84BB,0 2px 3px #0002!important;
+}
+/* Real raised superscripts for second-function legends:
+   10^x, e^x, sin^-1, cos^-1, tan^-1. */
+#keys button[data-key="log"] .upper,
+#keys button[data-key="ln"] .upper,
+#keys button[data-key="sin"] .upper,
+#keys button[data-key="cos"] .upper,
+#keys button[data-key="tan"] .upper{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  overflow:visible!important;
+  white-space:nowrap!important;
+  height:19px!important;
+  top:-1px!important;
+  padding:0 1px!important;
+  z-index:1;
+}
+#keys button[data-key="log"],
+#keys button[data-key="ln"],
+#keys button[data-key="sin"],
+#keys button[data-key="cos"],
+#keys button[data-key="tan"]{
+  padding-top:21px!important;
+}
+#keys .shift-notation{
+  display:inline-flex;
+  align-items:baseline;
+  white-space:nowrap;
+  font-family:Arial,Helvetica,sans-serif;
+  font-size:16px!important;
+  line-height:1!important;
+  font-weight:850!important;
+  letter-spacing:-.15px;
+  color:inherit!important;
+}
+#keys .shift-notation sup{
+  position:relative;
+  top:-.50em;
+  vertical-align:baseline;
+  font-size:.84em!important;
+  line-height:1!important;
+  font-weight:850!important;
+  margin-left:.06em;
+  color:inherit!important;
+}
+#keys .shift-notation .power-base{
+  font-size:1em;
+  line-height:1;
+}
+#keys .shift-notation .power-base.italic{
+  font-style:italic;
+}
+@media(max-width:700px){
+  #keys button[data-key="log"],
+  #keys button[data-key="ln"],
+  #keys button[data-key="sin"],
+  #keys button[data-key="cos"],
+  #keys button[data-key="tan"]{padding-top:19px!important;}
+  #keys .shift-notation{font-size:clamp(11px,3vw,15px)!important;}
+  #keys .shift-notation sup{font-size:.82em!important;top:-.48em;}
+  #keys button[data-key="sin"] .upper,
+  #keys button[data-key="cos"] .upper,
+  #keys button[data-key="tan"] .upper{
+    padding-left:0!important;
+  }
+}
