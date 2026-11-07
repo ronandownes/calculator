@@ -426,3 +426,26 @@ body:not(.light) .calculator .expression.typeset-expression math {
     font-size:var(--lcd-expression-size, 48px)!important;
   }
 }
+
+/* Compact inline four-dot mark. Bookmark favicon stays as the 2×2 original. */
+.calculator .brand,
+body.light .calculator .brand,
+body:not(.light) .calculator .brand{
+  height:20px!important;
+  min-height:20px!important;
+  margin:0 6px 4px!important;
+  padding:0!important;
+  justify-content:flex-end!important;
+}
+.calculator .brand svg.four-dot-inline,
+body.light .calculator .brand svg.four-dot-inline,
+body:not(.light) .calculator .brand svg.four-dot-inline{
+  display:block!important;
+  width:72px!important;
+  height:16px!important;
+  min-width:72px!important;
+  max-width:72px!important;
+  flex:none!important;
+  border:0!important;
+  background:transparent!important;
+}
