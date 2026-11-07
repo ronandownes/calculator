@@ -383,3 +383,46 @@ body:not(.light) .calculator .expression.typeset-expression math {
 .calculator .expression.typeset-expression math mtext {
   font-weight:700!important;
 }
+
+/* LCD legibility: adaptive expression scale, no clipping of long formulae. */
+.calculator .expression,
+body.light .calculator .expression,
+body:not(.light) .calculator .expression {
+  width:100%!important;
+  min-width:0!important;
+  font-size:var(--lcd-expression-size, 56px)!important;
+  line-height:1.12!important;
+  white-space:nowrap!important;
+  overflow-wrap:normal!important;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  scrollbar-width:thin;
+}
+.calculator .expression.typeset-expression,
+body.light .calculator .expression.typeset-expression,
+body:not(.light) .calculator .expression.typeset-expression {
+  align-items:center!important;
+  min-width:0!important;
+  max-width:100%!important;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+}
+.calculator .expression.typeset-expression math,
+body.light .calculator .expression.typeset-expression math,
+body:not(.light) .calculator .expression.typeset-expression math {
+  flex:none!important;
+  font-size:var(--lcd-expression-size, 56px)!important;
+  line-height:1.08!important;
+  white-space:nowrap!important;
+  max-width:none!important;
+}
+@media(max-width:700px) {
+  .calculator .expression,
+  body.light .calculator .expression,
+  body:not(.light) .calculator .expression,
+  .calculator .expression.typeset-expression math,
+  body.light .calculator .expression.typeset-expression math,
+  body:not(.light) .calculator .expression.typeset-expression math {
+    font-size:var(--lcd-expression-size, 48px)!important;
+  }
+}
