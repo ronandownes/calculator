@@ -729,3 +729,29 @@ body:not(.light) #keys button.shift-ready .keyname{
     padding-left:0!important;
   }
 }
+
+
+/* Main scientific emulator: restore the familiar rectangular key faces.
+   The separate menu-driven emulator retains its own controls. */
+#keys .spanrow > button .keyname,
+#keys .spanrow.five > button .keyname,
+body.light #keys button .keyname,
+body:not(.light) #keys button .keyname{
+  aspect-ratio:auto!important;
+  width:100%!important;
+  height:43px!important;
+  min-height:43px!important;
+  max-width:none!important;
+  border-radius:8px!important;
+  padding:3px 2px!important;
+  overflow:visible!important;
+}
+#keys .spanrow.five > button .keyname{height:50px!important;min-height:50px!important}
+#keys .spanrow.five > button[data-key="DEL"] .keyname,
+#keys .spanrow.five > button[data-key="AC"] .keyname,
+#keys .spanrow.five > button[data-key="="] .keyname{border-radius:8px!important}
+#keys .spanrow > button,
+#keys .spanrow.five > button,
+#keys > button{padding-top:17px!important;padding-bottom:3px!important}
+#keys .spanrow.five{gap:7px!important}
+#keys .spanrow:not(.five){gap:7px!important}
