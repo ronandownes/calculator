@@ -170,15 +170,13 @@ fieldset{border:0;padding:0;margin:0}.field{display:grid;grid-template-columns:7
       output=n!==0&&(absolute<small||absolute>=1e10)?
         scientific(n,9,false):String(Number(n.toPrecision(10)));
     }
-    if(!output.includes("×10")&&state.digitSeparator){
+    if(!output.includes("×10")){
       const parts=output.split(".");
-      parts[0]=parts[0].replace(/\B(?=(\d{3})+(?!\d))/g,state.decimalMark==="comma"?"." :",");
-      output=parts.join(".");
-    }
-    if(state.decimalMark==="comma"){
-      if(output.includes("×10"))output=output.replace(".",",");
-      else if(!state.digitSeparator)output=output.replace(".",",");
-    }
+      let integer=parts[0],fraction=parts[1];
+      if(state.digitSeparator)
+        integer=integer.replace(/\B(?=(\d{3})+(?!\d))/g,state.decimalMark==="comma"?".":",");
+      output=integer+(fraction===undefined?"":(state.decimalMark==="comma"?",":".")+fraction);
+    }else if(state.decimalMark==="comma")output=output.replace(".",",");
     return output;
   }
   function gcd(a,b){a=Math.abs(a);b=Math.abs(b);while(b){[a,b]=[b,a%b]}return a}
