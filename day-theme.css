@@ -770,3 +770,167 @@ body:not(.light) .calculator .top #shift.active{
   background:#285B91!important;
   box-shadow:0 0 0 2px #A8D3FF,0 2px 6px #0006!important;
 }
+
+/* Focused scientific face: no model title or navigation link.
+   The four dots are separated horizontally at the TOP LEFT. */
+.calculator .calc-header{
+  display:flex!important;
+  flex-wrap:nowrap!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  min-height:25px!important;
+  height:25px!important;
+  padding:0!important;
+  margin:0 3px 6px!important;
+  gap:8px!important;
+}
+.calculator .calc-header .brand{
+  display:flex!important;
+  flex:none!important;
+  width:84px!important;
+  min-width:84px!important;
+  height:19px!important;
+  min-height:19px!important;
+  margin:0!important;
+  padding:0!important;
+  justify-content:flex-start!important;
+  align-items:center!important;
+}
+.calculator .calc-header .brand svg.four-dot-inline{
+  width:72px!important;
+  min-width:72px!important;
+  max-width:72px!important;
+  height:16px!important;
+  display:block!important;
+  background:transparent!important;
+  border:0!important;
+}
+.calculator .calc-header .calc-toolbar{gap:5px!important}
+.calculator .calc-header .calc-toolbar button{
+  width:35px!important;min-width:35px!important;
+  height:29px!important;min-height:29px!important;
+  line-height:1!important;
+  font-size:25px!important;
+  font-weight:500!important;
+  border-radius:7px!important;
+  padding:0!important;
+  color:#525f6e!important;
+  background:#f7f9fc!important;
+  border:1px solid #cbd2dd!important;
+}
+.calculator .calc-header .calc-toolbar button[aria-pressed="true"]{
+  color:#195e9c!important;
+  border-color:#87b8e5!important;
+  background:#e2effc!important;
+}
+body:not(.light) .calculator .calc-header .calc-toolbar button{
+  background:#454950!important;
+  color:#e4e8ee!important;
+  border-color:#7d8793!important;
+}
+body:not(.light) .calculator .calc-header .calc-toolbar button[aria-pressed="true"]{
+  background:#3b5875!important;
+  border-color:#82bfff!important;
+  color:#fff!important;
+}
+/* Day mode: very pale grey body and still lighter keybed; no dark shell. */
+body.light{background:#f7f8fa!important;color:#14181e!important}
+body.light .calculator{
+  background:#eff2f6!important;
+  border-color:#dfe3e8!important;
+  box-shadow:0 6px 18px #7381961f,inset 0 1px 0 #fff!important;
+}
+body.light .calculator .top,body.light .calculator .keys{
+  background:#f9fafc!important;
+  border-color:#e7eaf0!important;
+}
+body.light .calculator .screenframe{
+  background:#d2d7de!important;
+  border-color:#c6cbd3!important;
+}
+/* Restore the compact, balanced row around the physical MENU/SETUP control. */
+.calculator .top{
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(86px,2fr) minmax(0,1fr) minmax(0,1fr)!important;
+  gap:4px!important;
+  padding:5px 10px 4px!important;
+  margin:0!important;
+  align-items:center!important;
+}
+.calculator .top .nav{
+  width:94px!important;
+  max-width:100%!important;
+  height:77px!important;
+  aspect-ratio:auto!important;
+  justify-self:center!important;
+  align-self:center!important;
+}
+.calculator .top .roundgroup>button{
+  width:43px!important;height:43px!important;
+  max-width:100%!important;
+}
+.calculator .top .roundgroup .keylabel{
+  font-size:11px!important;line-height:1.1!important;
+  min-height:14px!important;
+}
+.calculator .keys{padding-top:1px!important}
+/* Appearance control is OUTSIDE the calculator face and below the device. */
+.outside-theme{
+  width:max-content;
+  max-width:100%;
+  margin:6px auto 12px;
+  padding:0;
+  opacity:.75;
+}
+.outside-theme:hover,.outside-theme:focus-within{opacity:1}
+.outside-theme .theme-switch,
+body.light .outside-theme .theme-switch,
+body:not(.light) .outside-theme .theme-switch{
+  display:flex!important;
+  position:static!important;
+  z-index:auto!important;
+  width:auto!important;
+  max-width:none!important;
+  margin:0!important;
+  padding:0!important;
+  gap:5px!important;
+  border:0!important;
+  border-radius:0!important;
+  border-bottom:0!important;
+  box-shadow:none!important;
+  background:transparent!important;
+}
+.outside-theme .theme-switch button,
+body.light .outside-theme .theme-switch button,
+body:not(.light) .outside-theme .theme-switch button{
+  min-width:29px!important;
+  width:29px!important;
+  min-height:29px!important;
+  height:29px!important;
+  padding:0!important;
+  background:transparent!important;
+  border:1px solid transparent!important;
+  border-radius:50%!important;
+  box-shadow:none!important;
+  font-size:19px!important;
+  color:#6c7380!important;
+  cursor:pointer!important;
+}
+.outside-theme .theme-switch button[aria-pressed="true"],
+body.light .outside-theme .theme-switch button[aria-pressed="true"],
+body:not(.light) .outside-theme .theme-switch button[aria-pressed="true"]{
+  border-color:#b4c5db!important;
+  background:#e5edf8!important;
+  color:#215c94!important;
+}
+body:not(.light) .outside-theme .theme-switch button{
+  color:#d6e1ee!important;
+}
+@media(max-width:700px){
+  .calculator .calc-header{height:24px!important;min-height:24px!important;margin:0 2px 5px!important}
+  .calculator .calc-header .brand{min-width:74px!important;width:74px!important}
+  .calculator .top{padding:4px 3px 3px!important;gap:2px!important}
+  .calculator .top .nav{width:76px!important;height:65px!important}
+  .calculator .top .roundgroup>button{width:35px!important;height:35px!important}
+  .calculator .top .roundgroup .keylabel{font-size:9px!important}
+  .calculator .calc-header .calc-toolbar button{width:31px!important;min-width:31px!important;height:27px!important;min-height:27px!important;font-size:23px!important}
+}
