@@ -1,11 +1,11 @@
-/* Fit Height / Fit Width and independent, unrestricted-feeling pinch zoom.
+/* Fit Height, demonstration Zoom In, and two-finger pinch resizing.
    Does not alter keys, calculations, or the browser's normal scroll gestures. */
 (() => {
   "use strict";
   const calculator=document.querySelector(".calculator");
   const fitHeightButton=document.getElementById("fitHeight");
-  const fitWidthButton=document.getElementById("fitWidth");
-  if(!calculator || !fitHeightButton || !fitWidthButton) return;
+  const zoomInButton=document.getElementById("zoomIn");
+  if(!calculator || !fitHeightButton || !zoomInButton) return;
 
   const MIN=0.25, MAX=5;
   let scale=1;
@@ -19,37 +19,34 @@
     scale=Math.round(clamp(next)*1000)/1000;
     calculator.style.zoom=String(scale);
     fitHeightButton.setAttribute("aria-pressed",String(fitMode==="height"));
-    fitWidthButton.setAttribute("aria-pressed",String(fitMode==="width"));
+    zoomInButton.disabled=scale>=MAX;
+    zoomInButton.title=scale>=MAX?"Maximum zoom reached":"Zoom In";
     fitHeightButton.title=fitMode==="height"?"Fit Height (active)":"Fit Height";
-    fitWidthButton.title=fitMode==="width"?"Fit Width (active)":"Fit Width";
+
   }
-  function fit(mode) {
-    if(mode!=="height" && mode!=="width")return;
-    fitMode=mode;
-    // Measurements are divided by current zoom to get the natural case size.
+  function fitHeight() {
+    fitMode="height";
+    // Zoom changes measured dimensions; divide by the current scale.
     const rect=calculator.getBoundingClientRect();
-    const normalWidth=rect.width/scale;
     const normalHeight=rect.height/scale;
-    if(!normalWidth || !normalHeight)return;
-    const viewportWidth=document.documentElement.clientWidth;
+    if(!normalHeight)return;
     const viewportHeight=window.visualViewport?.height || innerHeight;
     const margin=20;
-    const availableWidth=Math.max(160,viewportWidth-2*margin);
     const availableHeight=Math.max(180,viewportHeight-Math.max(0,rect.top)-margin);
-    const target=mode==="height"?availableHeight/normalHeight:availableWidth/normalWidth;
-    setScale(target);
+    setScale(availableHeight/normalHeight);
   }
   function manual(next){
     fitMode=null;
     setScale(next);
   }
-  fitHeightButton.addEventListener("click",()=>fit("height"));
-  fitWidthButton.addEventListener("click",()=>fit("width"));
+  fitHeightButton.addEventListener("click",fitHeight);
+  // Magnify 20% per click for classroom projection; Fit Height restores the view.
+  zoomInButton.addEventListener("click",()=>manual(scale*1.2));
 
   function scheduleFit(){
     if(!fitMode || resizeQueued)return;
     resizeQueued=true;
-    requestAnimationFrame(()=>{resizeQueued=false;if(fitMode)fit(fitMode)});
+    requestAnimationFrame(()=>{resizeQueued=false;if(fitMode==="height")fitHeight()});
   }
   addEventListener("resize",scheduleFit,{passive:true});
   window.visualViewport?.addEventListener("resize",scheduleFit,{passive:true});
@@ -83,5 +80,5 @@
   // Single-finger scrolling remains possible; do not force a pan or fullscreen mode.
   calculator.style.touchAction="pan-x pan-y";
   setScale(1);
-  if(fitMode) requestAnimationFrame(()=>fit(fitMode));
+  if(fitMode) requestAnimationFrame(fitHeight);
 })();
