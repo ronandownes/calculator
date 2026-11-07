@@ -1171,3 +1171,198 @@ body:not(.light) .skin-label{color:#515d6e!important;}
   }
   .skin-rail .theme-switch button span{font-size:16px;}
 }
+
+/* Pan-and-zoom viewport: uniform transform, scrolling in both dimensions. */
+body .layout>.calc-viewport,
+body.light .layout>.calc-viewport,
+body:not(.light) .layout>.calc-viewport{
+  grid-area:device!important;
+  width:100%!important;
+  max-width:660px!important;
+  min-width:0!important;
+  height:auto;
+  min-height:180px;
+  overflow:auto!important;
+  overscroll-behavior:contain;
+  scrollbar-width:thin;
+  -webkit-overflow-scrolling:touch;
+  touch-action:pan-x pan-y;
+  align-self:start;
+  justify-self:center;
+  border-radius:0!important;
+  position:relative!important;
+}
+.calc-viewport .calc-stage{
+  position:relative!important;
+  margin-inline:auto!important;
+  min-width:1px;
+  min-height:1px;
+  box-sizing:border-box;
+}
+.calc-viewport .calc-stage>.calculator,
+body.light .calc-viewport .calc-stage>.calculator,
+body:not(.light) .calc-viewport .calc-stage>.calculator{
+  display:block!important;
+  position:absolute!important;
+  inset:0 auto auto 0!important;
+  box-sizing:border-box!important;
+  width:var(--calc-base-width,660px)!important;
+  max-width:none!important;
+  min-width:0!important;
+  margin:0!important;
+  flex:none!important;
+  transform:scale(var(--calc-scale,1))!important;
+  transform-origin:0 0!important;
+}
+.calc-viewport.is-panning,.calc-viewport.is-panning *{
+  cursor:grabbing!important;
+  user-select:none!important;
+}
+/* Keep Light clearly pale-grey, not white; keypad and key faces differentiated. */
+body.light{background:#f1f3f6!important;}
+body.light .calculator{
+  background:#e9edf2!important;
+  border-color:#d4d9e0!important;
+  box-shadow:0 7px 21px #6c75851c,inset 0 1px 0 #fff!important;
+}
+body.light .calculator .top,body.light .calculator .keys{
+  background:#f4f6f9!important;
+  border-color:#e2e6eb!important;
+}
+body.light #keys .keyname{background:#fff!important;}
+/* The original four-dot Maths symbol is now a functional LCD palette. */
+.calculator .calc-header .brand.lcd-palette,
+body.light .calculator .calc-header .brand.lcd-palette,
+body:not(.light) .calculator .calc-header .brand.lcd-palette{
+  display:flex!important;
+  flex-direction:row!important;
+  flex-wrap:nowrap!important;
+  justify-content:flex-start!important;
+  align-items:center!important;
+  gap:4px!important;
+  width:auto!important;
+  min-width:84px!important;
+  height:20px!important;
+  margin:0!important;
+  padding:0!important;
+}
+.calculator .lcd-palette button.tone-dot{
+  appearance:none;
+  display:block;
+  flex:none;
+  width:15px;
+  height:15px;
+  min-width:15px;
+  min-height:15px;
+  border:0;
+  border-radius:50%;
+  padding:0;
+  margin:0;
+  cursor:pointer;
+  box-sizing:border-box;
+  box-shadow:none;
+  outline:0;
+}
+.calculator .lcd-palette .tone-red{background:#E63329;}
+.calculator .lcd-palette .tone-green{background:#3FAE49;}
+.calculator .lcd-palette .tone-blue{background:#2D7DD2;}
+.calculator .lcd-palette .tone-grey{background:#1A1A1A;}
+.calculator .lcd-palette .tone-dot[aria-pressed="true"]{
+  outline:2px solid #7e92ae;
+  outline-offset:2px;
+}
+.calculator .lcd-palette .tone-dot:focus-visible{
+  outline:3px solid #2D7DD2;
+  outline-offset:3px;
+}
+.calculator .screen,
+body.light .calculator .screen,
+body:not(.light) .calculator .screen{
+  background:var(--lcd-tone,#dce9dd)!important;
+  color:#121a1b!important;
+}
+/* Viewing controls belong ONLY in the left rail; the device header stays bare. */
+.skin-rail .size-choice{
+  width:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:7px;
+}
+.skin-rail .size-controls{
+  width:100%;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 40px 40px;
+  gap:5px;
+}
+.skin-rail .size-controls button{
+  appearance:none;
+  min-width:0;
+  width:100%;
+  min-height:39px;
+  padding:5px 4px;
+  border:1px solid #cbd5e1;
+  border-radius:8px;
+  background:#fff;
+  color:#283f59;
+  font:700 16px/1.2 Arial,Helvetica,sans-serif;
+  cursor:pointer;
+}
+.skin-rail .size-controls #fitHeight{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:4px;
+  font-size:20px;
+}
+.skin-rail .size-controls #fitHeight span{
+  font-size:10px;
+  font-weight:700;
+}
+.skin-rail .size-controls button[aria-pressed="true"]{
+  background:#e5effb;
+  border-color:#83b2de;
+  color:#1c5b98;
+}
+.skin-rail .size-controls button:disabled{opacity:.5;cursor:not-allowed;}
+.skin-rail .size-controls button:focus-visible{
+  outline:3px solid #2D7DD2;
+  outline-offset:2px;
+}
+.skin-rail .size-hint{
+  font:500 11px/1.35 Arial,Helvetica,sans-serif;
+  color:#697586;
+}
+/* Desktop fit-to-height does not claim a tall header.
+   Phone: calculator remains first; separate skin/zoom controls follow below. */
+@media(max-width:760px){
+  body .layout>.calc-viewport,
+  body.light .layout>.calc-viewport,
+  body:not(.light) .layout>.calc-viewport{
+    order:0!important;
+    width:100%!important;
+    max-width:660px!important;
+    align-self:center!important;
+    min-height:180px!important;
+  }
+  body .layout>.skin-rail,
+  body.light .layout>.skin-rail,
+  body:not(.light) .layout>.skin-rail{
+    order:1!important;
+    max-width:660px!important;
+    flex-wrap:wrap!important;
+  }
+  .skin-rail .size-choice{
+    width:100%!important;
+    align-items:flex-start!important;
+    flex-direction:column!important;
+  }
+  .skin-rail .size-controls{
+    grid-template-columns:minmax(110px,1fr) 48px 48px;
+    max-width:250px;
+  }
+  .skin-rail .size-hint{font-size:10px}
+  .calculator .lcd-palette button.tone-dot{
+    width:14px;min-width:14px;height:14px;min-height:14px;
+  }
+}
