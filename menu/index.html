@@ -53,6 +53,10 @@ fieldset{border:0;padding:0;margin:0}.field{display:grid;grid-template-columns:7
 .tableview{font-size:14px;max-height:142px;overflow:auto}.tableview table{border-collapse:collapse;width:100%}.tableview th,.tableview td{border-bottom:1px solid #afc4b0;padding:2px 8px;text-align:right}
 .note{margin:12px auto 0;max-width:430px;font-size:11px;line-height:1.4;text-align:center;color:#75828d}
 @media(max-width:430px){body{padding:5px 4px 26px}.device{padding:10px 9px;border-radius:17px}.lcd{height:198px;padding:9px 10px}.controls{gap:3px}.keys{gap:4px}button.key{min-height:41px;font-size:16px}.controls .key{font-size:9px}.home-grid button{font-size:13px}.expression{font-size:27px}.result{font-size:29px}}
+.digit-prompt{font:700 29px Georgia,'Times New Roman',serif;margin:16px 0 8px}
+.contrast-line{display:flex;justify-content:space-between;align-items:center;font:700 22px Georgia,serif;margin:11px 0;gap:8px}
+.contrast-line button{background:transparent;border:0;font:700 25px Georgia,serif;cursor:pointer;color:#173420}
+.contrast-meter{font:600 15px monospace;letter-spacing:1px;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -392,16 +396,38 @@ fieldset{border:0;padding:0;margin:0}.field{display:grid;grid-template-columns:7
       state.view="calculate";state.menu=null;state.selection=0;insert(items[i][1]);return;
     }
     if(m==="settings"){
-      if(i>1||i<0)return;
-      state.menu=i===0?"angle":"number";state.selection=0;render();return;
+      if(i<0||i>=settings.length)return;
+      state.menu=["inputOutput","angle","number","fractionResult","statisticsSetup",
+        "tableSetup","decimalMark","digitSeparator","multiLineFont","contrast"][i];
+      state.selection=0;render();return;
     }
     if(m==="angle"){
       if(i<0||i>2)return;
-      state.angle=["deg","rad","grad"][i];state.view=state.back;state.menu=null;render();return;
+      state.angle=["deg","rad","grad"][i];returnFromSetup();return;
     }
     if(m==="number"){
       if(i<0||i>2)return;
-      state.numberFormat=i===0?"norm":"fix";state.fixedDigits=i===1?2:3;state.view=state.back;state.menu=null;render();return;
+      state.menu=["numberFix","numberSci","numberNorm"][i];
+      state.selection=0;render();return;
+    }
+    if(m==="numberNorm"){
+      if(i<0||i>1)return;
+      state.numberFormat="norm";state.normMode=i+1;returnFromSetup();return;
+    }
+    if(m==="inputOutput"){
+      if(i<0||i>3)return;
+      state.inputOutput=["MathI/MathO","MathI/DecimalO","LineI/LineO","LineI/DecimalO"][i];
+      returnFromSetup();return;
+    }
+    if(simpleSetupMenus[m]){
+      if(i<0||i>1)return;
+      if(m==="fractionResult")state.fractionResult=i===0?"mixed":"improper";
+      if(m==="statisticsSetup")state.freqOn=i===0;
+      if(m==="tableSetup")state.tableMode=i===0?"single":"both";
+      if(m==="decimalMark")state.decimalMark=i===0?"dot":"comma";
+      if(m==="digitSeparator")state.digitSeparator=i===0;
+      if(m==="multiLineFont")state.multiLineFont=i===0?"normal":"small";
+      returnFromSetup();return;
     }
     if(m==="format"){
       if(i<0||i>3)return;
@@ -446,8 +472,16 @@ fieldset{border:0;padding:0;margin:0}.field{display:grid;grid-template-columns:7
   function back(){
     if(state.view==="menu"){
       if(state.menu?.startsWith("functions:")){state.menu="catalog";state.selection=0}
-      else if(state.menu==="angle"||state.menu==="number"){state.menu="settings";state.selection=0}
-      else {state.view=state.back;state.menu=null}render();
+      else if(["numberFix","numberSci","numberNorm"].includes(state.menu)){
+        state.menu="number";state.selection=0;
+      }
+      else if(["angle","number","inputOutput","fractionResult","statisticsSetup","tableSetup",
+        "decimalMark","digitSeparator","multiLineFont","contrast"].includes(state.menu)){
+        const selected=["inputOutput","angle","number","fractionResult","statisticsSetup","tableSetup",
+          "decimalMark","digitSeparator","multiLineFont","contrast"].indexOf(state.menu);
+        state.menu="settings";state.selection=Math.max(selected,0);
+      } else {state.view=state.back;state.menu=null;state.selection=0}
+      render();
     }else{state.view="home";state.selection=0;render()}
   }
   function press(cmd){
@@ -459,14 +493,17 @@ fieldset{border:0;padding:0;margin:0}.field{display:grid;grid-template-columns:7
       if(state.shift){showMenu("format");return}
       state.shift=false;state.decimal=!state.decimal;render();return;
     }
+    if(state.view==="menu"&&state.menu==="contrast"&&
+      ["contrast-light","contrast-dark","back","right"].includes(cmd)){
+      const delta=["contrast-light","back"].includes(cmd)?-1:1;
+      state.contrast=Math.max(1,Math.min(9,state.contrast+delta));render();return;
+    }
     if(cmd==="back"){back();return}
     if(["up","down","right"].includes(cmd)&&["home","menu"].includes(state.view)){
-      const count=state.view==="home"?home.length:
-        state.menu==="catalog"?catalogue.length:
-        state.menu==="settings"?settings.length:
-        state.menu==="angle"?3:
-        state.menu==="number"?3:
-        state.menu==="format"?fmtItems.length:functions[state.menu?.split(":")[1]]?.length||1;
+      if(state.view==="menu"&&["numberFix","numberSci","contrast"].includes(state.menu))return;
+      if(cmd==="right"){select(state.selection);return}
+      const count=state.view==="home"?home.length:itemsForMenu(state.menu).length;
+      if(!count)return;
       state.selection=(state.selection+(cmd==="up"?count-1:1))%count;render();return;
     }
     if(cmd==="ok"||cmd==="exe"){
@@ -478,13 +515,27 @@ fieldset{border:0;padding:0;margin:0}.field{display:grid;grid-template-columns:7
     if(cmd==="ac"){
       if(state.view==="calculate"){state.expr="";state.answer=null;state.message=""}
       else if(state.view==="stats"){state.stats="";state.message=""}
-      else if(state.view==="menu"){back();return}
+      else if(state.view==="menu"){
+        if(state.menu==="contrast"){returnFromSetup();return}
+        back();return}
       render();return;
     }
     if(cmd==="del"){
       if(state.view==="calculate"){state.expr=state.expr.slice(0,-1);state.answer=null;state.message=""}
       else if(state.view==="stats"){state.stats=state.stats.slice(0,-1);state.message=""}
       render();return;
+    }
+    if(state.view==="menu"&&["numberFix","numberSci"].includes(state.menu)&&/^[0-9]$/.test(cmd)){
+      if(state.menu==="numberFix"){
+        state.numberFormat="fix";state.fixedDigits=Number(cmd);
+      }else{
+        state.numberFormat="sci";state.sciDigits=Number(cmd);
+      }
+      returnFromSetup();return;
+    }
+    if(state.view==="menu"&&state.menu==="settings"&&/^[1-4]$/.test(cmd)){
+      const start=Math.floor(state.selection/4)*4;
+      select(start+Number(cmd)-1);return;
     }
     if((state.view==="home"||state.view==="menu")&&/^[1-9]$/.test(cmd)){
       select(Number(cmd)-1);return;
