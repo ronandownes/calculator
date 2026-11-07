@@ -451,154 +451,6 @@ body:not(.light) .calculator .brand svg.four-dot-inline{
 }
 
 
-/* Circular keypad — actual circles, not rounded rectangles.
-   The round key faces resize with their grid tracks, in Day and Night modes. */
-#keys .spanrow,
-#keys .spanrow.five {
-  align-items:start!important;
-}
-#keys .spanrow > button,
-#keys .spanrow.five > button,
-#keys > button {
-  display:flex!important;
-  flex-direction:column!important;
-  align-items:center!important;
-  min-width:0!important;
-  width:100%!important;
-  height:auto!important;
-  padding:17px 0 3px!important;
-  position:relative!important;
-}
-#keys .spanrow > button .keyname,
-#keys .spanrow.five > button .keyname,
-body.light #keys button .keyname,
-body:not(.light) #keys button .keyname {
-  display:flex!important;
-  align-items:center!important;
-  justify-content:center!important;
-  flex:none!important;
-  width:100%!important;
-  max-width:112px!important;
-  height:auto!important;
-  min-height:0!important;
-  aspect-ratio:1 / 1!important;
-  border-radius:50%!important;
-  text-align:center!important;
-  white-space:nowrap!important;
-  font-size:clamp(12px,2.4vw,22px)!important;
-  line-height:1.05!important;
-  padding:1px!important;
-  overflow:hidden!important;
-}
-#keys .spanrow.five > button .keyname {
-  max-width:119px!important;
-}
-#keys .spanrow > button.number .keyname,
-#keys .spanrow.five > button.number .keyname,
-body.light #keys .spanrow.five > button.number .keyname {
-  font-size:clamp(23px,4.1vw,38px)!important;
-}
-#keys .spanrow.five > button[data-key="DEL"] .keyname,
-#keys .spanrow.five > button[data-key="AC"] .keyname,
-#keys .spanrow.five > button[data-key="="] .keyname {
-  border-radius:50%!important;
-  font-size:clamp(16px,3vw,29px)!important;
-}
-#keys button[data-key="opt"] .keyname,
-#keys button[data-key="logbase"] .keyname{
-  font-size:clamp(11px,1.85vw,17px)!important;
-}
-#keys button[data-key="sd"] .keyname,
-#keys button[data-key="inversepower"] .keyname,
-#keys button[data-key="dms"] .keyname {
-  font-size:clamp(12px,2vw,18px)!important;
-}
-/* Legible alternate labels sit ABOVE each circular key. */
-#keys button .upper{
-  position:absolute!important;
-  top:1px!important;
-  left:0!important;
-  right:0!important;
-  height:15px!important;
-  text-align:center!important;
-  white-space:nowrap!important;
-}
-#keys button .alpha-legend {
-  top:0!important;
-  right:0!important;
-  z-index:2!important;
-}
-#keys .spanrow.five{
-  gap:8px!important;
-}
-#keys .spanrow:not(.five) {
-  gap:8px!important;
-}
-#keys button[data-key="sqrt"] .keyname svg.root-key-icon{
-  max-width:68%!important;
-  height:auto!important;
-}
-#keys button[data-key="frac"] .keyname svg.fraction-key-icon{
-  max-width:65%!important;
-  height:auto!important;
-}
-.calculator .top .nav{
-  width:min(100%,120px)!important;
-  height:auto!important;
-  aspect-ratio:1 / 1!important;
-  border-radius:50%!important;
-  justify-self:center!important;
-  align-self:center!important;
-}
-/* Preserve a nearly white Day palette and distinct four-dot identity. */
-body.light .calculator{
-  background:#f5f7fa!important;
-  border-color:#e0e4e9!important;
-}
-body.light .calculator .top,
-body.light .calculator .keys{
-  background:#fafbfc!important;
-}
-body.light #keys .keyname{
-  background:#fff!important;
-  color:#16191f!important;
-  border-color:#d2d8e0!important;
-}
-body.light #keys button[data-key="DEL"] .keyname,
-body.light #keys button[data-key="AC"] .keyname{
-  background:#ffb844!important;
-  color:#18120b!important;
-}
-@media (max-width:700px){
-  #keys .spanrow > button,
-  #keys .spanrow.five > button {padding-top:14px!important;padding-bottom:2px!important}
-  #keys .spanrow.five,#keys .spanrow:not(.five){gap:4px!important}
-  #keys .spanrow button .keyname,
-  body.light #keys button .keyname,
-  body:not(.light) #keys button .keyname{
-    font-size:clamp(10px,3.2vw,17px)!important;
-  }
-  #keys .spanrow.five button.number .keyname{
-    font-size:clamp(21px,6vw,31px)!important;
-  }
-  #keys button[data-key="opt"] .keyname,
-  #keys button[data-key="logbase"] .keyname{
-    font-size:clamp(9px,2.5vw,13px)!important;
-  }
-  #keys button[data-key="sd"] .keyname{
-    font-size:clamp(9px,2.6vw,14px)!important;
-  }
-  #keys .spanrow.five > button[data-key="DEL"] .keyname,
-  #keys .spanrow.five > button[data-key="AC"] .keyname {
-    font-size:clamp(13px,4vw,21px)!important;
-  }
-  #keys button .upper{height:13px!important}
-  .calculator .top .nav{
-    width:min(100%,95px)!important;
-    aspect-ratio:1 / 1!important;
-  }
-}
-
 /* Four-dot identity: blue second functions, red ALPHA registers.
    This rule comes last deliberately, replacing legacy amber SHIFT styles. */
 :root{
@@ -755,3 +607,142 @@ body:not(.light) #keys button .keyname{
 #keys > button{padding-top:17px!important;padding-bottom:3px!important}
 #keys .spanrow.five{gap:7px!important}
 #keys .spanrow:not(.five){gap:7px!important}
+
+/* Main keypad: traditional rectangular scientific keys. Round navigation retained. */
+#keys .spanrow > button,
+#keys .spanrow.five > button{
+  display:block!important;
+  width:100%!important;
+  min-width:0!important;
+  height:67px!important;
+  padding:13px 0 4px!important;
+  position:relative!important;
+}
+#keys .spanrow.five > button{height:78px!important}
+#keys .spanrow{column-gap:8px!important;row-gap:4px!important}
+#keys .spanrow.five{column-gap:8px!important;row-gap:3px!important}
+#keys button .keyname,
+body.light #keys button .keyname,
+body:not(.light) #keys button .keyname{
+  width:100%!important;
+  max-width:none!important;
+  min-height:43px!important;
+  height:auto!important;
+  aspect-ratio:auto!important;
+  padding:3px 1px!important;
+  border-radius:9px!important;
+  overflow:visible!important;
+  box-sizing:border-box!important;
+}
+#keys .spanrow.five > button .keyname{min-height:55px!important}
+#keys button[data-key="DEL"] .keyname,
+#keys button[data-key="AC"] .keyname{
+  border-radius:14px!important;
+}
+#keys .spanrow.five button.number .keyname,
+body.light #keys .spanrow.five button.number .keyname{
+  font-size:clamp(23px,3.8vw,36px)!important;
+}
+#keys .spanrow button:not(.number) .keyname{font-size:clamp(14px,2.5vw,22px)}
+#keys button[data-key="opt"] .keyname,
+#keys button[data-key="logbase"] .keyname{font-size:clamp(12px,1.75vw,17px)!important}
+#keys button .upper{top:0!important;height:14px!important;text-align:center!important}
+#keys button .alpha-legend{top:0!important;right:1px!important}
+.calculator .top .nav{
+  width:min(100%,122px)!important;
+  aspect-ratio:1/1!important;
+  height:auto!important;
+  justify-self:center!important;
+  align-self:center!important;
+  border-radius:50%!important;
+}
+/* Header: 2x2 four-dot mark at top left, options and Day/Night at top right. */
+.calculator .calc-header{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:8px!important;
+  min-height:41px!important;
+  margin:0 2px 8px!important;
+}
+.calculator .calc-header .brand{
+  width:42px!important;height:42px!important;
+  flex:none!important;
+  display:flex!important;justify-content:flex-start!important;align-items:center!important;
+  margin:0!important;
+}
+.calculator .calc-header .brand img{
+  width:40px!important;height:40px!important;display:block!important;
+  background:none;border:none;object-fit:contain;
+}
+.calculator .calc-heading{
+  font:600 14px/1.2 Arial,Helvetica,sans-serif;
+  color:#5b6674;
+  flex:1;
+  padding:0 2px;
+  white-space:nowrap;
+}
+body:not(.light) .calculator .calc-heading{color:#e0e5ed}
+.calculator .calc-toolbar{display:flex;gap:5px;align-items:center;justify-content:flex-end}
+.calculator .calc-toolbar a,
+.calculator .calc-toolbar button{
+  appearance:none;
+  display:inline-flex;justify-content:center;align-items:center;
+  font-family:Arial,Helvetica,sans-serif;
+  font-size:13px;font-weight:700;
+  height:32px;min-width:32px;
+  padding:2px 7px;
+  background:#fff;border:1px solid #cfd6df;
+  color:#26394b;border-radius:8px;
+  text-decoration:none;cursor:pointer;
+}
+.calculator .calc-toolbar button:focus-visible,
+.calculator .calc-toolbar a:focus-visible{outline:3px solid #2D7DD2;outline-offset:2px}
+.calculator .calc-toolbar .theme-switch{
+  position:static!important;display:flex!important;
+  width:auto!important;max-width:none!important;
+  margin:0!important;padding:0!important;gap:3px!important;
+  background:transparent!important;border:0!important;box-shadow:none!important;
+}
+.calculator .calc-toolbar .theme-switch button{
+  min-width:32px!important;width:32px!important;height:32px!important;min-height:32px!important;
+  border-radius:8px!important;padding:0!important;margin:0!important;
+  font-size:19px!important;line-height:1!important;
+  background:#fff!important;color:#46576a!important;
+  border:1px solid #cfd6df!important;box-shadow:none!important;
+}
+body.light .calculator .calc-toolbar .theme-switch button[aria-pressed="true"]{
+  background:#e6f0fd!important;color:#1e5fa4!important;border-color:#a1c4e8!important;
+}
+body:not(.light) .calculator .calc-toolbar .theme-switch button{
+  background:#3b414a!important;color:#fff!important;border-color:#6c7480!important;
+}
+body:not(.light) .calculator .calc-toolbar .theme-switch button[aria-pressed="true"]{
+  background:#d2deed!important;color:#1a2a3a!important;border-color:#d2deed!important;
+}
+.calculator .calc-toolbar button[aria-pressed="true"]{
+  background:#e6f0fd;color:#1f5da2;border-color:#83b3de;
+}
+body:not(.light) .calculator .calc-toolbar a,
+body:not(.light) .calculator .calc-toolbar button:not(.theme-switch button){
+  background:#3b414a;color:#fff;border-color:#737d88;
+}
+/* Zoom applies to calculator as a whole; do not transform the individual keys. */
+@media(max-width:700px){
+  #keys .spanrow > button{height:58px!important;padding-top:12px!important}
+  #keys .spanrow.five > button{height:68px!important}
+  #keys .spanrow > button .keyname{min-height:35px!important}
+  #keys .spanrow.five > button .keyname{min-height:46px!important}
+  #keys .spanrow{column-gap:4px!important}
+  #keys .spanrow.five{column-gap:4px!important}
+  #keys .spanrow.five button.number .keyname{font-size:clamp(23px,6vw,31px)!important}
+  .calculator .top .nav{width:min(100%,92px)!important}
+  .calculator .calc-header{flex-wrap:wrap!important;gap:5px!important}
+  .calculator .calc-heading{font-size:12px!important}
+  .calculator .calc-toolbar{gap:3px}
+  .calculator .calc-toolbar a,
+  .calculator .calc-toolbar button{min-width:30px;height:30px;padding:2px 5px;font-size:12px}
+  .calculator .calc-toolbar .theme-switch button{width:30px!important;height:30px!important;min-width:30px!important;min-height:30px!important}
+  .calculator .calc-header .brand{width:35px!important;height:35px!important}
+  .calculator .calc-header .brand img{width:33px!important;height:33px!important}
+}
