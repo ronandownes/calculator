@@ -746,3 +746,27 @@ body:not(.light) .calculator .calc-toolbar button:not(.theme-switch button){
   .calculator .calc-header .brand{width:35px!important;height:35px!important}
   .calculator .calc-header .brand img{width:33px!important;height:33px!important}
 }
+
+/* SHIFT key surround always follows four-dot blue, not the legacy amber ring. */
+body.light .calculator .top #shift,
+body.light .calculator .top #shift.active{
+  border:4px solid #2D7DD2!important;
+  color:#2D7DD2!important;
+  background:#fff!important;
+  box-shadow:0 0 0 1px #B7D6F4,0 2px 4px #2D7DD229!important;
+}
+body.light .calculator .top #shift.active{
+  background:#E5F1FD!important;
+  box-shadow:0 0 0 2px #A8CBED,0 2px 6px #2D7DD240!important;
+}
+body:not(.light) .calculator .top #shift,
+body:not(.light) .calculator .top #shift.active{
+  border:4px solid #82BFFF!important;
+  color:#82BFFF!important;
+  background:#242F3F!important;
+  box-shadow:0 0 0 1px #446E99,0 2px 4px #0005!important;
+}
+body:not(.light) .calculator .top #shift.active{
+  background:#285B91!important;
+  box-shadow:0 0 0 2px #A8D3FF,0 2px 6px #0006!important;
+}
