@@ -364,3 +364,22 @@ body:not(.light) #keys button.shift-ready .keyname {
   }
   #keys button[data-key="frac"] .keyname{min-height:36px!important}
 }
+
+/* LCD expression weight: stronger input glyphs, not heavier answers or buttons. */
+.calculator .expression,
+body.light .calculator .expression,
+body:not(.light) .calculator .expression {
+  font-weight:750!important;
+  -webkit-font-smoothing:auto;
+}
+.calculator .expression.typeset-expression math,
+body.light .calculator .expression.typeset-expression math,
+body:not(.light) .calculator .expression.typeset-expression math {
+  font-weight:700!important;
+}
+.calculator .expression.typeset-expression math mn,
+.calculator .expression.typeset-expression math mi,
+.calculator .expression.typeset-expression math mo,
+.calculator .expression.typeset-expression math mtext {
+  font-weight:700!important;
+}
