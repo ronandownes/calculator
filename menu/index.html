@@ -108,7 +108,11 @@ fieldset{border:0;padding:0;margin:0}.field{display:grid;grid-template-columns:7
   "use strict";
   const $=id=>document.getElementById(id);
   const display=$("display"), angleLabel=$("angle"), shiftLabel=$("shift-state"), hint=$("screen-hint");
-  const state={view:"home",selection:0,menu:null,back:"calculate",angle:"deg",shift:false,ans:0,expr:"",answer:null,decimal:false,numberFormat:"norm",fixedDigits:3,stats:"",message:"",tableRows:[],box:"",ratio:null};
+  const state={view:"home",selection:0,menu:null,back:"calculate",angle:"deg",shift:false,
+    ans:0,expr:"",answer:null,decimal:false,numberFormat:"norm",fixedDigits:3,sciDigits:5,normMode:1,
+    inputOutput:"MathI/MathO",fractionResult:"improper",freqOn:false,tableMode:"both",
+    decimalMark:"dot",digitSeparator:false,multiLineFont:"normal",contrast:5,
+    stats:"",message:"",tableRows:[],box:"",ratio:null};
   const home=[["Calculate","Basic calculations"],["Statistics","Mean and spread"],["Table","Function values"],["Ratio","Proportions"],["Maths Box","Dice and coin"]];
   const catalogue=[
     ["Number","Fractions, HCF, LCM"],["Probability","nPr, nCr, random"],["Trigonometry","Inverse functions"],["Functions","Absolute value, roots"],["Constants","π, e"]
@@ -120,16 +124,59 @@ fieldset{border:0;padding:0;margin:0}.field{display:grid;grid-template-columns:7
     Functions:[["Square root","sqrt("],["Absolute value","abs("],["Power of ten","10^("],["Reciprocal","^(-1)"]],
     Constants:[["π","π"],["e","e"]]
   };
-  const settings=[["Angle unit","Degrees / Radians / Gradians"],["Number format","Norm / Fix 2 / Fix 3"]];
-  const angleItems=[["Degrees","D"],["Radians","R"],["Gradians","G"]];
-  const fmtItems=[["Standard / Decimal","Toggle result"],["Fraction","Exact fraction where possible"],["Decimal","Decimal approximation"],["Scientific","Standard form"]];
-  const escapeHtml=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-  const fmt=n=>{
-    if(!Number.isFinite(n))throw Error("Math ERROR");
-    if(state.numberFormat==="fix")return n.toFixed(state.fixedDigits);
-    if(n!==0&&(Math.abs(n)>=1e10||Math.abs(n)<1e-7))return n.toExponential(7);
-    return String(Number(n.toPrecision(10)));
+  // SETUP reference: official fx-82EX/85EX/350EX manual, page 6.
+  const settings=[
+    ["Input/Output","Natural or linear notation"],["Angle Unit","Degrees, radians, gradians"],
+    ["Number Format","Fix, Sci, Norm"],["Fraction Result","Mixed or improper"],
+    ["Statistics","Frequency column"],["Table","One or two functions"],
+    ["Decimal Mark","Dot or comma"],["Digit Separator","On or off"],
+    ["MultiLine Font","Normal or small"],["Contrast","Light or dark"]
+  ];
+  const angleItems=[["Degree","D"],["Radian","R"],["Gradian","G"]];
+  const numberItems=[["Fix","0 to 9 decimal places"],["Sci","0 to 9 significant digits"],["Norm","Normal format 1 or 2"]];
+  const normItems=[["Norm 1","Exponents below 0.01"],["Norm 2","Exponents below 10⁻⁹"]];
+  const inputItems=[["MathI/MathO","Exact output"],["MathI/DecimalO","Decimal output"],
+    ["LineI/LineO","Linear input"],["LineI/DecimalO","Linear, decimal"]];
+  const simpleSetupMenus={
+    fractionResult:[["a b/c","Mixed"],["d/c","Improper"]],
+    statisticsSetup:[["On","Frequency"],["Off","No frequency"]],
+    tableSetup:[["f(x)","One function"],["f(x),g(x)","Two functions"]],
+    decimalMark:[["Dot","."],["Comma",","]],
+    digitSeparator:[["On","Group digits"],["Off","No grouping"]],
+    multiLineFont:[["Normal Font","Large"],["Small Font","Compact"]]
   };
+  const fmtItems=[["Standard / Decimal","Toggle result"],["Fraction","Exact if possible"],
+    ["Decimal","Approximation"],["Scientific","Scientific display"]];
+  const escapeHtml=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  function scientific(n,places,keepTrailing=true){
+    const [rawMantissa,exponent]=n.toExponential(places).split("e");
+    const mantissa=keepTrailing?rawMantissa:rawMantissa.replace(/\.?0+$/,"");
+    const exponentMap={"-":"⁻","+":"","0":"⁰","1":"¹","2":"²","3":"³",
+      "4":"⁴","5":"⁵","6":"⁶","7":"⁷","8":"⁸","9":"⁹"};
+    return mantissa+"×10"+[...String(Number(exponent))].map(c=>exponentMap[c]||c).join("");
+  }
+  function fmt(n){
+    if(!Number.isFinite(n))throw Error("Math ERROR");
+    let output;
+    const absolute=Math.abs(n);
+    if(state.numberFormat==="fix")output=n.toFixed(state.fixedDigits);
+    else if(state.numberFormat==="sci")output=scientific(n,(state.sciDigits===0?10:state.sciDigits)-1);
+    else {
+      const small=state.normMode===1?1e-2:1e-9;
+      output=n!==0&&(absolute<small||absolute>=1e10)?
+        scientific(n,9,false):String(Number(n.toPrecision(10)));
+    }
+    if(!output.includes("×10")&&state.digitSeparator){
+      const parts=output.split(".");
+      parts[0]=parts[0].replace(/\B(?=(\d{3})+(?!\d))/g,state.decimalMark==="comma"?"." :",");
+      output=parts.join(".");
+    }
+    if(state.decimalMark==="comma"){
+      if(output.includes("×10"))output=output.replace(".",",");
+      else if(!state.digitSeparator)output=output.replace(".",",");
+    }
+    return output;
+  }
   function gcd(a,b){a=Math.abs(a);b=Math.abs(b);while(b){[a,b]=[b,a%b]}return a}
   function rational(n) {
     if(!Number.isFinite(n)||Math.abs(n)>1e7)return null;
@@ -228,18 +275,46 @@ fieldset{border:0;padding:0;margin:0}.field{display:grid;grid-template-columns:7
     return out;
   }
   function angle(){return state.angle==="deg"?"D":state.angle==="rad"?"R":"G"}
-  function resultMarkup(value) {
-    if(state.decimal)return escapeHtml(fmt(value));
+  function resultMarkup(value){
+    const decimalOutput=["MathI/DecimalO","LineI/DecimalO"].includes(state.inputOutput);
+    if(state.decimal||decimalOutput||state.numberFormat!=="norm")return escapeHtml(fmt(value));
     const fraction=rational(value);
     if(!fraction||fraction[1]===1)return escapeHtml(fmt(value));
-    return '<math xmlns="http://www.w3.org/1998/Math/MathML"><mfrac><mn>'+fraction[0]+'</mn><mn>'+fraction[1]+'</mn></mfrac></math>';
+    let numerator=fraction[0],denominator=fraction[1],whole=null;
+    if(state.fractionResult==="mixed"&&Math.abs(numerator)>denominator){
+      whole=Math.trunc(numerator/denominator);
+      numerator=Math.abs(numerator)%denominator;
+    }
+    return '<math xmlns="http://www.w3.org/1998/Math/MathML">'+
+      (whole===null?'':'<mn>'+whole+'</mn>')+
+      '<mfrac><mn>'+numerator+'</mn><mn>'+denominator+'</mn></mfrac></math>';
   }
-  function list(items,title){
-    let content='<div class="lcd-title">'+escapeHtml(title)+'</div><div class="menu-list">';
-    items.forEach((item,i)=>{
-      content+='<button class="'+(state.selection===i?"selected":"")+'" data-choice="'+i+'" aria-label="'+escapeHtml(item[0])+'"><b>'+(i+1)+'</b>'+escapeHtml(item[0])+'</button>';
+  function list(items,title,paged=false){
+    const start=paged?Math.floor(state.selection/4)*4:0;
+    const visible=paged?items.slice(start,start+4):items;
+    let markup='<div class="lcd-title">'+escapeHtml(title)+
+      (paged?' <span aria-hidden="true">▮</span>':'')+'</div><div class="menu-list">';
+    visible.forEach((item,j)=>{
+      const i=start+j;
+      markup+='<button class="'+(state.selection===i?'selected':'')+
+        '" data-choice="'+i+'" aria-label="'+escapeHtml(item[0])+'"><b>'+
+        (j+1)+'</b>'+escapeHtml(item[0])+'</button>';
     });
-    return content+"</div>";
+    return markup+'</div>';
+  }
+  function itemsForMenu(menu){
+    if(menu==="catalog")return catalogue;
+    if(menu?.startsWith("functions:"))return functions[menu.split(":")[1]]||[];
+    if(menu==="settings")return settings;
+    if(menu==="angle")return angleItems;
+    if(menu==="number")return numberItems;
+    if(menu==="numberNorm")return normItems;
+    if(menu==="inputOutput")return inputItems;
+    if(menu==="format")return fmtItems;
+    return simpleSetupMenus[menu]||[];
+  }
+  function returnFromSetup(){
+    state.view=state.back;state.menu=null;state.selection=0;render();
   }
   function calcDisplay(){
     const raw=state.expr.replace(/asin\(/g,"sin⁻¹(").replace(/acos\(/g,"cos⁻¹(").replace(/atan\(/g,"tan⁻¹(").replace(/sqrt\(/g,"√(").replace(/ran#/g,"Ran#");
@@ -251,7 +326,10 @@ fieldset{border:0;padding:0;margin:0}.field{display:grid;grid-template-columns:7
   function render(){
     angleLabel.textContent=angle();
     shiftLabel.textContent=state.shift?"S":"";
-    hint.textContent=state.view==="home"?"HOME":state.view==="calculate"?"Calculate":state.view==="menu"?"MENU":state.view;
+    hint.textContent=state.view==="calculate"&&state.numberFormat!=="norm"?
+      (state.numberFormat==="fix"?"FIX "+state.fixedDigits:"SCI "+state.sciDigits):
+      state.view==="home"?"HOME":state.view==="calculate"?"Calculate":state.view==="menu"?"MENU":state.view;
+    display.style.filter="contrast("+(0.74+state.contrast*0.055)+")";
     if(state.view==="home"){
       display.innerHTML='<div class="lcd-title">HOME</div><div class="home-grid">'+home.map((x,i)=>
         '<button data-choice="'+i+'" class="'+(i===state.selection?"selected":"")+'"><b>'+(i+1)+'</b>'+escapeHtml(x[0])+'<small>'+escapeHtml(x[1])+'</small></button>').join("")+'</div>';
@@ -260,11 +338,32 @@ fieldset{border:0;padding:0;margin:0}.field{display:grid;grid-template-columns:7
       let items=[],title="";
       if(m==="catalog"){items=catalogue;title="CATALOG"}
       else if(m?.startsWith("functions:")){title=m.split(":")[1];items=functions[title]}
-      else if(m==="settings"){title="SETTINGS";items=settings}
-      else if(m==="angle"){title="Angle unit";items=angleItems}
-      else if(m==="number"){title="Number format";items=[["Norm","Normal"],["Fix 2","2 decimal places"],["Fix 3","3 decimal places"]]}
+      else if(m==="settings"){title="SETUP";items=settings}
+      else if(m==="angle"){title="Angle Unit";items=angleItems}
+      else if(m==="number"){title="Number Format";items=numberItems}
+      else if(m==="numberNorm"){title="Norm";items=normItems}
+      else if(m==="numberFix"||m==="numberSci"){
+        const name=m==="numberFix"?"Fix":"Sci";
+        display.innerHTML='<div class="lcd-title">Number Format</div><div class="digit-prompt">'+
+          name+' 0–9</div><p class="mini">Press 0–9 to set '+
+          (m==="numberFix"?"decimal places.":"significant digits (0 = ten digits).")+'</p>';
+        return;
+      }
+      else if(m==="contrast"){
+        display.innerHTML='<div class="lcd-title">Contrast</div><div class="contrast-line"><span>Light</span><span>Dark</span></div>'+
+          '<div class="contrast-line"><button data-cmd="contrast-light" aria-label="Lighter">◀</button>'+
+          '<span class="contrast-meter" aria-label="Contrast level '+state.contrast+'">'+
+          '▰'.repeat(state.contrast)+'▱'.repeat(10-state.contrast)+'</span>'+
+          '<button data-cmd="contrast-dark" aria-label="Darker">▶</button></div>';
+        return;
+      }
+      else if(m==="inputOutput"){title="Input/Output";items=inputItems}
+      else if(simpleSetupMenus[m]){title=({
+        fractionResult:"Fraction Result",statisticsSetup:"Statistics",tableSetup:"Table",
+        decimalMark:"Decimal Mark",digitSeparator:"Digit Separator",
+        multiLineFont:"MultiLine Font"})[m];items=simpleSetupMenus[m]}
       else if(m==="format"){title="FORMAT";items=fmtItems}
-      display.innerHTML=list(items,title);
+      display.innerHTML=list(items,title,m==="settings");
     } else if(state.view==="calculate")display.innerHTML=calcDisplay();
     else if(state.view==="stats"){
       display.innerHTML='<div class="lcd-title">Statistics</div><div class="mini"><p>Enter values separated by commas, then EXE.</p></div><div class="expression">'+escapeHtml(state.stats||"0")+'</div>'+(state.message?'<div class="mini">'+escapeHtml(state.message)+'</div>':"");
