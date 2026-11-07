@@ -449,3 +449,152 @@ body:not(.light) .calculator .brand svg.four-dot-inline{
   border:0!important;
   background:transparent!important;
 }
+
+
+/* Circular keypad — actual circles, not rounded rectangles.
+   The round key faces resize with their grid tracks, in Day and Night modes. */
+#keys .spanrow,
+#keys .spanrow.five {
+  align-items:start!important;
+}
+#keys .spanrow > button,
+#keys .spanrow.five > button,
+#keys > button {
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  min-width:0!important;
+  width:100%!important;
+  height:auto!important;
+  padding:17px 0 3px!important;
+  position:relative!important;
+}
+#keys .spanrow > button .keyname,
+#keys .spanrow.five > button .keyname,
+body.light #keys button .keyname,
+body:not(.light) #keys button .keyname {
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  flex:none!important;
+  width:100%!important;
+  max-width:112px!important;
+  height:auto!important;
+  min-height:0!important;
+  aspect-ratio:1 / 1!important;
+  border-radius:50%!important;
+  text-align:center!important;
+  white-space:nowrap!important;
+  font-size:clamp(12px,2.4vw,22px)!important;
+  line-height:1.05!important;
+  padding:1px!important;
+  overflow:hidden!important;
+}
+#keys .spanrow.five > button .keyname {
+  max-width:119px!important;
+}
+#keys .spanrow > button.number .keyname,
+#keys .spanrow.five > button.number .keyname,
+body.light #keys .spanrow.five > button.number .keyname {
+  font-size:clamp(23px,4.1vw,38px)!important;
+}
+#keys .spanrow.five > button[data-key="DEL"] .keyname,
+#keys .spanrow.five > button[data-key="AC"] .keyname,
+#keys .spanrow.five > button[data-key="="] .keyname {
+  border-radius:50%!important;
+  font-size:clamp(16px,3vw,29px)!important;
+}
+#keys button[data-key="opt"] .keyname,
+#keys button[data-key="logbase"] .keyname{
+  font-size:clamp(11px,1.85vw,17px)!important;
+}
+#keys button[data-key="sd"] .keyname,
+#keys button[data-key="inversepower"] .keyname,
+#keys button[data-key="dms"] .keyname {
+  font-size:clamp(12px,2vw,18px)!important;
+}
+/* Legible alternate labels sit ABOVE each circular key. */
+#keys button .upper{
+  position:absolute!important;
+  top:1px!important;
+  left:0!important;
+  right:0!important;
+  height:15px!important;
+  text-align:center!important;
+  white-space:nowrap!important;
+}
+#keys button .alpha-legend {
+  top:0!important;
+  right:0!important;
+  z-index:2!important;
+}
+#keys .spanrow.five{
+  gap:8px!important;
+}
+#keys .spanrow:not(.five) {
+  gap:8px!important;
+}
+#keys button[data-key="sqrt"] .keyname svg.root-key-icon{
+  max-width:68%!important;
+  height:auto!important;
+}
+#keys button[data-key="frac"] .keyname svg.fraction-key-icon{
+  max-width:65%!important;
+  height:auto!important;
+}
+.calculator .top .nav{
+  width:min(100%,120px)!important;
+  height:auto!important;
+  aspect-ratio:1 / 1!important;
+  border-radius:50%!important;
+  justify-self:center!important;
+  align-self:center!important;
+}
+/* Preserve a nearly white Day palette and distinct four-dot identity. */
+body.light .calculator{
+  background:#f5f7fa!important;
+  border-color:#e0e4e9!important;
+}
+body.light .calculator .top,
+body.light .calculator .keys{
+  background:#fafbfc!important;
+}
+body.light #keys .keyname{
+  background:#fff!important;
+  color:#16191f!important;
+  border-color:#d2d8e0!important;
+}
+body.light #keys button[data-key="DEL"] .keyname,
+body.light #keys button[data-key="AC"] .keyname{
+  background:#ffb844!important;
+  color:#18120b!important;
+}
+@media (max-width:700px){
+  #keys .spanrow > button,
+  #keys .spanrow.five > button {padding-top:14px!important;padding-bottom:2px!important}
+  #keys .spanrow.five,#keys .spanrow:not(.five){gap:4px!important}
+  #keys .spanrow button .keyname,
+  body.light #keys button .keyname,
+  body:not(.light) #keys button .keyname{
+    font-size:clamp(10px,3.2vw,17px)!important;
+  }
+  #keys .spanrow.five button.number .keyname{
+    font-size:clamp(21px,6vw,31px)!important;
+  }
+  #keys button[data-key="opt"] .keyname,
+  #keys button[data-key="logbase"] .keyname{
+    font-size:clamp(9px,2.5vw,13px)!important;
+  }
+  #keys button[data-key="sd"] .keyname{
+    font-size:clamp(9px,2.6vw,14px)!important;
+  }
+  #keys .spanrow.five > button[data-key="DEL"] .keyname,
+  #keys .spanrow.five > button[data-key="AC"] .keyname {
+    font-size:clamp(13px,4vw,21px)!important;
+  }
+  #keys button .upper{height:13px!important}
+  .calculator .top .nav{
+    width:min(100%,95px)!important;
+    aspect-ratio:1 / 1!important;
+  }
+}
