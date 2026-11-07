@@ -23,9 +23,9 @@
   function formatForDisplay(text) {
     const parts=text.split("×10^");
     const mantissa=parts[0];
-    const m=/^(-?)(\\d+)(?:\\.(\\d+))?$/.exec(mantissa);
+    const m=/^(-?)(\d+)(?:\.(\d+))?$/.exec(mantissa);
     if(!m)return text;
-    const groups=settings.separators?m[2].replace(/\\B(?=(\\d{3})+(?!\\d))/g,settings.decimalMark==="comma"?".":","):m[2];
+    const groups=settings.separators?m[2].replace(/\B(?=(\d{3})+(?!\d))/g,settings.decimalMark==="comma"?".":","):m[2];
     const decimal=m[3]===undefined?"":(settings.decimalMark==="comma"?",":".")+m[3];
     return m[1]+groups+decimal+(parts.length>1?"×10^"+parts[1]:"");
   }
@@ -33,11 +33,11 @@
     if(!Number.isFinite(n))return "Math ERROR";
     let value;
     if(settings.format==="fix")value=Number(n).toFixed(settings.digits);
-    else if(settings.format==="sci")value=Number(n).toExponential(settings.sciDigits-1).replace(/e\\+?(-?\\d+)$/,"×10^$1");
+    else if(settings.format==="sci")value=Number(n).toExponential(settings.sciDigits-1).replace(/e\+?(-?\d+)$/,"×10^$1");
     else if(settings.format==="norm"){
       const a=Math.abs(n),lower=settings.norm===1?1e-2:1e-9;
       value=(a>0&&(a<lower||a>=1e10))?
-        Number(n).toExponential(9).replace(/e\\+?(-?\\d+)$/,"×10^$1"):
+        Number(n).toExponential(9).replace(/e\+?(-?\d+)$/,"×10^$1"):
         previousFmt(n);
     } else value=previousFmt(n);
     return formatForDisplay(value);
