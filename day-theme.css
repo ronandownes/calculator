@@ -271,3 +271,96 @@ body:not(.light) #keys button.shift-ready .keyname {
 body:not(.light) #keys button.shift-ready .upper{
   color:#ffd36b!important;
 }
+
+/* Reference-key finish: 2×2 Maths mark, large fraction, proper root legends. */
+.calculator .brand{
+  height:40px!important;
+  display:flex!important;
+  justify-content:flex-end!important;
+  align-items:center!important;
+  margin:0 6px 8px!important;
+}
+.calculator .brand .four-dot-mark{
+  width:38px!important;
+  height:38px!important;
+  display:block!important;
+  flex:none!important;
+  background:#fff!important;
+  border:1px solid #e3e6ed!important;
+  border-radius:9px!important;
+  padding:2px!important;
+  object-fit:contain!important;
+}
+body:not(.light) .calculator .brand .four-dot-mark{
+  background:#f1f2f4!important;
+  border-color:#858d96!important;
+}
+#keys button[data-key="frac"] .keyname svg.fraction-key-icon{
+  display:block!important;
+  width:43px!important;
+  height:37px!important;
+  max-width:95%!important;
+  flex:none;
+  overflow:visible!important;
+  color:inherit!important;
+}
+#keys button[data-key="frac"] .upper svg.mixed-fraction-key-icon,
+#keys button[data-key="^"] .upper svg.nth-root-key-icon {
+  display:block!important;
+  width:35px!important;
+  height:21px!important;
+  max-width:100%;
+  color:inherit!important;
+  transform:translateY(-5px);
+  overflow:visible!important;
+}
+#keys button[data-key="frac"] .upper,
+#keys button[data-key="^"] .upper {
+  display:flex!important;
+  justify-content:center!important;
+  align-items:center!important;
+  overflow:visible!important;
+}
+#keys button[data-key="frac"] .keyname {
+  min-height:45px!important;
+}
+/* ALPHA always outlines variable keys in red, regardless of day/night.
+   SHIFT retains the separately requested amber outline. */
+body.light #keys button.alpha-ready .keyname,
+body:not(.light) #keys button.alpha-ready .keyname{
+  outline:3px solid #ed5264!important;
+  outline-offset:-2px!important;
+  box-shadow:0 0 0 1px #ef7d89,0 2px 2px #0002!important;
+}
+body:not(.light) #keys button.alpha-ready .keyname {
+  color:#fff!important;
+}
+body.light #keys button.alpha-ready .keyname {
+  color:#14181c!important;
+}
+/* Blue distinguishes SHIFT lettering without changing its orange key outline. */
+body.light .calculator .top .roundgroup:first-child .keylabel {
+  color:#216bb6!important;
+}
+body:not(.light) .calculator .top .roundgroup:first-child .keylabel {
+  color:#79baff!important;
+}
+body:not(.light) #keys button.shift-ready .keyname {
+  outline:3px solid #ffb33e!important;
+  outline-offset:-2px!important;
+}
+@media(max-width:700px) {
+  .calculator .brand{height:34px!important;margin:0 6px 6px!important}
+  .calculator .brand .four-dot-mark{width:32px!important;height:32px!important}
+  #keys button[data-key="frac"] .keyname svg.fraction-key-icon{
+    width:34px!important;
+    height:31px!important;
+  }
+  #keys button[data-key="frac"] .upper svg.mixed-fraction-key-icon,
+  #keys button[data-key="^"] .upper svg.nth-root-key-icon {
+    width:29px!important;
+    height:18px!important;
+    transform:translateY(-3px);
+  }
+  #keys button[data-key="frac"] .keyname{min-height:36px!important}
+}
