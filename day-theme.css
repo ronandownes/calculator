@@ -985,3 +985,107 @@ body:not(.light) .outside-theme .theme-switch button{
   .calculator .screen .lcd-menu{font-size:clamp(14px,4vw,21px);}
   .calculator .screen .lcd-menu button{min-height:25px}
 }
+
+/* Maths site header reused on calculator without adding site navigation to the device. */
+body.light,
+body:not(.light){
+  padding-top:0!important;
+}
+.site-header {
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  gap:16px;
+  width:100%;
+  min-height:80px;
+  padding:8px 18px;
+  background:#fff;
+  color:#202124;
+  border-bottom:1px solid #dadce0;
+  box-sizing:border-box;
+}
+.site-header .site-logo {
+  display:flex;
+  align-items:center;
+  flex:none;
+  width:168px;
+  height:auto;
+  text-decoration:none;
+  border:0;
+}
+.site-header .site-logo img {
+  width:168px;
+  height:auto;
+  display:block;
+}
+.site-header .site-logo:focus-visible {
+  outline:3px solid #80b4ff;
+  outline-offset:3px;
+}
+.site-header .outside-theme,
+body.light .site-header .outside-theme,
+body:not(.light) .site-header .outside-theme{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  flex:none!important;
+  width:auto!important;
+  margin:0!important;
+  padding:0!important;
+  opacity:1!important;
+}
+.site-header .outside-theme .theme-switch,
+body.light .site-header .outside-theme .theme-switch,
+body:not(.light) .site-header .outside-theme .theme-switch{
+  display:flex!important;
+  flex-direction:row!important;
+  gap:5px!important;
+  justify-content:flex-start!important;
+  align-items:center!important;
+  width:auto!important;
+  margin:0!important;
+  padding:0!important;
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  position:static!important;
+}
+.site-header .outside-theme .theme-switch button,
+body.light .site-header .outside-theme .theme-switch button,
+body:not(.light) .site-header .outside-theme .theme-switch button{
+  color:#5c6978!important;
+  background:#f7f9fc!important;
+  border:1px solid #e0e5ed!important;
+  width:35px!important;
+  min-width:35px!important;
+  height:35px!important;
+  min-height:35px!important;
+  border-radius:50%!important;
+  font-size:21px!important;
+}
+.site-header .outside-theme .theme-switch button[aria-pressed="true"],
+body.light .site-header .outside-theme .theme-switch button[aria-pressed="true"],
+body:not(.light) .site-header .outside-theme .theme-switch button[aria-pressed="true"]{
+  background:#e4f0ff!important;
+  color:#245e99!important;
+  border-color:#94bde7!important;
+}
+.layout {margin-top:12px!important;}
+@media (max-width:700px) {
+  .site-header {
+    min-height:63px;
+    padding:6px 12px;
+    gap:10px;
+  }
+  .site-header .site-logo, .site-header .site-logo img {width:150px;}
+  .site-header .outside-theme .theme-switch button,
+  body.light .site-header .outside-theme .theme-switch button,
+  body:not(.light) .site-header .outside-theme .theme-switch button{
+    width:31px!important;
+    min-width:31px!important;
+    height:31px!important;
+    min-height:31px!important;
+    font-size:19px!important;
+  }
+  .layout{margin-top:6px!important;}
+}
