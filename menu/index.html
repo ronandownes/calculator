@@ -828,11 +828,11 @@ applyMenuShiftColour("green");
   function press(cmd){
     if(cmd==="on"){state.view="home";state.selection=0;state.shift=false;render();return}
     if(cmd==="variables"){showMenu("catalog");return}
-    if(cmd==="function"){state.view="calculate";state.shift=false;insert("x");return}
+    if(cmd==="function"){showMenu("catalog");return}
     if(cmd==="tools"){showMenu("catalog");return}
     if(cmd==="page-up"){press("up");return}
     if(cmd==="page-down"){press("down");return}
-    if(cmd==="exp10"){if(state.view==="calculate")insert("×10^");return}
+    if(cmd==="exp10"){if(state.view==="calculate")insert("10^(");return}
     if(cmd==="home"){state.view="home";state.selection=0;state.shift=false;render();return}
     if(cmd==="shift"){state.shift=!state.shift;render();return}
     if(cmd==="settings"){showMenu("settings");return}
@@ -896,6 +896,9 @@ applyMenuShiftColour("green");
       render();return;
     }
     if(state.view!=="calculate")return;
+    // CW alternate numeric keys: π and e are printed over 7 and 8.
+    if(state.shift&&cmd==="7"){state.shift=false;insert("π");return}
+    if(state.shift&&cmd==="8"){state.shift=false;insert("e");return}
     if(state.shift&&["sin","cos","tan"].includes(cmd)){state.shift=false;insert("a"+cmd+"(");return}
     if(state.shift&&cmd==="sqrt"){state.shift=false;insert("cbrt(");return}
     if(state.shift&&cmd==="square"){state.shift=false;insert("^3");return}
