@@ -1652,3 +1652,62 @@ body.light.skin-blue .calculator #keys{
   flex-basis:20px!important;width:20px!important;height:20px!important;min-height:20px!important;
  }
 }
+
+/* SHIFT/second-function ink is independently selectable from the left rail.
+   Keep ALPHA lettering red and maintain the original dark case appearance. */
+.skin-rail .shift-colour-picker{
+ display:flex;align-items:center;flex-wrap:wrap;gap:7px;margin-top:8px;
+}
+.skin-rail .shift-colour-title{
+ width:100%;font:700 10px/1.2 Arial,Helvetica,sans-serif;
+ text-transform:uppercase;letter-spacing:.055em;color:#6a7481;
+}
+.skin-rail .shift-swatch{
+ appearance:none;display:inline-block;
+ width:21px;height:21px;min-width:21px;min-height:21px;
+ border:2px solid white;border-radius:50%;
+ padding:0;cursor:pointer;box-shadow:0 0 0 1px #aebccb;
+}
+.skin-rail .swatch-blue{background:#2d7dd2}
+.skin-rail .swatch-red{background:#e63329}
+.skin-rail .swatch-green{background:#3fae49}
+.skin-rail .shift-swatch[aria-pressed="true"]{
+ outline:3px solid #7b96b1;outline-offset:2px;
+}
+.skin-rail .shift-swatch:focus-visible{
+ outline:3px solid #2d7dd2;outline-offset:3px;
+}
+body[data-shift-colour="blue"]{--chosen-shift:#2d7dd2;--chosen-shift-ring:#2d7dd2;--chosen-shift-bg:#e5f1fd}
+body:not(.light)[data-shift-colour="blue"]{--chosen-shift:#82bfff;--chosen-shift-ring:#82bfff;--chosen-shift-bg:#285b91}
+body[data-shift-colour="red"]{--chosen-shift:#c52d42;--chosen-shift-ring:#c52d42;--chosen-shift-bg:#fce6eb}
+body:not(.light)[data-shift-colour="red"]{--chosen-shift:#ff919e;--chosen-shift-ring:#ff919e;--chosen-shift-bg:#793a49}
+body[data-shift-colour="green"]{--chosen-shift:#187d4b;--chosen-shift-ring:#187d4b;--chosen-shift-bg:#e1f4e8}
+body:not(.light)[data-shift-colour="green"]{--chosen-shift:#93d9a6;--chosen-shift-ring:#93d9a6;--chosen-shift-bg:#315b44}
+body[data-shift-colour] .calculator .top .roundgroup:first-child .keylabel,
+body[data-shift-colour] .calculator .top .roundgroup #shift,
+body[data-shift-colour] #keys button .upper,
+body[data-shift-colour] #keys button.shift-ready .upper,
+body[data-shift-colour] #keys button[data-alpha] .upper,
+body[data-shift-colour] #keys button .upper.alphas:not(.alpha-legend){
+ color:var(--chosen-shift)!important;
+}
+body[data-shift-colour] .calculator .top .roundgroup:first-child #shift,
+body[data-shift-colour] .calculator .top #shift,
+body[data-shift-colour] .calculator .top #shift.active{
+ border-color:var(--chosen-shift-ring)!important;
+}
+body[data-shift-colour] .calculator .top #shift.active{
+ background:var(--chosen-shift-bg)!important;
+}
+body[data-shift-colour] #keys button.shift-ready .keyname{
+ outline-color:var(--chosen-shift-ring)!important;
+}
+/* ALPHA remains red in every skin; selected SHIFT colour does not overwrite it. */
+body[data-shift-colour] .calculator .roundgroup.alpha .keylabel,
+body[data-shift-colour] #keys button .alpha-legend{
+ color:var(--alpha-ink,#e63329)!important;
+}
+body:not(.light)[data-shift-colour] .calculator .roundgroup.alpha .keylabel,
+body:not(.light)[data-shift-colour] #keys button .alpha-legend{
+ color:#ff7770!important;
+}
