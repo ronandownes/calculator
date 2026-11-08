@@ -167,6 +167,74 @@ body.menu-blue .controls,body.menu-blue .keys,body.menu-blue .navline{background
  .menu-sidebar .calculator-chooser{flex-direction:row;flex-wrap:wrap;gap:15px;}
  .menu-sidebar .model-palette{gap:8px;}
 }
+
+/* SHIFT legends: distinct blue or green, positioned immediately above round key faces. */
+body[data-menu-shift-colour="blue"]{--menu-shift:#276fb9;--menu-shift-dark:#9ecaff;--menu-shift-selected:#245f9c}
+body[data-menu-shift-colour="green"]{--menu-shift:#177d4f;--menu-shift-dark:#a4e8b5;--menu-shift-selected:#276d4a}
+.menu-sidebar .menu-shift-picker{
+ display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:10px;
+}
+.menu-sidebar .menu-shift-picker .shift-title{
+ display:block;width:100%;font:800 10px/1.2 Arial,Helvetica,sans-serif;
+ color:#697788;text-transform:uppercase;letter-spacing:.055em;
+}
+.menu-sidebar .menu-shift-picker .shift-choice{
+ appearance:none;width:23px;height:23px;min-width:23px;
+ border:2px solid #fff;border-radius:50%;cursor:pointer;
+ padding:0;box-shadow:0 0 0 1px #aebccb;
+}
+.menu-sidebar .shift-blue{background:#2d7dd2}
+.menu-sidebar .shift-green{background:#3fae49}
+.menu-sidebar .menu-shift-picker .shift-choice[aria-pressed="true"]{
+ outline:3px solid #8799b0;outline-offset:2px;
+}
+.menu-sidebar .menu-shift-picker .shift-choice:focus-visible{
+ outline:3px solid #276fb9;outline-offset:3px;
+}
+.keys{
+ row-gap:20px;
+ padding-top:14px;
+}
+.keys button.key[data-shift-label]{
+ position:relative;
+ overflow:visible;
+}
+.keys button.key[data-shift-label]::before{
+ content:attr(data-shift-label);
+ position:absolute;
+ bottom:calc(100% + 2px);
+ left:-4px;
+ width:calc(100% + 8px);
+ color:var(--menu-shift);
+ text-align:center;
+ font:800 clamp(10px,2.3vw,14px)/1.05 Arial,Helvetica,sans-serif;
+ white-space:nowrap;
+ pointer-events:none;
+}
+body.menu-dark .keys button.key[data-shift-label]::before{
+ color:var(--menu-shift-dark);
+}
+body .controls button.key[data-cmd="shift"]{
+ color:var(--menu-shift)!important;
+ border-color:var(--menu-shift)!important;
+}
+body.menu-dark .controls button.key[data-cmd="shift"]{
+ color:var(--menu-shift-dark)!important;
+ border-color:var(--menu-shift-dark)!important;
+}
+body.shift-active .controls button.key[data-cmd="shift"]{
+ outline:3px solid var(--menu-shift-selected)!important;
+ outline-offset:1px;
+}
+body .keys button.key[data-shift-label]:focus-visible{
+ outline:3px solid var(--menu-shift)!important;
+}
+@media(max-width:430px){
+ .keys{row-gap:17px;padding-top:11px}
+ .keys button.key[data-shift-label]::before{
+  font-size:clamp(9px,3vw,12px);bottom:calc(100% + 2px);
+ }
+}
 </style>
 </head>
 <body class="menu-light">
@@ -175,7 +243,7 @@ body.menu-blue .controls,body.menu-blue .keys,body.menu-blue .navline{background
 <a class="site-logo" href="../" aria-label="Maths calculator homepage"><img src="../maths-logo.svg" alt="Maths" width="155"></a>
 <nav class="calculator-chooser" aria-label="Calculator styles">
 <div class="model-selector"><span class="skin-label">Scientific</span><div class="model-palette" role="group" aria-label="Scientific colours"><a class="skin-dot skin-red" href="../?skin=pink" title="Scientific pastel pink" aria-label="Scientific pastel pink"></a><a class="skin-dot skin-green" href="../?skin=mint" title="Scientific pastel mint" aria-label="Scientific pastel mint"></a><a class="skin-dot skin-blue" href="../?skin=blue" title="Scientific pastel blue" aria-label="Scientific pastel blue"></a><a class="skin-dot skin-neutral" href="../" title="Scientific dark" aria-label="Scientific dark, homepage"></a></div></div>
-<div class="model-selector"><span class="skin-label">Menu</span><div class="model-palette" role="group" aria-label="Menu colours"><button class="skin-dot skin-red" data-menu-skin="pink" type="button" title="Pastel pink" aria-label="Menu pastel pink"></button><button class="skin-dot skin-green" data-menu-skin="mint" type="button" title="Pastel mint" aria-label="Menu pastel mint"></button><button class="skin-dot skin-blue" data-menu-skin="blue" type="button" title="Pastel blue" aria-label="Menu pastel blue"></button><button class="skin-dot skin-neutral" id="menuNeutralSkin" type="button" title="Toggle Dark / Light" aria-label="Menu dark or light"></button></div><span class="skin-status" id="menuSkinStatus"></span></div>
+<div class="model-selector"><span class="skin-label">Menu</span><div class="model-palette" role="group" aria-label="Menu colours"><button class="skin-dot skin-red" data-menu-skin="pink" type="button" title="Pastel pink" aria-label="Menu pastel pink"></button><button class="skin-dot skin-green" data-menu-skin="mint" type="button" title="Pastel mint" aria-label="Menu pastel mint"></button><button class="skin-dot skin-blue" data-menu-skin="blue" type="button" title="Pastel blue" aria-label="Menu pastel blue"></button><button class="skin-dot skin-neutral" id="menuNeutralSkin" type="button" title="Toggle Dark / Light" aria-label="Menu dark or light"></button></div><span class="skin-status" id="menuSkinStatus"></span><div class="menu-shift-picker" role="group" aria-label="Second-function colour"><span class="shift-title">SHIFT lettering</span><button class="shift-choice shift-blue" data-menu-shift-colour="blue" type="button" aria-label="Blue SHIFT legends" title="Blue SHIFT legends" aria-pressed="true"></button><button class="shift-choice shift-green" data-menu-shift-colour="green" type="button" aria-label="Green SHIFT legends" title="Green SHIFT legends" aria-pressed="false"></button></div></div>
 </nav>
 </aside>
 <div class="shell">
@@ -202,11 +270,11 @@ body.menu-blue .controls,body.menu-blue .keys,body.menu-blue .navline{background
       <button data-cmd="right" aria-label="Right">▶</button>
     </div>
     <div class="keys">
-      <button class="key secondary" data-cmd="x">x</button><button class="key" data-cmd="sqrt">√</button>
-      <button class="key" data-cmd="square">x²</button><button class="key" data-cmd="power">xʸ</button>
-      <button class="key" data-cmd="log">log</button><button class="key" data-cmd="ln">ln</button>
-      <button class="key" data-cmd="sin">sin</button><button class="key" data-cmd="cos">cos</button>
-      <button class="key" data-cmd="tan">tan</button><button class="key" data-cmd="(">(</button>
+      <button class="key secondary" data-cmd="x">x</button><button class="key" data-cmd="sqrt" data-shift-label="∛">√</button>
+      <button class="key" data-cmd="square" data-shift-label="x³">x²</button><button class="key" data-cmd="power">xʸ</button>
+      <button class="key" data-cmd="log" data-shift-label="10ˣ">log</button><button class="key" data-cmd="ln" data-shift-label="eˣ">ln</button>
+      <button class="key" data-cmd="sin" data-shift-label="sin⁻¹">sin</button><button class="key" data-cmd="cos" data-shift-label="cos⁻¹">cos</button>
+      <button class="key" data-cmd="tan" data-shift-label="tan⁻¹">tan</button><button class="key" data-cmd="(">(</button>
       <button class="key" data-cmd=")">)</button><button class="key accent" data-cmd="del">DEL</button>
       <button class="key" data-cmd="7">7</button><button class="key" data-cmd="8">8</button>
       <button class="key" data-cmd="9">9</button><button class="key" data-cmd="×">×</button>
@@ -248,6 +316,14 @@ function applyMenuSkin(skin){
 menuColourButtons.forEach(b=>b.addEventListener("click",()=>applyMenuSkin(b.dataset.menuSkin)));
 neutralMenu.addEventListener("click",()=>applyMenuSkin(menuSkin==="dark"?"light":"dark"));
 applyMenuSkin(menuSkin);
+const menuShiftButtons=[...document.querySelectorAll("[data-menu-shift-colour]")];
+function applyMenuShiftColour(colour){
+ if(!["blue","green"].includes(colour))return;
+ document.body.dataset.menuShiftColour=colour;
+ menuShiftButtons.forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.menuShiftColour===colour)));
+}
+menuShiftButtons.forEach(b=>b.addEventListener("click",()=>applyMenuShiftColour(b.dataset.menuShiftColour)));
+applyMenuShiftColour("blue");
 </script>
 <script>
 (() => {
@@ -472,6 +548,7 @@ applyMenuSkin(menuSkin);
   function render(){
     angleLabel.textContent=angle();
     shiftLabel.textContent=state.shift?"S":"";
+    document.body.classList.toggle("shift-active",state.shift);
     hint.textContent=state.view==="calculate"&&state.numberFormat!=="norm"?
       (state.numberFormat==="fix"?"FIX "+state.fixedDigits:"SCI "+state.sciDigits):
       state.view==="home"?"HOME":state.view==="calculate"?"Calculate":state.view==="menu"?"MENU":state.view;
@@ -742,6 +819,9 @@ applyMenuSkin(menuSkin);
     if(state.view!=="calculate")return;
     if(state.shift&&["sin","cos","tan"].includes(cmd)){state.shift=false;insert("a"+cmd+"(");return}
     if(state.shift&&cmd==="sqrt"){state.shift=false;insert("cbrt(");return}
+    if(state.shift&&cmd==="square"){state.shift=false;insert("^3");return}
+    if(state.shift&&cmd==="log"){state.shift=false;insert("10^(");return}
+    if(state.shift&&cmd==="ln"){state.shift=false;insert("exp(");return}
     state.shift=false;
     const value=({"x":"x","sqrt":"sqrt(","square":"^2","power":"^","log":"log(","ln":"ln(","pi":"π","percent":"%","ans":"Ans","fraction":"/"})[cmd]||cmd;
     insert(value);
