@@ -429,6 +429,7 @@ applyMenuShiftColour("blue");
       case "cbrt":return Math.cbrt(a);
       case "abs":return Math.abs(a);
       case "ln":if(a<=0)throw Error("Math ERROR");return Math.log(a);
+      case "exp":return Math.exp(a);
       case "log":if(a<=0)throw Error("Math ERROR");return Math.log10(a);
       case "gcd":if(!Number.isInteger(a)||!Number.isInteger(b))throw Error("Integers required");return gcd(a,b);
       case "lcm":if(!Number.isInteger(a)||!Number.isInteger(b))throw Error("Integers required");return a===0||b===0?0:Math.abs(a*b)/gcd(a,b);
