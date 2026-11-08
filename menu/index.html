@@ -258,7 +258,7 @@ applyMenuSkin(menuSkin);
     ans:0,expr:"",answer:null,decimal:false,numberFormat:"norm",fixedDigits:3,sciDigits:5,normMode:1,
     inputOutput:"MathI/MathO",fractionResult:"improper",freqOn:false,tableMode:"both",
     decimalMark:"dot",digitSeparator:false,multiLineFont:"normal",contrast:5,
-    stats:"",message:"",tableRows:[],box:"",ratio:null};
+    stats:"",message:"",factorText:null,tableRows:[],box:"",ratio:null};
   const home=[["Calculate","Basic calculations"],["Statistics","Mean and spread"],["Table","Function values"],["Ratio","Proportions"],["Maths Box","Dice and coin"]];
   const catalogue=[
     ["Number","Fractions, HCF, LCM"],["Probability","nPr, nCr, random"],["Trigonometry","Inverse functions"],["Functions","Absolute value, roots"],["Constants","π, e"]
@@ -292,7 +292,7 @@ applyMenuSkin(menuSkin);
     multiLineFont:[["Normal Font","Large"],["Small Font","Compact"]]
   };
   const fmtItems=[["Standard / Decimal","Toggle result"],["Fraction","Exact if possible"],
-    ["Decimal","Approximation"],["Scientific","Scientific display"]];
+    ["Decimal","Approximation"],["Scientific","Scientific display"],["Prime factors","Whole-number factorisation"]];
   const escapeHtml=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   function scientific(n,places,keepTrailing=true){
     const [rawMantissa,exponent]=n.toExponential(places).split("e");
@@ -465,7 +465,7 @@ applyMenuSkin(menuSkin);
   function calcDisplay(){
     const raw=state.expr.replace(/asin\(/g,"sin⁻¹(").replace(/acos\(/g,"cos⁻¹(").replace(/atan\(/g,"tan⁻¹(").replace(/sqrt\(/g,"√(").replace(/ran#/g,"Ran#");
     let out='<div class="expression">'+escapeHtml(raw||"0")+'</div>';
-    if(state.answer!==null)out+='<div class="result">'+resultMarkup(state.answer)+'</div>';
+    if(state.answer!==null)out+='<div class="result">'+(state.factorText?escapeHtml(state.factorText):resultMarkup(state.answer))+'</div>';
     if(state.message)out+='<div class="mini">'+escapeHtml(state.message)+'</div>';
     return out;
   }
@@ -584,10 +584,35 @@ applyMenuSkin(menuSkin);
       returnFromSetup();return;
     }
     if(m==="format"){
-      if(i<0||i>3)return;
-      state.decimal=i===0?!state.decimal:i===2||i===3;
+      if(i<0||i>4)return;
       state.view=state.back;state.menu=null;
-      if(i===3){state.message="Scientific formatting selected";state.decimal=true}
+      if(i===4){
+        try{
+          if(state.answer===null){
+            let source=state.expr;
+            const opened=[...source].filter(c=>c==="(").length;
+            const closed=[...source].filter(c=>c===")").length;
+            if(opened>closed)source+=")".repeat(opened-closed);
+            state.answer=evaluate(source);state.ans=state.answer;state.expr=source;
+          }
+          const n=state.answer;
+          if(!Number.isSafeInteger(n)||n<2)throw Error("Prime factors require a whole number ≥ 2");
+          const factors=[];let value=n;
+          for(let p=2;p*p<=value&&p<=1000000;p+=(p===2?1:2)){
+            if(value%p===0){let k=0;do{value/=p;k++}while(value%p===0);factors.push(k>1?p+"^"+k:String(p));}
+          }
+          if(value>1)factors.push(String(value));
+          state.factorText=String(n)+" = "+factors.join(" × ");
+          state.message="";
+        }catch(error){state.factorText=null;state.message=error.message;}
+      }else{
+        state.factorText=null;
+        if(i===0)state.decimal=!state.decimal;
+        else if(i===1)state.decimal=false;
+        else state.decimal=true;
+        if(i===3)state.message="Scientific formatting selected";
+        else state.message="";
+      }
       render();return;
     }
   }
@@ -601,7 +626,7 @@ applyMenuSkin(menuSkin);
       if(!/^[+\-−×÷^%!]$/.test(value))state.expr="";
       else state.expr="Ans";
     }
-    state.answer=null;state.message="";
+    state.answer=null;state.message="";state.factorText=null;
     state.expr+=value;render();
   }
   function calculate(){
@@ -609,7 +634,7 @@ applyMenuSkin(menuSkin);
       let source=state.expr,opened=(source.match(/\(/g)||[]).length,closed=(source.match(/\)/g)||[]).length;
       if(opened>closed)source+=")".repeat(opened-closed);
       const value=evaluate(source);
-      state.ans=value;state.answer=value;state.expr=source;state.message="";
+      state.ans=value;state.answer=value;state.expr=source;state.message="";state.factorText=null;
     }catch(e){state.answer=null;state.message=e.message||"Math ERROR"}
     render();
   }
@@ -658,7 +683,10 @@ applyMenuSkin(menuSkin);
     if(cmd==="catalog"){showMenu("catalog");return}
     if(cmd==="format"){
       if(state.shift){showMenu("format");return}
-      state.shift=false;state.decimal=!state.decimal;render();return;
+      state.shift=false;
+      if(state.factorText){state.factorText=null;state.decimal=false;}
+      else state.decimal=!state.decimal;
+      render();return;
     }
     if(state.view==="menu"&&state.menu==="contrast"&&
       ["contrast-light","contrast-dark","back","right"].includes(cmd)){
