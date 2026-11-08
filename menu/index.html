@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Menu-based | Cal</title>
+<title>Menu-driven calculator | Maths</title>
 <link rel="icon" type="image/svg+xml" sizes="any" href="../favicon.svg">
 <style>
 :root{font-family:Arial,Helvetica,sans-serif;color:#172230;background:#f7f9fc;color-scheme:light}
@@ -235,6 +235,66 @@ body .keys button.key[data-shift-label]:focus-visible{
   font-size:clamp(9px,3vw,12px);bottom:calc(100% + 2px);
  }
 }
+
+/* CW layout: 6 scientific keys, 5 numerical keys, distinct five-button controller. */
+.menu-layout{grid-template-columns:165px minmax(0,600px)!important;max-width:800px!important;}
+.menu-layout .shell{max-width:600px!important}
+.device{padding:22px 26px 32px!important;border-radius:13px!important}
+.dotline{margin:0 4px 14px!important}
+.lcd-frame{padding:13px!important;background:#101316!important;border-color:#101316!important;border-radius:22px!important;margin-bottom:17px!important}
+.lcd{height:220px!important;border-radius:9px!important}
+.home-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:10px!important;padding:14px 3px!important}
+.home-grid button{
+ display:flex!important;flex-direction:column!important;align-items:center!important;
+ background:transparent!important;border:0!important;min-height:91px!important;
+ padding:7px 1px!important;outline:0!important;font:400 clamp(13px,2.4vw,20px)/1.12 'Courier New',monospace!important;
+ text-align:center!important;color:#18241d!important;
+}
+.home-grid button.selected{background:#202724!important;color:#fff!important}
+.home-grid button .home-symbol{font:900 30px/1 Arial,sans-serif!important;display:block;min-height:40px!important}
+.home-grid button .home-symbol span{display:block;font-size:23px}
+.home-grid button .home-text{display:block}
+.cw-control-deck{display:grid;grid-template-columns: 1.2fr 2.15fr .8fr;align-items:center;gap:12px;margin:8px 0 10px}
+.cw-aux-controls{display:grid;grid-template-columns:repeat(2,1fr);gap:6px 10px}
+.cw-control-position{display:flex;align-items:center;flex-direction:column;gap:4px}
+.cw-label,.cw-function-label{font:900 clamp(9px,1.5vw,13px)/1 Arial,Helvetica,sans-serif;color:#e8e8e8;text-align:center}
+.cw-hidden-label{visibility:hidden}
+.cw-control{display:flex;align-items:center;justify-content:center;width:min(100%,52px);aspect-ratio:1;border:3px solid #8e939b;border-radius:50%;background:#34383c;color:#ddd;font-size:27px;font-weight:bold;cursor:pointer}
+.cw-dpad{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:0;width:100%;max-width:205px;justify-self:center;aspect-ratio:1.3;background:radial-gradient(ellipse,#151719 42%,transparent 43%)}
+.cw-dpad button{border:3px solid #838991;border-radius:50%;background:#33373a;color:#ddd;font-size:clamp(19px,3vw,30px);font-weight:bold;cursor:pointer;min-width:0;min-height:0}
+.cw-dpad .cw-up{grid-area:1/2}.cw-dpad .cw-left{grid-area:2/1}.cw-dpad .cw-ok{grid-area:2/2;font-size:clamp(13px,2vw,21px)}.cw-dpad .cw-right{grid-area:2/3}.cw-dpad .cw-down{grid-area:3/2}
+.cw-page-rocker{display:flex;flex-direction:column;width:min(100%,63px);justify-self:center;border:3px solid #888d94;border-radius:35px;overflow:hidden}
+.cw-page-rocker button{font-size:21px;line-height:1;background:#35393d;color:#ddd;border:0;min-height:48px;cursor:pointer}
+.cw-functions{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:12px 0 21px}
+.cw-function{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:5px;min-width:0}
+.cw-function-key{display:flex;align-items:center;justify-content:center;width:min(100%,69px);aspect-ratio:1;border:1px solid #eee;border-radius:50%;background:#f5f5f5;color:#17191b;font:800 clamp(13px,2vw,24px) Arial;cursor:pointer}
+.cw-function-key.cw-shift-key{background:var(--menu-shift,#187d4f)!important;color:#101c14!important;border-color:var(--menu-shift,#187d4f)!important}
+.cw-shift-ink{color:var(--menu-shift-dark,#a4e8b5)!important}
+.cw-upper-keys,.cw-number-keys{display:grid!important;align-items:start!important;column-gap:11px!important;row-gap:20px!important;padding-top:7px!important}
+.cw-upper-keys{grid-template-columns:repeat(6,minmax(0,1fr))!important;margin-bottom:22px}
+.cw-number-keys{grid-template-columns:repeat(5,minmax(0,1fr))!important}
+.cw-upper-keys button.key,.cw-number-keys button.key{
+ display:flex!important;position:relative!important;align-items:center!important;justify-content:center!important;
+ width:100%!important;aspect-ratio:1!important;min-height:0!important;height:auto!important;border-radius:50%!important;
+ color:#151618!important;background:#f5f5f5!important;border:1px solid #e2e6ed!important;
+ box-shadow:none!important;font:800 clamp(16px,2.8vw,30px)/1 Arial,Helvetica,sans-serif!important;
+ padding:2px!important;overflow:visible!important;
+}
+.cw-upper-keys button.key{font-size:clamp(13px,2.6vw,24px)!important}
+.cw-upper-keys button.key::before,.cw-number-keys button.key::before{
+ content:attr(data-shift-label);position:absolute;bottom:calc(100% + 2px);
+ left:-3px;width:calc(100% + 6px);color:var(--menu-shift-dark,#a4e8b5)!important;
+ font:800 clamp(10px,1.7vw,15px)/1 Arial,Helvetica,sans-serif!important;text-align:left;white-space:nowrap;pointer-events:none;
+}
+.cw-upper-keys button:not([data-shift-label])::before,.cw-number-keys button:not([data-shift-label])::before{content:none}
+.cw-number-keys .cw-format-key{font-size:clamp(10px,1.8vw,15px)!important}
+body.menu-dark .cw-function-key:not(.cw-shift-key),body.menu-dark .cw-upper-keys button.key,body.menu-dark .cw-number-keys button.key{background:#f2f2f2!important;color:#101214!important;border-color:#dadde1!important;box-shadow:none!important}
+body.menu-dark .cw-control-deck button{color:#d6d6d6!important}
+body.menu-dark .cw-functions .cw-shift-key{color:#0e2418!important}
+body.menu-dark .cw-page-rocker button{background:#34383c!important}
+body.menu-dark .cw-upper-keys button.key[data-shift-label]::before,body.menu-dark .cw-number-keys button.key[data-shift-label]::before{color:var(--menu-shift-dark)!important}
+body.menu-light .cw-upper-keys button.key[data-shift-label]::before,body.menu-light .cw-number-keys button.key[data-shift-label]::before{color:var(--menu-shift)!important}
+@media(max-width:700px){.menu-layout .shell{max-width:600px!important}.device{padding:12px 13px 25px!important}.cw-control-deck{gap:5px}.cw-aux-controls{gap:4px}.cw-control{width:min(100%,43px);font-size:20px}.cw-page-rocker{max-width:43px}.cw-page-rocker button{min-height:35px}.cw-functions{gap:4px}.cw-upper-keys,.cw-number-keys{column-gap:5px!important;row-gap:16px!important}.cw-functions .cw-function-label{font-size:clamp(8px,2.2vw,12px)}.cw-function-key{width:min(100%,56px)}.cw-upper-keys{margin-bottom:16px}.cw-number-keys .cw-format-key{font-size:clamp(9px,2.7vw,13px)!important}.home-grid{gap:3px!important}}
 </style>
 </head>
 <body class="menu-light">
@@ -243,7 +303,7 @@ body .keys button.key[data-shift-label]:focus-visible{
 <a class="site-logo" href="../" aria-label="Maths calculator homepage"><img src="../maths-logo.svg" alt="Maths" width="155"></a>
 <nav class="calculator-chooser" aria-label="Calculator styles">
 <div class="model-selector"><span class="skin-label">Scientific</span><div class="model-palette" role="group" aria-label="Scientific colours"><a class="skin-dot skin-red" href="../?skin=pink" title="Scientific pastel pink" aria-label="Scientific pastel pink"></a><a class="skin-dot skin-green" href="../?skin=mint" title="Scientific pastel mint" aria-label="Scientific pastel mint"></a><a class="skin-dot skin-blue" href="../?skin=blue" title="Scientific pastel blue" aria-label="Scientific pastel blue"></a><a class="skin-dot skin-neutral" href="../" title="Scientific dark" aria-label="Scientific dark, homepage"></a></div></div>
-<div class="model-selector"><span class="skin-label">Menu</span><div class="model-palette" role="group" aria-label="Menu colours"><button class="skin-dot skin-red" data-menu-skin="pink" type="button" title="Pastel pink" aria-label="Menu pastel pink"></button><button class="skin-dot skin-green" data-menu-skin="mint" type="button" title="Pastel mint" aria-label="Menu pastel mint"></button><button class="skin-dot skin-blue" data-menu-skin="blue" type="button" title="Pastel blue" aria-label="Menu pastel blue"></button><button class="skin-dot skin-neutral" id="menuNeutralSkin" type="button" title="Toggle Dark / Light" aria-label="Menu dark or light"></button></div><span class="skin-status" id="menuSkinStatus"></span><div class="menu-shift-picker" role="group" aria-label="Second-function colour"><span class="shift-title">SHIFT lettering</span><button class="shift-choice shift-blue" data-menu-shift-colour="blue" type="button" aria-label="Blue SHIFT legends" title="Blue SHIFT legends" aria-pressed="true"></button><button class="shift-choice shift-green" data-menu-shift-colour="green" type="button" aria-label="Green SHIFT legends" title="Green SHIFT legends" aria-pressed="false"></button></div></div>
+<div class="model-selector"><span class="skin-label">Menu</span><div class="model-palette" role="group" aria-label="Menu colours"><button class="skin-dot skin-red" data-menu-skin="pink" type="button" title="Pastel pink" aria-label="Menu pastel pink"></button><button class="skin-dot skin-green" data-menu-skin="mint" type="button" title="Pastel mint" aria-label="Menu pastel mint"></button><button class="skin-dot skin-blue" data-menu-skin="blue" type="button" title="Pastel blue" aria-label="Menu pastel blue"></button><button class="skin-dot skin-neutral" id="menuNeutralSkin" type="button" title="Toggle Dark / Light" aria-label="Menu dark or light"></button></div><span class="skin-status" id="menuSkinStatus"></span><div class="menu-shift-picker" role="group" aria-label="Second-function colour"><span class="shift-title">SHIFT lettering</span><button class="shift-choice shift-blue" data-menu-shift-colour="blue" type="button" aria-label="Blue SHIFT legends" title="Blue SHIFT legends" aria-pressed="false"></button><button class="shift-choice shift-green" data-menu-shift-colour="green" type="button" aria-label="Green SHIFT legends" title="Green SHIFT legends" aria-pressed="true"></button></div></div>
 </nav>
 </aside>
 <div class="shell">
@@ -254,44 +314,55 @@ body .keys button.key[data-shift-label]:focus-visible{
       <div class="indicators"><span id="angle">D</span><span id="shift-state"></span><span class="hint" id="screen-hint"></span></div>
       <div id="display"></div>
     </div></div>
-    <div class="controls">
-      <button class="key blue" data-cmd="home">HOME</button>
-      <button class="key" data-cmd="settings">SETTINGS</button>
-      <button class="key blue" data-cmd="shift">SHIFT</button>
-      <button class="key" data-cmd="catalog">CATALOG</button>
-      <button class="key" data-cmd="format">FORMAT</button>
-      <button class="key accent" data-cmd="exe">EXE</button>
+    <div class="cw-control-deck" aria-label="Menu calculator navigation and controls">
+      <div class="cw-aux-controls">
+        <div class="cw-control-position"><span class="cw-label">ON</span><button type="button" class="cw-control cw-power" data-cmd="on" aria-label="On">⏻</button></div>
+        <div class="cw-control-position"><span class="cw-label">HOME</span><button type="button" class="cw-control" data-cmd="home" aria-label="Home">⌂</button></div>
+        <div class="cw-control-position"><span class="cw-label">SETTINGS</span><button type="button" class="cw-control cw-settings" data-cmd="settings" aria-label="Settings">☷</button></div>
+        <div class="cw-control-position"><span class="cw-label cw-hidden-label">BACK</span><button type="button" class="cw-control" data-cmd="back" aria-label="Back">↶</button></div>
+      </div>
+      <div class="cw-dpad" role="group" aria-label="Navigation arrows">
+        <button type="button" data-cmd="up" class="cw-up" aria-label="Up">⌃</button>
+        <button type="button" data-cmd="back" class="cw-left" aria-label="Left">‹</button>
+        <button type="button" data-cmd="ok" class="cw-ok" aria-label="OK">OK</button>
+        <button type="button" data-cmd="right" class="cw-right" aria-label="Right">›</button>
+        <button type="button" data-cmd="down" class="cw-down" aria-label="Down">⌄</button>
+      </div>
+      <div class="cw-page-rocker" role="group" aria-label="Page scrolling">
+        <button type="button" data-cmd="page-up" aria-label="Page up">⌃⌃</button>
+        <button type="button" data-cmd="page-down" aria-label="Page down">⌄⌄</button>
+      </div>
     </div>
-    <div class="navline">
-      <button data-cmd="back" aria-label="Back">◀</button>
-      <button data-cmd="up" aria-label="Up">▲</button>
-      <button data-cmd="ok" aria-label="Select">OK</button>
-      <button data-cmd="down" aria-label="Down">▼</button>
-      <button data-cmd="right" aria-label="Right">▶</button>
+    <div class="cw-functions" role="group" aria-label="Menu calculator function controls">
+      <div class="cw-function"><span class="cw-function-label cw-shift-ink">SHIFT</span><button class="cw-function-key cw-shift-key" data-cmd="shift" aria-label="Shift" type="button">⬆</button></div>
+      <div class="cw-function"><span class="cw-function-label">VARIABLE</span><button class="cw-function-key" data-cmd="variables" aria-label="Variables" type="button">⇄x</button></div>
+      <div class="cw-function"><span class="cw-function-label">FUNCTION</span><button class="cw-function-key" data-cmd="function" aria-label="Function" type="button">f(x)</button></div>
+      <div class="cw-function"><span class="cw-function-label">CATALOG</span><button class="cw-function-key" data-cmd="catalog" aria-label="Catalogue" type="button">▱</button></div>
+      <div class="cw-function"><span class="cw-function-label">TOOLS</span><button class="cw-function-key" data-cmd="tools" aria-label="Tools" type="button">•••</button></div>
     </div>
-    <div class="keys">
-      <button class="key secondary" data-cmd="x">x</button><button class="key" data-cmd="sqrt" data-shift-label="∛">√</button>
-      <button class="key" data-cmd="square" data-shift-label="x³">x²</button><button class="key" data-cmd="power">xʸ</button>
-      <button class="key" data-cmd="log" data-shift-label="10ˣ">log</button><button class="key" data-cmd="ln" data-shift-label="eˣ">ln</button>
-      <button class="key" data-cmd="sin" data-shift-label="sin⁻¹">sin</button><button class="key" data-cmd="cos" data-shift-label="cos⁻¹">cos</button>
-      <button class="key" data-cmd="tan" data-shift-label="tan⁻¹">tan</button><button class="key" data-cmd="(">(</button>
-      <button class="key" data-cmd=")">)</button><button class="key accent" data-cmd="del">DEL</button>
-      <button class="key" data-cmd="7">7</button><button class="key" data-cmd="8">8</button>
-      <button class="key" data-cmd="9">9</button><button class="key" data-cmd="×">×</button>
-      <button class="key" data-cmd="÷">÷</button><button class="key accent" data-cmd="ac">AC</button>
-      <button class="key" data-cmd="4">4</button><button class="key" data-cmd="5">5</button>
-      <button class="key" data-cmd="6">6</button><button class="key" data-cmd="+">+</button>
-      <button class="key" data-cmd="−">−</button><button class="key" data-cmd="pi">π</button>
-      <button class="key" data-cmd="1">1</button><button class="key" data-cmd="2">2</button>
-      <button class="key" data-cmd="3">3</button><button class="key" data-cmd="percent">%</button>
-      <button class="key" data-cmd="ans">Ans</button><button class="key accent" data-cmd="exe">EXE</button>
-      <button class="key" data-cmd="0">0</button><button class="key" data-cmd=".">.</button>
-      <button class="key secondary" data-cmd="fraction">a/b</button><button class="key" data-cmd=",">,</button>
-      <button class="key blue secondary" data-cmd="format">FORMAT</button><button class="key" data-cmd="exe">=</button>
+    <div class="cw-upper-keys keys" aria-label="Scientific functions">
+      <button class="key secondary" data-cmd="x" data-shift-label="QR">𝑥</button>
+      <button class="key" data-cmd="fraction" data-shift-label="▣">▤</button>
+      <button class="key" data-cmd="sqrt" data-shift-label="∛">√</button>
+      <button class="key" data-cmd="power" data-shift-label="x⁻¹">xʸ</button>
+      <button class="key" data-cmd="square" data-shift-label="log">x²</button>
+      <button class="key" data-cmd="log" data-shift-label="ln">logₐ□</button>
+      <button class="key" data-cmd="ans">Ans</button>
+      <button class="key" data-cmd="sin" data-shift-label="sin⁻¹">sin</button>
+      <button class="key" data-cmd="cos" data-shift-label="cos⁻¹">cos</button>
+      <button class="key" data-cmd="tan" data-shift-label="tan⁻¹">tan</button>
+      <button class="key" data-cmd="(">(</button>
+      <button class="key" data-cmd=")" data-shift-label=",">)</button>
+    </div>
+    <div class="cw-number-keys keys" aria-label="Numeric and arithmetic keys">
+      <button class="key" data-cmd="7" data-shift-label="π">7</button><button class="key" data-cmd="8" data-shift-label="e">8</button><button class="key" data-cmd="9">9</button><button class="key" data-cmd="del" data-shift-label="INS">⌫</button><button class="key" data-cmd="ac" data-shift-label="OFF">AC</button>
+      <button class="key" data-cmd="4" data-shift-label="A">4</button><button class="key" data-cmd="5" data-shift-label="B">5</button><button class="key" data-cmd="6" data-shift-label="C">6</button><button class="key" data-cmd="×">×</button><button class="key" data-cmd="÷">÷</button>
+      <button class="key" data-cmd="1" data-shift-label="D">1</button><button class="key" data-cmd="2" data-shift-label="E">2</button><button class="key" data-cmd="3" data-shift-label="F">3</button><button class="key" data-cmd="+" data-shift-label="°′″">+</button><button class="key" data-cmd="−" data-shift-label="(−)">−</button>
+      <button class="key" data-cmd="0" data-shift-label="x">0</button><button class="key" data-cmd="." data-shift-label="y">.</button><button class="key" data-cmd="exp10" data-shift-label="z">×10▯</button><button class="key cw-format-key" data-cmd="format">FORMAT</button><button class="key" data-cmd="exe" data-shift-label="≈">EXE</button>
     </div>
     <div class="action-help">Arrow keys navigate menus · Numbers select options · SHIFT + FORMAT opens formatting options</div>
   </main>
-  <p class="note">Independent menu-navigation practice tool. Not an official calculator emulator. The original Cal remains unchanged.</p>
+  <p class="note">Independent teaching emulator. Menu functions are being implemented against the fx-82CW/85CW/350CW manual.</p>
 </div></div>
 <script>
 /* URL selection only: /menu/?skin=dark or /menu/?skin=light.
@@ -323,7 +394,7 @@ function applyMenuShiftColour(colour){
  menuShiftButtons.forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.menuShiftColour===colour)));
 }
 menuShiftButtons.forEach(b=>b.addEventListener("click",()=>applyMenuShiftColour(b.dataset.menuShiftColour)));
-applyMenuShiftColour("blue");
+applyMenuShiftColour("green");
 </script>
 <script>
 (() => {
@@ -335,7 +406,7 @@ applyMenuShiftColour("blue");
     inputOutput:"MathI/MathO",fractionResult:"improper",freqOn:false,tableMode:"both",
     decimalMark:"dot",digitSeparator:false,multiLineFont:"normal",contrast:5,
     stats:"",message:"",factorText:null,tableRows:[],box:"",ratio:null};
-  const home=[["Calculate","Basic calculations"],["Statistics","Mean and spread"],["Table","Function values"],["Ratio","Proportions"],["Maths Box","Dice and coin"]];
+  const home=[["Calculate","Basic calculations"],["Statistics","Mean and spread"],["Table","Function values"],["Math Box","Dice and coin"]];
   const catalogue=[
     ["Number","Fractions, HCF, LCM"],["Probability","nPr, nCr, random"],["Trigonometry","Inverse functions"],["Functions","Absolute value, roots"],["Constants","π, e"]
   ];
@@ -557,8 +628,8 @@ applyMenuShiftColour("blue");
     display.classList.toggle("compact-font",
       state.multiLineFont==="small"&&state.inputOutput.startsWith("LineI"));
     if(state.view==="home"){
-      display.innerHTML='<div class="lcd-title">HOME</div><div class="home-grid">'+home.map((x,i)=>
-        '<button data-choice="'+i+'" class="'+(i===state.selection?"selected":"")+'"><b>'+(i+1)+'</b>'+escapeHtml(x[0])+'<small>'+escapeHtml(x[1])+'</small></button>').join("")+'</div>';
+      display.innerHTML='<div class="home-grid">'+home.map((x,i)=>
+        '<button data-choice="'+i+'" class="'+(i===state.selection?"selected":"")+'"><span class="home-symbol" aria-hidden="true">'+["×÷<span>+−</span>","▥","▦","⚄ ⚅"][i]+'</span><span class="home-text">'+escapeHtml(x[0])+'</span></button>').join("")+'</div>';
     } else if(state.view==="menu"){
       const m=state.menu;
       let items=[],title="";
@@ -614,7 +685,7 @@ applyMenuShiftColour("blue");
   function select(i){
     if(state.view==="home"){
       if(i<0||i>=home.length)return;
-      state.view=["calculate","stats","table","ratio","box"][i];state.selection=0;state.message="";render();return;
+      state.view=["calculate","stats","table","box"][i];state.selection=0;state.message="";render();return;
     }
     if(state.view!=="menu")return;
     const m=state.menu;
@@ -755,6 +826,13 @@ applyMenuShiftColour("blue");
     }else{state.view="home";state.selection=0;render()}
   }
   function press(cmd){
+    if(cmd==="on"){state.view="home";state.selection=0;state.shift=false;render();return}
+    if(cmd==="variables"){showMenu("catalog");return}
+    if(cmd==="function"){state.view="calculate";state.shift=false;insert("x");return}
+    if(cmd==="tools"){showMenu("catalog");return}
+    if(cmd==="page-up"){press("up");return}
+    if(cmd==="page-down"){press("down");return}
+    if(cmd==="exp10"){if(state.view==="calculate")insert("×10^");return}
     if(cmd==="home"){state.view="home";state.selection=0;state.shift=false;render();return}
     if(cmd==="shift"){state.shift=!state.shift;render();return}
     if(cmd==="settings"){showMenu("settings");return}
