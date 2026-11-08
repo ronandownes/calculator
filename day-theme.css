@@ -1669,7 +1669,6 @@ body.light.skin-blue .calculator #keys{
  padding:0;cursor:pointer;box-shadow:0 0 0 1px #aebccb;
 }
 .skin-rail .swatch-blue{background:#2d7dd2}
-.skin-rail .swatch-red{background:#e63329}
 .skin-rail .swatch-green{background:#3fae49}
 .skin-rail .shift-swatch[aria-pressed="true"]{
  outline:3px solid #7b96b1;outline-offset:2px;
@@ -1679,8 +1678,6 @@ body.light.skin-blue .calculator #keys{
 }
 body[data-shift-colour="blue"]{--chosen-shift:#2d7dd2;--chosen-shift-ring:#2d7dd2;--chosen-shift-bg:#e5f1fd}
 body:not(.light)[data-shift-colour="blue"]{--chosen-shift:#82bfff;--chosen-shift-ring:#82bfff;--chosen-shift-bg:#285b91}
-body[data-shift-colour="red"]{--chosen-shift:#c52d42;--chosen-shift-ring:#c52d42;--chosen-shift-bg:#fce6eb}
-body:not(.light)[data-shift-colour="red"]{--chosen-shift:#ff919e;--chosen-shift-ring:#ff919e;--chosen-shift-bg:#793a49}
 body[data-shift-colour="green"]{--chosen-shift:#187d4b;--chosen-shift-ring:#187d4b;--chosen-shift-bg:#e1f4e8}
 body:not(.light)[data-shift-colour="green"]{--chosen-shift:#93d9a6;--chosen-shift-ring:#93d9a6;--chosen-shift-bg:#315b44}
 body[data-shift-colour] .calculator .top .roundgroup:first-child .keylabel,
