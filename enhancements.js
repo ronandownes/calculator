@@ -86,21 +86,41 @@ handle=function(v){
  oldHandle(v);
 };
 
-/* Exact prime factorisation is distinct from x! */
+/* Exact prime factorisation is a view of a calculated whole number,
+   not a replacement for the numeric value in Ans. */
+let primeFactView=null;
+function primeFactors(n){
+ if(!Number.isSafeInteger(n)||n<2)throw Error("FACT requires an integer ≥ 2");
+ const factors=[];let m=n;
+ for(let p=2;p*p<=m && p<=1000000;p+=(p===2?1:2)){
+  if(m%p===0){let power=0;do{m/=p;power++}while(m%p===0);factors.push(power>1?p+"^"+power:String(p));}
+ }
+ if(m>1)factors.push(String(m));
+ return n+" = "+factors.join(" × ");
+}
 const previousHandle=handle;
 handle=function(v){
- if(v==='primefact'){
+ if(v==="primefact"){
   try{
-   let n=Math.round(value());
-   if(!Number.isSafeInteger(n)||n<2||Math.abs(n-value())>1e-10)throw Error("FACT requires an integer ≥ 2");
-   const factors=[];let m=n;
-   for(let p=2;p*p<=m && p<=1000000;p+=(p===2?1:2)){if(m%p===0){let pow=0;do{m/=p;pow++}while(m%p===0);factors.push(pow>1?p+'^'+pow:String(p));}}
-   if(m>1)factors.push(String(m));
-   document.getElementById('result').textContent=n+' = '+factors.join(' × ');
-  }catch(e){document.getElementById('result').textContent=e.message}
+   const current=value();
+   if(!Number.isSafeInteger(current)||current<2)throw Error("FACT requires an integer ≥ 2");
+   if(primeFactView && primeFactView.expr===expr && primeFactView.n===current){
+    primeFactView.showFactors=!primeFactView.showFactors;
+   }else{
+    primeFactView={expr,n:current,text:primeFactors(current),showFactors:true};
+   }
+   document.getElementById("result").textContent=primeFactView.showFactors?primeFactView.text:fmt(current);
+  }catch(e){document.getElementById("result").textContent=e.message;}
   return;
  }
- if(v==='random'){if(justCalculated){expr='';justCalculated=false;}append('Ran#');return}
+ if(v==="sd" && primeFactView && primeFactView.expr===expr &&
+    justCalculated && primeFactView.showFactors){
+  primeFactView.showFactors=false;
+  document.getElementById("result").textContent=fmt(primeFactView.n);
+  return;
+ }
+ if(v==="random"){primeFactView=null;if(justCalculated){expr="";justCalculated=false;}append("Ran#");return;}
+ primeFactView=null;
  previousHandle(v);
 };
 panel.querySelector('.extgrid').hidden=true;
