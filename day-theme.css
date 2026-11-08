@@ -1516,3 +1516,29 @@ body.light .calculator .top #nav button:active{
     border-top-width:2px!important;border-right-width:2px!important;
   }
 }
+
+/* Light-skin physical casing, matching the dark-skin hierarchy:
+   white keys on a clearly visible LIGHT-GREY bed and slightly lighter shell. */
+body.light .calc-viewport .calculator,
+body.light .calculator{
+  background:#e7e9ec!important;
+  border-color:#c9d0d8!important;
+  box-shadow:0 9px 25px #6b77871b,inset 0 1px 0 #f8fafb!important;
+}
+body.light .calculator .top,
+body.light .calculator .keys,
+body.light .calculator #keys{
+  background:#dfe3e8!important;
+  border-color:#cbd1d9!important;
+}
+body.light .calculator #keys button .keyname{
+  background:#fff!important;
+  color:#161b21!important;
+}
+/* Keep warm-orange delete/clear accent distinguishable in both skins. */
+body.light .calculator #keys button[data-key="DEL"] .keyname,
+body.light .calculator #keys button[data-key="AC"] .keyname{
+  background:#ffbd42!important;
+  color:#141414!important;
+}
+/* Native LCD remains controlled exclusively by the four dot palette. */
