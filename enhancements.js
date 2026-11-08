@@ -68,8 +68,11 @@ handle=function(v){
  if(v==='recall'){append(String(memory));return}
  if(v==='precision'){precision=precision==='auto'?'sci':precision==='sci'?'fix':'auto';render();return}
  if(v==='sd'){
-  if(!expr)return;
-  try{const val=value();let best=null;for(let d=1;d<=10000;d++){const n=Math.round(val*d);if(Math.abs(n/d-val)<1e-11){best=[n,d];break;}}lastExact=best&&best[1]!==1?best.join('/') : fmt(val);document.getElementById('result').textContent=document.getElementById('result').textContent===lastExact?fmt(val):lastExact;}catch(e){document.getElementById('result').textContent=e.message}
+  // Exact-output.js owns mathematically justified S⇔D conversions.
+  // Never approximate irrational answers with a guessed fraction.
+  if(justCalculated && Number.isFinite(ans)){
+    document.getElementById('result').textContent=fmt(ans);
+  }
   return;
  }
  if(v==='frac'){append('÷');status("Enter numerator ÷ denominator; press S⇔D for fraction display");return}
