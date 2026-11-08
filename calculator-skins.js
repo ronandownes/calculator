@@ -20,5 +20,6 @@
  }
  for(const b of buttons)b.addEventListener("click",()=>apply(b.dataset.scienceSkin));
  neutral?.addEventListener("click",()=>apply(selected==="dark"?"light":"dark"));
- apply("dark");
+ const requested=new URLSearchParams(location.search).get("skin");
+ apply(["pink","mint","blue","light"].includes(requested)?requested:"dark");
 })();
