@@ -20,6 +20,16 @@
  }
  for(const b of buttons)b.addEventListener("click",()=>apply(b.dataset.scienceSkin));
  neutral?.addEventListener("click",()=>apply(selected==="dark"?"light":"dark"));
+ const shiftButtons=[...document.querySelectorAll("[data-shift-colour]")];
+ function applyShiftColour(colour){
+   if(!["blue","red","green"].includes(colour))return;
+   document.body.dataset.shiftColour=colour;
+   for(const button of shiftButtons)
+     button.setAttribute("aria-pressed",String(button.dataset.shiftColour===colour));
+ }
+ for(const button of shiftButtons)
+   button.addEventListener("click",()=>applyShiftColour(button.dataset.shiftColour));
+ applyShiftColour("blue");
  const requested=new URLSearchParams(location.search).get("skin");
  apply(["pink","mint","blue","light"].includes(requested)?requested:"dark");
 })();
