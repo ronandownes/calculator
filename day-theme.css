@@ -1711,3 +1711,12 @@ body:not(.light)[data-shift-colour] .calculator .roundgroup.alpha .keylabel,
 body:not(.light)[data-shift-colour] #keys button .alpha-legend{
  color:#ff7770!important;
 }
+
+/* MENU SETUP and every other SHIFT legend follow the chosen ink. */
+body[data-shift-colour]{
+ --shift-label:var(--chosen-shift);
+ --secondary-ink:var(--chosen-shift);
+}
+body[data-shift-colour] .calculator .top .roundgroup em{
+ color:var(--chosen-shift)!important;
+}
