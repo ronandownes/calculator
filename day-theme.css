@@ -1586,3 +1586,69 @@ body.light .calculator #keys button[data-key="AC"] .keyname{
   }
   .skin-rail .model-choice .model-link span{font-size:16px;}
 }
+
+/* Model/skin selection: the four brand-colour dots in the LEFT rail, never the LCD. */
+.skin-rail .calculator-chooser{display:flex;flex-direction:column;gap:17px;width:100%;}
+.skin-rail .model-selector{display:flex;flex-direction:column;align-items:flex-start;gap:6px;width:100%;}
+.skin-rail .model-palette{display:flex;align-items:center;gap:12px;padding:9px 4px 6px;}
+.skin-rail .model-palette .skin-dot{
+ appearance:none!important;
+ display:block!important;
+ flex:0 0 23px!important;
+ width:23px!important;height:23px!important;min-height:23px!important;
+ border:2px solid #fff!important;
+ border-radius:50%!important;
+ padding:0!important;margin:0!important;
+ cursor:pointer!important;
+ box-shadow:0 0 0 1px #b4bdc8!important;
+ text-decoration:none!important;
+}
+.skin-rail .model-palette .skin-red{background:#e63329!important}
+.skin-rail .model-palette .skin-green{background:#3fae49!important}
+.skin-rail .model-palette .skin-blue{background:#2d7dd2!important}
+.skin-rail .model-palette .skin-neutral{background:#1a1a1a!important}
+.skin-rail .model-palette .skin-dot[aria-pressed="true"]{
+ outline:3px solid #7b96b1!important;outline-offset:2px!important;
+}
+.skin-rail .model-palette .skin-dot:focus-visible{
+ outline:3px solid #2d7dd2!important;outline-offset:3px!important;
+}
+.skin-rail .skin-status{font:600 11px Arial,Helvetica,sans-serif;color:#677588;}
+/* Four subtly tinted light skins; dark remains precisely the original. */
+body.light.skin-pink .calculator{
+ background:#f2e4e8!important;
+ border-color:#dfc8d2!important;
+}
+body.light.skin-pink .calculator .top,
+body.light.skin-pink .calculator .keys,
+body.light.skin-pink .calculator #keys{
+ background:#eed9df!important;
+ border-color:#e4cbd3!important;
+}
+body.light.skin-mint .calculator{
+ background:#e6efe8!important;border-color:#c9dbce!important;
+}
+body.light.skin-mint .calculator .top,
+body.light.skin-mint .calculator .keys,
+body.light.skin-mint .calculator #keys{
+ background:#d6e7db!important;border-color:#c5dacf!important;
+}
+body.light.skin-blue .calculator{
+ background:#e3ebf6!important;border-color:#c6d7ec!important;
+}
+body.light.skin-blue .calculator .top,
+body.light.skin-blue .calculator .keys,
+body.light.skin-blue .calculator #keys{
+ background:#d3e1f3!important;border-color:#bdcfe9!important;
+}
+/* Numerals, ALPHA/SHIFT, and LCD tint stay unchanged. */
+@media(max-width:760px){
+ .skin-rail .calculator-chooser{
+  flex-direction:row!important;flex-wrap:wrap!important;gap:8px 18px!important;
+ }
+ .skin-rail .model-selector{width:auto!important;min-width:133px!important}
+ .skin-rail .model-palette{gap:9px!important}
+ .skin-rail .model-palette .skin-dot{
+  flex-basis:20px!important;width:20px!important;height:20px!important;min-height:20px!important;
+ }
+}
