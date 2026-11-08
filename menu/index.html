@@ -133,9 +133,51 @@ body.menu-dark .navline button{
 body.menu-dark .action-help{color:#dde4ec}
 body.menu-dark .note{color:#536071}
 /* Both skins maintain the menu-driven model's distinct round key faces. */
+
+/* Side-by-side Maths selector, menu calculator separate from Scientific. */
+.menu-layout{display:grid;grid-template-columns:165px minmax(0,490px);gap:17px;max-width:685px;margin:0 auto;align-items:start;}
+.menu-layout .shell{max-width:490px;width:100%;min-width:0;}
+.menu-sidebar{display:flex;flex-direction:column;gap:19px;padding:7px 3px;font-family:Arial,Helvetica,sans-serif;}
+.menu-sidebar .site-logo{display:block;padding:6px 4px;background:#fff;border-radius:9px;}
+.menu-sidebar .site-logo img{max-width:100%;height:auto;display:block;}
+.menu-sidebar .calculator-chooser{display:flex;flex-direction:column;gap:17px;}
+.menu-sidebar .model-selector{display:flex;flex-direction:column;align-items:flex-start;gap:8px;}
+.menu-sidebar .skin-label{color:#657485;font-weight:800;font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+.menu-sidebar .model-palette{display:flex;align-items:center;gap:10px;padding:3px;}
+.menu-sidebar .model-palette .skin-dot{display:block;box-sizing:border-box;appearance:none;border:2px solid #fff;width:23px;height:23px;flex:none;padding:0;border-radius:50%;box-shadow:0 0 0 1px #aebccb;cursor:pointer;text-decoration:none;}
+.menu-sidebar .skin-red{background:#e63329;}
+.menu-sidebar .skin-green{background:#3fae49;}
+.menu-sidebar .skin-blue{background:#2d7dd2;}
+.menu-sidebar .skin-neutral{background:#1a1a1a;}
+.menu-sidebar .skin-dot[aria-pressed="true"]{outline:3px solid #859ab7;outline-offset:2px;}
+.menu-sidebar .skin-dot:focus-visible{outline:3px solid #2d7dd2;outline-offset:3px;}
+.menu-sidebar .skin-status{font-weight:600;font-size:11px;color:#657485;}
+/* Pastels modify only the menu-driven CASE and button bed; LCD stays green. */
+body.menu-pink .device{background:#f1dfe5;border-color:#dfc8d3;}
+body.menu-mint .device{background:#dfeee3;border-color:#c5ddcb;}
+body.menu-blue .device{background:#e0eafa;border-color:#c4d8f0;}
+body.menu-pink .controls,body.menu-pink .keys,body.menu-pink .navline{background:#edd9e0;}
+body.menu-mint .controls,body.menu-mint .keys,body.menu-mint .navline{background:#d5e7da;}
+body.menu-blue .controls,body.menu-blue .keys,body.menu-blue .navline{background:#d5e2f3;}
+@media(max-width:700px){
+ .menu-layout{display:flex;flex-direction:column-reverse;gap:10px;width:100%;max-width:490px;}
+ .menu-layout .shell{width:100%;max-width:490px;}
+ .menu-sidebar{padding:4px 8px;display:flex;flex-direction:row;flex-wrap:wrap;gap:12px;align-items:center;}
+ .menu-sidebar .site-logo{width:130px;flex:none;}
+ .menu-sidebar .calculator-chooser{flex-direction:row;flex-wrap:wrap;gap:15px;}
+ .menu-sidebar .model-palette{gap:8px;}
+}
 </style>
 </head>
 <body class="menu-light">
+<div class="menu-layout">
+<aside class="menu-sidebar" aria-label="Calculator selection">
+<a class="site-logo" href="../" aria-label="Maths calculator homepage"><img src="../maths-logo.svg" alt="Maths" width="155"></a>
+<nav class="calculator-chooser" aria-label="Calculator styles">
+<div class="model-selector"><span class="skin-label">Scientific</span><div class="model-palette" role="group" aria-label="Scientific colours"><a class="skin-dot skin-red" href="../?skin=pink" title="Scientific pastel pink" aria-label="Scientific pastel pink"></a><a class="skin-dot skin-green" href="../?skin=mint" title="Scientific pastel mint" aria-label="Scientific pastel mint"></a><a class="skin-dot skin-blue" href="../?skin=blue" title="Scientific pastel blue" aria-label="Scientific pastel blue"></a><a class="skin-dot skin-neutral" href="../" title="Scientific dark" aria-label="Scientific dark, homepage"></a></div></div>
+<div class="model-selector"><span class="skin-label">Menu</span><div class="model-palette" role="group" aria-label="Menu colours"><button class="skin-dot skin-red" data-menu-skin="pink" type="button" title="Pastel pink" aria-label="Menu pastel pink"></button><button class="skin-dot skin-green" data-menu-skin="mint" type="button" title="Pastel mint" aria-label="Menu pastel mint"></button><button class="skin-dot skin-blue" data-menu-skin="blue" type="button" title="Pastel blue" aria-label="Menu pastel blue"></button><button class="skin-dot skin-neutral" id="menuNeutralSkin" type="button" title="Toggle Dark / Light" aria-label="Menu dark or light"></button></div><span class="skin-status" id="menuSkinStatus"></span></div>
+</nav>
+</aside>
 <div class="shell">
   <div class="topline"><a href="../" aria-label="Return to the main calculator">‹ Cal</a><span>Menu-based</span></div>
   <main class="device" aria-label="Optional menu-based calculator">
@@ -182,13 +224,30 @@ body.menu-dark .note{color:#536071}
     <div class="action-help">Arrow keys navigate menus · Numbers select options · SHIFT + FORMAT opens formatting options</div>
   </main>
   <p class="note">Independent menu-navigation practice tool. Not an official calculator emulator. The original Cal remains unchanged.</p>
-</div>
+</div></div>
 <script>
 /* URL selection only: /menu/?skin=dark or /menu/?skin=light.
    Does not share state with or redirect the scientific home page. */
-const menuSkin=(new URLSearchParams(location.search)).get("skin")==="dark"?"dark":"light";
-document.body.classList.toggle("menu-dark",menuSkin==="dark");
-document.body.classList.toggle("menu-light",menuSkin==="light");
+const allowed=["dark","light","pink","mint","blue"];
+const fromUrl=(new URLSearchParams(location.search)).get("skin");
+let menuSkin=allowed.includes(fromUrl)?fromUrl:"dark";
+const menuColourButtons=[...document.querySelectorAll("[data-menu-skin]")];
+const neutralMenu=document.getElementById("menuNeutralSkin");
+function applyMenuSkin(skin){
+ if(!allowed.includes(skin))return;
+ menuSkin=skin;
+ document.body.classList.toggle("menu-dark",skin==="dark");
+ document.body.classList.toggle("menu-light",skin!=="dark");
+ document.body.classList.remove("menu-pink","menu-mint","menu-blue");
+ if(["pink","mint","blue"].includes(skin))document.body.classList.add("menu-"+skin);
+ menuColourButtons.forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.menuSkin===skin)));
+ neutralMenu.setAttribute("aria-pressed",String(skin==="dark"||skin==="light"));
+ neutralMenu.setAttribute("aria-label",skin==="dark"?"Menu dark, click for light":"Menu light, click for dark");
+ document.getElementById("menuSkinStatus").textContent=({dark:"Dark",light:"Light",pink:"Pastel pink",mint:"Pastel green",blue:"Pastel blue"})[skin];
+}
+menuColourButtons.forEach(b=>b.addEventListener("click",()=>applyMenuSkin(b.dataset.menuSkin)));
+neutralMenu.addEventListener("click",()=>applyMenuSkin(menuSkin==="dark"?"light":"dark"));
+applyMenuSkin(menuSkin);
 </script>
 <script>
 (() => {
