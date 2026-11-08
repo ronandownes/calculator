@@ -90,7 +90,7 @@
     // Recognise exact integer/rational multiples of pi, not decimal guesses.
     // Examples: pi, -pi, 2pi, 2*pi, pi/2, 3*pi/4.
     const compact=String(input)
-      .replace(/\s+/g,"").replace(/−/g,"-").replace(/\bpi\b/gi,"π");
+      .replace(/\s+/g,"").replace(/−/g,"-").replace(/pi/gi,"π");
     const m=compact.match(/^([+-]?)(?:(\d+)(?:×|\*)?)?π(?:(?:÷|\/)(\d+))?$/);
     if(!m)return null;
     const numerator=BigInt(m[2]||"1")*(m[1]==="-"?-1n:1n);
