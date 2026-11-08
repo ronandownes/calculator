@@ -85,9 +85,57 @@ fieldset{border:0;padding:0;margin:0}.field{display:grid;grid-template-columns:7
  .controls button.key{font-size:clamp(8px,2.3vw,10px);}
  .keys button.key.secondary{font-size:clamp(10px,3vw,14px);}
 }
+
+/* Dedicated menu-driven Dark/Light skins. Main scientific homepage is untouched. */
+body.menu-dark{
+  background:#e9e9e9;
+  color:#e9edf3;
+  color-scheme:dark;
+}
+body.menu-dark .topline a,
+body.menu-dark .topline span{color:#47596e}
+body.menu-dark .device{
+  background:#55585e;
+  border:2px solid #484c53;
+  box-shadow:0 8px 26px #161a2030;
+}
+body.menu-dark .lcd-frame{
+  background:#10151a;
+  border-color:#0c1014;
+}
+body.menu-dark .lcd{
+  color:#152117;
+  background:#dce9dd;
+  border-color:#b2c8b4;
+}
+body.menu-dark .controls button.key,
+body.menu-dark .keys button.key{
+  background:linear-gradient(#22272d,#0c1117);
+  border-color:#414750;
+  color:#fafcff;
+  box-shadow:0 2px 0 #3e444d;
+}
+body.menu-dark .controls button.key.blue,
+body.menu-dark .keys button.key.blue{color:#9ecaff}
+body.menu-dark .controls button.key.accent,
+body.menu-dark .keys button.key.accent{
+  background:linear-gradient(#ffd078,#ffb738);
+  border-color:#e6a742;
+  color:#101419;
+}
+body.menu-dark .controls button.key:active,
+body.menu-dark .keys button.key:active{background:#333a43;box-shadow:none}
+body.menu-dark .navline button{
+  background:#30363e;
+  border-color:#585f68;
+  color:#f6f7fa;
+}
+body.menu-dark .action-help{color:#dde4ec}
+body.menu-dark .note{color:#536071}
+/* Both skins maintain the menu-driven model's distinct round key faces. */
 </style>
 </head>
-<body>
+<body class="menu-light">
 <div class="shell">
   <div class="topline"><a href="../" aria-label="Return to the main calculator">‹ Cal</a><span>Menu-based</span></div>
   <main class="device" aria-label="Optional menu-based calculator">
@@ -135,6 +183,13 @@ fieldset{border:0;padding:0;margin:0}.field{display:grid;grid-template-columns:7
   </main>
   <p class="note">Independent menu-navigation practice tool. Not an official calculator emulator. The original Cal remains unchanged.</p>
 </div>
+<script>
+/* URL selection only: /menu/?skin=dark or /menu/?skin=light.
+   Does not share state with or redirect the scientific home page. */
+const menuSkin=(new URLSearchParams(location.search)).get("skin")==="dark"?"dark":"light";
+document.body.classList.toggle("menu-dark",menuSkin==="dark");
+document.body.classList.toggle("menu-light",menuSkin==="light");
+</script>
 <script>
 (() => {
   "use strict";
