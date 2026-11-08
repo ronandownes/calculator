@@ -295,6 +295,101 @@ body.menu-dark .cw-page-rocker button{background:#34383c!important}
 body.menu-dark .cw-upper-keys button.key[data-shift-label]::before,body.menu-dark .cw-number-keys button.key[data-shift-label]::before{color:var(--menu-shift-dark)!important}
 body.menu-light .cw-upper-keys button.key[data-shift-label]::before,body.menu-light .cw-number-keys button.key[data-shift-label]::before{color:var(--menu-shift)!important}
 @media(max-width:700px){.menu-layout .shell{max-width:600px!important}.device{padding:12px 13px 25px!important}.cw-control-deck{gap:5px}.cw-aux-controls{gap:4px}.cw-control{width:min(100%,43px);font-size:20px}.cw-page-rocker{max-width:43px}.cw-page-rocker button{min-height:35px}.cw-functions{gap:4px}.cw-upper-keys,.cw-number-keys{column-gap:5px!important;row-gap:16px!important}.cw-functions .cw-function-label{font-size:clamp(8px,2.2vw,12px)}.cw-function-key{width:min(100%,56px)}.cw-upper-keys{margin-bottom:16px}.cw-number-keys .cw-format-key{font-size:clamp(9px,2.7vw,13px)!important}.home-grid{gap:3px!important}}
+/* CW fidelity revision: five individually bounded circles and no FORMAT overlap.
+   Preserve geometry, active hitboxes, and green/blue secondary ink. */
+.menu-layout{grid-template-columns:165px minmax(0,540px)!important;max-width:735px!important}
+.menu-layout .shell{max-width:540px!important}
+body.menu-dark .device{background:#393b3c!important;border-color:#34383c!important}
+.cw-upper-keys,.cw-number-keys{
+  width:100%!important;
+  min-width:0!important;
+  justify-content:stretch!important;
+}
+.cw-number-keys{
+  display:grid!important;
+  grid-template-columns:repeat(5,minmax(0,1fr))!important;
+  column-gap:12px!important;
+  row-gap:22px!important;
+  padding:9px 0 0!important;
+}
+.cw-number-keys>.key{
+  box-sizing:border-box!important;
+  min-width:0!important;
+  max-width:100%!important;
+  width:100%!important;
+  aspect-ratio:1/1!important;
+  height:auto!important;
+  padding:0 2px!important;
+  border-radius:50%!important;
+  font-size:clamp(18px,2.1vw,26px)!important;
+  line-height:1!important;
+  overflow:visible!important;
+  white-space:nowrap!important;
+  text-align:center!important;
+}
+.cw-number-keys>.cw-format-key,
+.cw-number-keys>.cw-ten-power-key,
+.cw-number-keys>.cw-exe-key{
+  font-size:clamp(12px,1.45vw,19px)!important;
+  letter-spacing:-.04em!important;
+}
+.cw-number-keys>.cw-format-key{overflow:hidden!important;}
+.cw-format-art{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  width:100%;
+  height:100%;
+  line-height:.92;
+  pointer-events:none;
+}
+.cw-format-art .cw-format-upper,
+.cw-format-art .cw-format-lower{
+  display:block;
+  font-family:Arial,Helvetica,sans-serif;
+  font-size:clamp(14px,1.5vw,20px);
+  height:25%;
+  line-height:1;
+}
+.cw-format-art .cw-format-word{
+  display:block;
+  font-family:"Arial Narrow",Arial,Helvetica,sans-serif;
+  font-stretch:condensed;
+  font-size:clamp(10px,1.45vw,17px);
+  font-weight:900;
+  letter-spacing:-.065em;
+  line-height:1;
+}
+.cw-ten-glyph{
+  display:inline-flex;align-items:baseline;justify-content:center;
+  font-family:Arial,Helvetica,sans-serif;
+  font-size:clamp(14px,1.65vw,21px);
+  font-weight:800;letter-spacing:-.06em;line-height:1;
+  pointer-events:none;
+}
+.cw-ten-glyph sup{
+  font-size:.58em;line-height:0;
+  position:relative;top:-.7em;
+  margin-left:1px;letter-spacing:0;
+}
+.cw-number-keys>.cw-exe-key{font-size:clamp(14px,1.75vw,23px)!important;}
+/* Shift annotations float above their OWN button instead of crossing a neighbour. */
+.cw-number-keys>.key[data-shift-label]::before{
+  left:0!important;width:100%!important;
+  text-align:left!important;
+  font-size:clamp(10px,1.35vw,14px)!important;
+}
+/* Scale type with key diameter on narrow screens; never exceed circle width. */
+@media(max-width:700px){
+ .menu-layout .shell{max-width:540px!important}
+ .cw-number-keys{column-gap:7px!important;row-gap:18px!important;}
+ .cw-number-keys>.key{font-size:clamp(16px,4.2vw,26px)!important;}
+ .cw-number-keys>.cw-exe-key{font-size:clamp(13px,3.6vw,20px)!important;}
+ .cw-format-art .cw-format-word{font-size:clamp(9px,2.55vw,14px)!important;}
+ .cw-format-art .cw-format-upper,.cw-format-art .cw-format-lower{font-size:clamp(12px,2.8vw,16px)!important;}
+ .cw-ten-glyph{font-size:clamp(12px,3.25vw,18px)!important;}
+}
 </style>
 </head>
 <body class="menu-light">
@@ -358,7 +453,7 @@ body.menu-light .cw-upper-keys button.key[data-shift-label]::before,body.menu-li
       <button class="key" data-cmd="7" data-shift-label="π">7</button><button class="key" data-cmd="8" data-shift-label="e">8</button><button class="key" data-cmd="9">9</button><button class="key" data-cmd="del" data-shift-label="INS">⌫</button><button class="key" data-cmd="ac" data-shift-label="OFF">AC</button>
       <button class="key" data-cmd="4" data-shift-label="A">4</button><button class="key" data-cmd="5" data-shift-label="B">5</button><button class="key" data-cmd="6" data-shift-label="C">6</button><button class="key" data-cmd="×">×</button><button class="key" data-cmd="÷">÷</button>
       <button class="key" data-cmd="1" data-shift-label="D">1</button><button class="key" data-cmd="2" data-shift-label="E">2</button><button class="key" data-cmd="3" data-shift-label="F">3</button><button class="key" data-cmd="+" data-shift-label="°′″">+</button><button class="key" data-cmd="−" data-shift-label="(−)">−</button>
-      <button class="key" data-cmd="0" data-shift-label="x">0</button><button class="key" data-cmd="." data-shift-label="y">.</button><button class="key" data-cmd="exp10" data-shift-label="z">×10▯</button><button class="key cw-format-key" data-cmd="format">FORMAT</button><button class="key" data-cmd="exe" data-shift-label="≈">EXE</button>
+      <button class="key" data-cmd="0" data-shift-label="x">0</button><button class="key" data-cmd="." data-shift-label="y">.</button><button class="key cw-ten-power-key" data-cmd="exp10" data-shift-label="z" aria-label="Times ten to the power"><span class="cw-ten-glyph" aria-hidden="true">×10<sup>□</sup></span></button><button class="key cw-format-key" data-cmd="format" aria-label="FORMAT"><span class="cw-format-art" aria-hidden="true"><span class="cw-format-upper">↷</span><span class="cw-format-word">FORMAT</span><span class="cw-format-lower">↶</span></span></button><button class="key cw-exe-key" data-cmd="exe" data-shift-label="≈">EXE</button>
     </div>
     <div class="action-help">Arrow keys navigate menus · Numbers select options · SHIFT + FORMAT opens formatting options</div>
   </main>
