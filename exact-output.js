@@ -86,10 +86,32 @@
     if(root===1)return String(outer);
     return (outer===1?"":outer)+"√"+root;
   }
+  function piExpression(input,value) {
+    // Recognise exact integer/rational multiples of pi, not decimal guesses.
+    // Examples: pi, -pi, 2pi, 2*pi, pi/2, 3*pi/4.
+    const compact=String(input)
+      .replace(/\s+/g,"").replace(/−/g,"-").replace(/\bpi\b/gi,"π");
+    const m=compact.match(/^([+-]?)(?:(\d+)(?:×|\*)?)?π(?:(?:÷|\/)(\d+))?$/);
+    if(!m)return null;
+    const numerator=BigInt(m[2]||"1")*(m[1]==="-"?-1n:1n);
+    const denominator=BigInt(m[3]||"1");
+    if(denominator===0n || numerator===0n ||
+       numerator>1000000000n || numerator< -1000000000n ||
+       denominator>1000000000n)return null;
+    const predicted=Number(numerator)/Number(denominator)*Math.PI;
+    if(Math.abs(predicted-value)>1e-12*Math.max(1,Math.abs(value)))return null;
+    const magnitude=abs(numerator);
+    const factor=gcd(magnitude,denominator);
+    const n=magnitude/factor,d=denominator/factor;
+    const sign=numerator<0n?"−":"";
+    return sign+(n===1n?"":String(n))+"π"+(d===1n?"":"/"+String(d));
+  }
   function formatExact(input,value) {
     const settings=window.calculatorSettings;
     if(settings&&(settings.format!=="norm"||settings.output==="mathDecimal"||settings.output==="lineDecimal"))return null;
     if(!Number.isFinite(value)||String(input).includes("→"))return null;
+    const symbolicPi=piExpression(input,value);
+    if(symbolicPi)return symbolicPi;
     const radical=radicalExpression(input);
     if(radical)return radical;
     try {
