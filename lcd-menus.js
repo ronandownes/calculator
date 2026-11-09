@@ -64,14 +64,14 @@
     decimal:[["1","Dot"],["2","Comma"]],
     separator:[["1","On"],["2","Off"]],
     font:[["1","Normal Font"],["2","Small Font"]],
-    contrast:[["1","Light"],["2","Normal"],["3","Dark"]],
+    contrast:[["1","◄ / ► to adjust"]],
     unavailable:[["1","Mode not yet available"]]
   };
   const hyperbolic={1:"sinh",2:"cosh",3:"tanh",4:"asinh",5:"acosh",6:"atanh"};
   // SETUP is three numbered screens (4 + 4 + 2), as on the fx-EX.
   const setupRoutes=["inputOutput","angle","numberFormat","fractions",
     "statistics","table","decimal","separator","font","contrast"];
-  let page=null,trail=[],choice="1",historyPosition=-1,setupPage=0;
+  let page=null,trail=[],choice="1",historyPosition=-1,setupPage=0,contrastLevel=5;
   function items(){
     if(page!=="setup")return pages[page]||[];
     return pages.setup.slice(setupPage*4,(setupPage+1)*4)
@@ -176,10 +176,7 @@
     else if(page==="decimal")settings.decimalMark=number==="1"?"dot":"comma";
     else if(page==="separator")settings.separators=number==="1";
     else if(page==="font"){settings.font=number==="1"?"normal":"small";screen.classList.toggle("small-lcd-font",settings.font==="small");}
-    else if(page==="contrast") {
-      const col=({1:"#e5efe5",2:"#dce9dd",3:"#c7ddc9"})[number];
-      screen.style.setProperty("--lcd-tone",col);
-    }
+    else if(page==="contrast")return true; // Use ◄/► to adjust; AC exits.
     close();return true;
   }
 
@@ -218,6 +215,12 @@
         return true;
       }
       return false;
+    }
+    if(page==="contrast"&&(direction==="left"||direction==="right")){
+      const step=direction==="right"?1:-1;
+      contrastLevel=Math.max(1,Math.min(9,contrastLevel+step));
+      screen.style.setProperty("filter","contrast("+(0.72+contrastLevel*0.06)+")");
+      return true;
     }
     if(direction==="left"){back();return true;}
     if(direction==="right"){choose(choice);return true;}
