@@ -11,6 +11,17 @@
   const minus=document.getElementById("zoomOut");
   const full=document.getElementById("fullScreenCalc");
   const exitFull=document.getElementById("exitFullScreenCalc");
+  const railButton=document.getElementById("toggleCalculatorRail");
+  railButton?.addEventListener("click",()=>{
+    const collapse=!document.body.classList.contains("rail-collapsed");
+    document.body.classList.toggle("rail-collapsed",collapse);
+    railButton.textContent=collapse?"›":"‹";
+    railButton.setAttribute("aria-expanded",String(!collapse));
+    railButton.setAttribute("aria-label",collapse?"Show calculator controls":"Hide calculator controls");
+    // Do not retain a cropped magnification when controls are hidden.
+    requestAnimationFrame(()=>{fitHeight();});
+  });
+
   if(!viewport||!stage||!calculator||!fit||!plus||!minus)return;
 
   const MIN=0.25,MAX=5,clamp=x=>Math.min(MAX,Math.max(MIN,x));
