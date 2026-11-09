@@ -217,12 +217,7 @@
     event.stopImmediatePropagation();event.preventDefault();blockClick=false;
   },true);
 
-  // Double-click only blank chassis/background to switch Fit Width / Fit Height.
-  viewport.addEventListener("dblclick",event=>{
-    if(event.target.closest("button,a,input,textarea,select,[role='button'],.screen"))return;
-    event.preventDefault();
-    if(mode==="width")fitHeight();else fitWidth();
-  });
+  // Blank-case double/triple click is reserved for EXE/SHIFT+EXE.
   document.addEventListener("keydown",event=>{
     if(event.key==="Escape"&&mode==="width"){event.preventDefault();fitHeight();}
   });
