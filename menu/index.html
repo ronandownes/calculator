@@ -706,6 +706,30 @@ body.menu-presentation .menu-fit-viewport{
 }
 body.menu-presentation .menu-fit-viewport .menu-fullscreen-exit{display:block!important}
 body.menu-presentation .menu-fit-viewport > .shell{margin:0!important;}
+
+/* Hide left control rail behind a narrow chevron; keep the Maths calculator visible. */
+.menu-fit-viewport .menu-rail-toggle{
+  position:fixed;z-index:1501;top:48%;left:5px;width:29px;height:60px;padding:0;
+  border:1px solid #9eacb7;border-radius:0 12px 12px 0;
+  background:#e9eff7;color:#2c4961;box-shadow:1px 2px 7px #0002;
+  cursor:pointer;font:700 27px/1 Arial,sans-serif;
+}
+.menu-fit-viewport .menu-rail-toggle:focus-visible{outline:3px solid #2d7dd2}
+html body.menu-rail-collapsed .menu-layout{
+ display:block!important;width:100%!important;max-width:none!important;
+}
+html body.menu-rail-collapsed .menu-sidebar{display:none!important}
+html body.menu-rail-collapsed .menu-fit-viewport{
+ width:100%!important;max-width:none!important;
+}
+/* Fullscreen wins over the previous default max-width/position rules. */
+html body.menu-presentation .menu-layout>.menu-fit-viewport{
+ position:fixed!important;inset:0!important;width:100vw!important;
+ height:100dvh!important;min-height:0!important;
+ max-width:none!important;max-height:none!important;
+ padding:0!important;margin:0!important;overflow:auto!important;
+}
+html body.menu-presentation .menu-rail-toggle{display:none!important}
 </style>
 </head>
 <body class="menu-light">
@@ -727,7 +751,7 @@ body.menu-presentation .menu-fit-viewport > .shell{margin:0!important;}
  <span class="menu-view-help">Double-click the calculator's blank case to zoom; drag to pan · Esc to reset</span>
 </div>
 </aside>
-<div class="menu-fit-viewport"><button type="button" id="menuExitFullScreen" class="menu-fullscreen-exit" aria-label="Exit full-screen calculator">✕ Exit full screen</button><div class="shell">
+<div class="menu-fit-viewport"><button type="button" id="menuRailToggle" class="menu-rail-toggle" aria-label="Hide calculator controls" aria-expanded="true" title="Hide or show controls">‹</button><button type="button" id="menuExitFullScreen" class="menu-fullscreen-exit" aria-label="Exit full-screen calculator">✕ Exit full screen</button><div class="shell">
   <main class="device" aria-label="Menu calculator with circular keys">
     <div class="dotline" role="img" aria-label="Four coloured dots"><i></i><i></i><i></i><i></i></div>
     <div class="lcd-frame"><div class="lcd" aria-live="polite">
@@ -1128,7 +1152,7 @@ applyMenuShiftColour("green");
         decimalMark:"Decimal Mark",digitSeparator:"Digit Separator",
         multiLineFont:"MultiLine Font"})[m];items=simpleSetupMenus[m]}
       else if(m==="format"){title="FORMAT";items=fmtItems}
-      display.innerHTML=list(items,title,m==="settings"||m==="catalog"||m?.startsWith("functions:"));
+      display.innerHTML=list(items,title,m==="settings"||m==="catalog"||m==="format"||m?.startsWith("functions:"));
       if(m?.startsWith("functions:")&&state.message){
         display.insertAdjacentHTML("beforeend",'<p class="catalog-notice" role="status">'+escapeHtml(state.message)+'</p>');
       }
@@ -1314,11 +1338,9 @@ applyMenuShiftColour("green");
     if(cmd==="settings"){showMenu("settings");return}
     if(cmd==="catalog"){showMenu("catalog");return}
     if(cmd==="format"){
-      if(state.shift){showMenu("format");return}
-      state.shift=false;
-      if(state.factorText){state.factorText=null;state.decimal=false;}
-      else state.decimal=!state.decimal;
-      render();return;
+      // FORMAT opens the result-format menu. Selecting Standard/Decimal
+      // or Decimal changes the representation without losing Ans.
+      showMenu("format");return;
     }
     if(state.view==="menu"&&state.menu==="contrast"&&
       ["contrast-light","contrast-dark","back","right"].includes(cmd)){
@@ -1365,7 +1387,9 @@ applyMenuShiftColour("green");
       select(start+Number(cmd)-1);return;
     }
     if((state.view==="home"||state.view==="menu")&&/^[1-9]$/.test(cmd)){
-      select(Number(cmd)-1);return;
+      const start=state.view==="menu"&&["settings","catalog","format"].includes(state.menu)?
+        Math.floor(state.selection/4)*4:0;
+      select(start+Number(cmd)-1);return;
     }
     if(state.view==="stats"){
       if((state.freqOn?/^[\d.,:−]$/:/^[\d.,−]$/).test(cmd))state.stats+=cmd==="−"?"-":cmd;
@@ -1444,6 +1468,16 @@ applyMenuShiftColour("green");
  const stage=document.querySelector(".menu-fit-viewport");
  const shell=stage?.querySelector(".shell");
  const fitH=document.getElementById("menuFitHeight");
+ const railToggle=document.getElementById("menuRailToggle");
+ railToggle?.addEventListener("click",()=>{
+   const collapsed=!document.body.classList.contains("menu-rail-collapsed");
+   document.body.classList.toggle("menu-rail-collapsed",collapsed);
+   railToggle.textContent=collapsed?"›":"‹";
+   railToggle.setAttribute("aria-expanded",String(!collapsed));
+   railToggle.setAttribute("aria-label",collapsed?"Show calculator controls":"Hide calculator controls");
+   requestAnimationFrame(()=>{mode="height";fit();});
+ });
+
  const fitW=document.getElementById("menuFitWidth");
  const zoom=document.getElementById("menuZoomDetail");
  const full=document.getElementById("menuFullScreen");
