@@ -9,6 +9,8 @@
   const fitW=document.getElementById("fitWidth");
   const plus=document.getElementById("zoomIn");
   const minus=document.getElementById("zoomOut");
+  const full=document.getElementById("fullScreenCalc");
+  const exitFull=document.getElementById("exitFullScreenCalc");
   if(!viewport||!stage||!calculator||!fit||!plus||!minus)return;
 
   const MIN=0.25,MAX=5,clamp=x=>Math.min(MAX,Math.max(MIN,x));
@@ -85,6 +87,35 @@
   minus.addEventListener("click",()=>zoomTo(scale/1.2));
   fit.addEventListener("click",fitHeight);
   fitW?.addEventListener("click",()=>{if(mode==="width")fitHeight();else fitWidth()});
+  let previousMode="height",previousScale=1,previousScrollLeft=0,previousScrollTop=0;
+  function setFullScreen(on){
+    const already=document.body.classList.contains("calc-presentation");
+    if(on===already)return;
+    if(on){
+      previousMode=mode;previousScale=scale;
+      previousScrollLeft=viewport.scrollLeft;previousScrollTop=viewport.scrollTop;
+    }
+    document.body.classList.toggle("calc-presentation",on);
+    full?.setAttribute("aria-pressed",String(on));
+    if(on)fitWidth();
+    else{
+      measure();
+      if(previousMode==="height")fitHeight();
+      else if(previousMode==="width")fitWidth();
+      else{
+        mode=previousMode;scale=previousScale;draw();
+        viewport.scrollTo({left:previousScrollLeft,top:previousScrollTop,behavior:"instant"});
+      }
+      full?.focus({preventScroll:true});
+    }
+  }
+  full?.addEventListener("click",()=>setFullScreen(true));
+  exitFull?.addEventListener("click",()=>setFullScreen(false));
+  document.addEventListener("keydown",event=>{
+    if(event.key==="Escape"&&document.body.classList.contains("calc-presentation")){
+      event.preventDefault();event.stopImmediatePropagation();setFullScreen(false);
+    }
+  },true);
 
   function scheduleLayout(){
     if(queued)return;
