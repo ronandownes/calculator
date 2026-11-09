@@ -1575,10 +1575,7 @@ applyMenuShiftColour("green");
  });
  full.addEventListener("click",()=>fullScreen(true));
  exit.addEventListener("click",()=>fullScreen(false));
- stage.addEventListener("dblclick",event=>{
-   if(event.target.closest("button,a,input,select,textarea,.lcd"))return;
-   event.preventDefault();setMode(mode==="detail"?"height":"detail");
- });
+ // Double/triple tap on blank case is now reserved for EXE and SHIFT+EXE.
  // Ctrl + mouse wheel magnifies the CALCULATOR (not browser page).
  stage.addEventListener("wheel",event=>{
    if(!event.ctrlKey)return;
@@ -1657,4 +1654,5 @@ applyMenuShiftColour("green");
 })();
 </script>
 <script src="../result-focus.js?v=1"></script>
+<script src="../calculator-gestures.js?v=1"></script>
 </body></html>
