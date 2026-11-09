@@ -561,6 +561,17 @@ body.menu-dark[data-menu-shift-colour] .cw-shift-key{
 .menu-fit-viewport{overflow:auto!important;overscroll-behavior:contain;max-height:calc(100dvh - 12px);}
 .menu-fit-viewport.detail-zoom{cursor:grab;touch-action:pan-x pan-y;}
 .menu-fit-viewport.detail-zoom.is-dragging{cursor:grabbing;user-select:none;}
+
+/* Show the entered expression prominently; large single answers get the remaining space. */
+.menu-fit-viewport #display .expression{
+  font-size:clamp(29px,3vw,42px)!important;
+  line-height:1.12!important;
+  white-space:nowrap!important;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  max-width:100%!important;
+}
+.menu-fit-viewport #display .result{font-size:var(--menu-answer-size,70px)!important;}
 </style>
 </head>
 <body class="menu-light">
@@ -1376,7 +1387,7 @@ applyMenuShiftColour("green");
    const expression=display.querySelector(".expression");
    const room=Math.max(32,display.clientHeight-(expression?.offsetHeight||0)-18);
    const width=Math.max(45,display.clientWidth-5);
-   for(let px=60;px>=21;px-=2){
+   for(let px=88;px>=24;px-=2){
      answer.style.setProperty("--menu-answer-size",px+"px");
      const math=answer.querySelector("math");
      const w=Math.max(answer.scrollWidth,math?.getBoundingClientRect().width||0);
