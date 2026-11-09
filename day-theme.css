@@ -1833,3 +1833,22 @@ body[data-shift-colour] .calculator .top #shift{
   border-color:#78a5d1;
 }
 .skin-rail #fitWidth:focus-visible{outline:3px solid #2d7dd2;outline-offset:2px;}
+
+/* Two balanced control rows: Fit Height / Fit Width, then − / +.
+   Never squeeze four controls into the old three-column rail. */
+.skin-rail .size-controls{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:6px!important;
+  max-width:100%!important;
+}
+.skin-rail .size-controls #fitWidth{
+ display:flex;align-items:center;justify-content:center;gap:3px;
+ font:700 17px/1.2 Arial,Helvetica,sans-serif;
+}
+.skin-rail .size-controls #fitWidth span{
+ font-size:10px;font-weight:700;white-space:nowrap;
+}
+@media(max-width:760px){
+ .skin-rail .size-controls{max-width:230px!important;}
+}
