@@ -25,7 +25,7 @@
     const resultContents=result.textContent.trim();
     if(resultContents){
       const remaining=Math.max(26,height-status.offsetHeight-expression.offsetHeight-10);
-      for(let px=64;px>=20;px-=2){
+      for(let px=88;px>=22;px-=2){
         result.style.setProperty("--lcd-result-size",px+"px");
         const actualWidth=Math.max(result.scrollWidth,result.querySelector("math")?.getBoundingClientRect().width||0);
         const actualHeight=Math.max(result.scrollHeight,result.querySelector("math")?.getBoundingClientRect().height||0);
