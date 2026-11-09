@@ -730,6 +730,32 @@ html body.menu-presentation .menu-layout>.menu-fit-viewport{
  padding:0!important;margin:0!important;overflow:auto!important;
 }
 html body.menu-presentation .menu-rail-toggle{display:none!important}
+
+/* Clear white-on-colour action keys; preserve position and key functions. */
+.menu-fit-viewport .cw-functions .cw-function:nth-child(2) .cw-function-key{
+ background:#a51e2e!important;border-color:#a51e2e!important;color:#fff!important;
+}
+.menu-fit-viewport .cw-functions .cw-function:nth-child(3) .cw-function-key{
+ background:#116339!important;border-color:#116339!important;color:#fff!important;
+}
+.menu-fit-viewport .cw-functions .cw-function:nth-child(4) .cw-function-key{
+ background:#174d96!important;border-color:#174d96!important;color:#fff!important;
+}
+.menu-fit-viewport .cw-functions .cw-function:nth-child(5) .cw-function-key{
+ background:#292d37!important;border-color:#292d37!important;color:#fff!important;
+}
+.menu-fit-viewport .cw-functions svg{width:32px;height:28px}
+.menu-fit-viewport .cw-upper-keys math{
+ font-size:1.1em!important;line-height:1!important;pointer-events:none;
+}
+.menu-fit-viewport .cw-upper-keys .fraction-key-glyph{
+ display:flex;flex-direction:column;align-items:center;justify-content:center;
+ width:25px;height:34px;font-size:16px;line-height:.9;pointer-events:none;
+}
+.menu-fit-viewport .fraction-key-glyph span:first-child{
+ width:100%;padding-bottom:3px;border-bottom:3px solid currentColor;
+}
+.menu-fit-viewport .fraction-key-glyph span:last-child{padding-top:3px}
 </style>
 </head>
 <body class="menu-light">
@@ -781,16 +807,16 @@ html body.menu-presentation .menu-rail-toggle{display:none!important}
       <div class="cw-function"><span class="cw-function-label cw-shift-ink">SHIFT</span><button class="cw-function-key cw-shift-key" data-cmd="shift" aria-label="Shift" type="button">⬆</button></div>
       <div class="cw-function"><span class="cw-function-label">VARIABLE</span><button class="cw-function-key" data-cmd="variables" aria-label="Variables" type="button">⇄x</button></div>
       <div class="cw-function"><span class="cw-function-label">FUNCTION</span><button class="cw-function-key" data-cmd="function" aria-label="Function" type="button">f(x)</button></div>
-      <div class="cw-function"><span class="cw-function-label">CATALOG</span><button class="cw-function-key" data-cmd="catalog" aria-label="Catalogue" type="button">▱</button></div>
+      <div class="cw-function"><span class="cw-function-label">CATALOG</span><button class="cw-function-key" data-cmd="catalog" aria-label="Catalogue" type="button"><svg aria-hidden="true" viewBox="0 0 48 40" width="32" height="28" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M24 34Q13 25 4 27V5Q14 2 24 12Q34 2 44 5V27Q35 25 24 34Z"/><path d="M24 12V34"/></svg></button></div>
       <div class="cw-function"><span class="cw-function-label">TOOLS</span><button class="cw-function-key" data-cmd="tools" aria-label="Tools" type="button">•••</button></div>
     </div>
     <div class="cw-upper-keys keys" aria-label="Scientific functions">
       <button class="key secondary" data-cmd="x" data-shift-label="QR">𝑥</button>
-      <button class="key" data-cmd="fraction" data-shift-label="▣">▤</button>
-      <button class="key" data-cmd="sqrt" data-shift-label="∛">√</button>
-      <button class="key" data-cmd="power" data-shift-label="x⁻¹">xʸ</button>
-      <button class="key" data-cmd="square" data-shift-label="log">x²</button>
-      <button class="key" data-cmd="log" data-shift-label="ln">logₐ□</button>
+      <button class="key" data-cmd="fraction" data-shift-label="▣" aria-label="Fraction"><span class="fraction-key-glyph"><span>□</span><span>□</span></span></button>
+      <button class="key" data-cmd="sqrt" data-shift-label="∛" aria-label="Square root"><math aria-hidden="true"><msqrt><mi>x</mi></msqrt></math></button>
+      <button class="key" data-cmd="power" data-shift-label="x⁻¹"><math aria-hidden="true"><msup><mi>x</mi><mi>y</mi></msup></math></button>
+      <button class="key" data-cmd="square" data-shift-label="log"><math aria-hidden="true"><msup><mi>x</mi><mn>2</mn></msup></math></button>
+      <button class="key" data-cmd="log" data-shift-label="ln"><math aria-hidden="true"><msub><mi>log</mi><mi>a</mi></msub><mi>□</mi></math></button>
       <button class="key" data-cmd="ans">Ans</button>
       <button class="key" data-cmd="sin" data-shift-label="sin⁻¹">sin</button>
       <button class="key" data-cmd="cos" data-shift-label="cos⁻¹">cos</button>
@@ -1354,6 +1380,12 @@ applyMenuShiftColour("green");
       const count=state.view==="home"?home.length:itemsForMenu(state.menu).length;
       if(!count)return;
       state.selection=(state.selection+(cmd==="up"?count-1:1))%count;render();return;
+    }
+    if(cmd==="exe"&&state.shift&&state.view==="calculate"){
+      state.shift=false;state.decimal=true;
+      if(state.answer===null)calculate();
+      else{state.factorText=null;render();}
+      return;
     }
     if(cmd==="ok"||cmd==="exe"){
       if(["home","menu"].includes(state.view)){select(state.selection);return}
