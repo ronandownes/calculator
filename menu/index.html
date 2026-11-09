@@ -477,6 +477,43 @@ body.menu-dark .device{background:#393b3c!important;border-color:#34383c!importa
   font-feature-settings:"lnum" 1,"tnum" 1!important;
   font-variant-numeric:lining-nums tabular-nums!important;
 }
+
+/* CATALOG: four entries per LCD page, like the 82/85/350CW display.
+   Only this menu uses the smaller high-density monochrome typography. */
+.menu-fit-viewport .lcd #display:has(.catalog-title) .menu-list{
+ display:flex;flex-direction:column;gap:0!important;
+}
+.menu-fit-viewport .lcd #display:has(.catalog-title) .lcd-title{
+ font-size:11px!important;
+ padding-bottom:1px!important;
+ margin:0 0 2px!important;
+}
+.menu-fit-viewport .lcd #display:has(.catalog-title) .menu-list button{
+ position:relative;display:flex;gap:0!important;align-items:center;
+ border:0!important;border-radius:0!important;box-sizing:border-box;
+ padding:1px 4px!important;
+ min-height:31px!important;height:31px!important;
+ font:700 19px/1.15 "Courier New",Consolas,monospace!important;
+ white-space:nowrap;overflow:hidden;
+ letter-spacing:-.05em!important;
+}
+.menu-fit-viewport .lcd #display:has(.catalog-title) .menu-list button b{
+ font:inherit!important;min-width:22px!important;flex:none;
+ color:inherit!important;
+}
+.menu-fit-viewport .lcd #display:has(.catalog-title) .menu-list button .menu-item-label{
+ flex:1;min-width:0;overflow:hidden;text-overflow:clip;white-space:nowrap;
+}
+.menu-fit-viewport .lcd #display:has(.catalog-title) .menu-list button.selected{
+ outline:0!important;background:#17221a!important;color:#fff!important;
+}
+.menu-fit-viewport .lcd .catalog-chevron{font:700 13px Arial,sans-serif;margin-left:2px}
+.menu-fit-viewport .lcd .catalog-scrollbar{float:right}
+.menu-fit-viewport .lcd .catalog-notice{
+ margin:4px 0 0!important;
+ font:700 12px/1.1 Arial,sans-serif;
+ color:#633d24;
+}
 </style>
 </head>
 <body class="menu-light">
@@ -589,15 +626,56 @@ applyMenuShiftColour("green");
     decimalMark:"dot",digitSeparator:false,multiLineFont:"normal",contrast:5,
     stats:"",message:"",factorText:null,tableRows:[],box:"",ratio:null};
   const home=[["Calculate","Basic calculations"],["Statistics","Mean and spread"],["Table","Function values"],["Math Box","Dice and coin"]];
+  // fx-82CW / fx-85CW / fx-350CW CATALOG order (official CW manual,
+  // Advanced Calculations, pp. 43–50). This is NOT the EX catalogue.
   const catalogue=[
-    ["Number","Fractions, HCF, LCM"],["Probability","nPr, nCr, random"],["Trigonometry","Inverse functions"],["Functions","Absolute value, roots"],["Constants","π, e"]
+    ["Func Analysis","Logarithms"],
+    ["Probability","%, n!, nPr, nCr, Ran#"],
+    ["Numeric Calc","Absolute value and rounding"],
+    ["Angle/Coord/Sexa","Units, coordinates, sexagesimal"],
+    ["Hyperbolic/Trig","Hyperbolic and trig functions"],
+    ["Other","Standard keys and symbols"]
   ];
+  // Third value is status: false means a visible but deliberately unavailable
+  // item; selecting it never inserts an unsupported or misleading expression.
   const functions={
-    Number:[["HCF","gcd("],["LCM","lcm("],["Round","rnd("],["Cube root","cbrt("]],
-    Probability:[["Combination","nCr("],["Permutation","nPr("],["Random number","ran#"],["Random integer","ranInt("],["Factorial","!"]],
-    Trigonometry:[["sin⁻¹","asin("],["cos⁻¹","acos("],["tan⁻¹","atan("],["sinh","sinh("],["cosh","cosh("],["tanh","tanh("]],
-    Functions:[["Square root","sqrt("],["Absolute value","abs("],["Power of ten","10^("],["Reciprocal","^(-1)"]],
-    Constants:[["π","π"],["e","e"]]
+    "Func Analysis":[
+      ["Logarithm(logab)","logbase("],
+      ["Logarithm(log)","log("],
+      ["Natural Logarithm","ln("]
+    ],
+    "Probability":[
+      ["%","%"],
+      ["Factorial(!)","!"],
+      ["Permutation(P)","nPr("],
+      ["Combination(C)","nCr("],
+      ["Random Number","ran#"],
+      ["Random Integer","ranInt("]
+    ],
+    "Numeric Calc":[
+      ["Absolute Value","abs("],
+      ["Round Off","rnd("]
+    ],
+    "Angle/Coord/Sexa":[
+      ["Degrees","°",false],
+      ["Radians","r",false],
+      ["Gradians","g",false],
+      ["Rect to Polar","Pol(",false],
+      ["Polar to Rect","Rec(",false],
+      ["Degs Mins Secs","°′″",false]
+    ],
+    "Hyperbolic/Trig":[
+      ["sinh","sinh("],["cosh","cosh("],["tanh","tanh("],
+      ["sinh⁻¹","asinh("],["cosh⁻¹","acosh("],["tanh⁻¹","atanh("],
+      ["sin","sin("],["cos","cos("],["tan","tan("],
+      ["sin⁻¹","asin("],["cos⁻¹","acos("],["tan⁻¹","atan("]
+    ],
+    "Other":[
+      ["Ans","Ans"],["π","π"],["e","e"],["√","sqrt("],
+      ["x√","root(",false],["x⁻¹","^(-1)"],["x²","^2"],
+      ["xʸ","^"],["Negative","−"],["Comma",","],
+      ["(","("],[")",")"]
+    ]
   };
   // SETUP reference: official fx-82EX/85EX/350EX manual, page 6.
   const settings=[
@@ -678,12 +756,20 @@ applyMenuShiftColour("green");
       case "sinh":return Math.sinh(a);
       case "cosh":return Math.cosh(a);
       case "tanh":return Math.tanh(a);
+      case "asinh":return Math.asinh(a);
+      case "acosh":if(a<1)throw Error("Math ERROR");return Math.acosh(a);
+      case "atanh":if(Math.abs(a)>=1)throw Error("Math ERROR");return Math.atanh(a);
       case "sqrt":if(a<0)throw Error("Math ERROR");return Math.sqrt(a);
       case "cbrt":return Math.cbrt(a);
       case "abs":return Math.abs(a);
       case "ln":if(a<=0)throw Error("Math ERROR");return Math.log(a);
       case "exp":return Math.exp(a);
       case "log":if(a<=0)throw Error("Math ERROR");return Math.log10(a);
+      case "logbase":{
+        const base=args.length>1?a:10,number=args.length>1?b:a;
+        if(base<=0||base===1||number<=0)throw Error("Math ERROR");
+        return Math.log(number)/Math.log(base);
+      }
       case "gcd":if(!Number.isInteger(a)||!Number.isInteger(b))throw Error("Integers required");return gcd(a,b);
       case "lcm":if(!Number.isInteger(a)||!Number.isInteger(b))throw Error("Integers required");return a===0||b===0?0:Math.abs(a*b)/gcd(a,b);
       case "nCr":return choose(a,b);
@@ -768,19 +854,20 @@ applyMenuShiftColour("green");
   function list(items,title,paged=false){
     const start=paged?Math.floor(state.selection/4)*4:0;
     const visible=paged?items.slice(start,start+4):items;
-    let markup='<div class="lcd-title">'+escapeHtml(title)+
-      (paged?' <span aria-hidden="true">▮</span>':'')+'</div><div class="menu-list">';
+    let markup='<div class="lcd-title catalog-title">'+escapeHtml(title)+
+      (paged?' <span class="catalog-scrollbar" aria-hidden="true">▮</span>':'')+'</div><div class="menu-list">';
     visible.forEach((item,j)=>{
       const i=start+j;
       markup+='<button class="'+(state.selection===i?'selected':'')+
         '" data-choice="'+i+'" aria-label="'+escapeHtml(item[0])+'"><b>'+
-        (j+1)+'</b>'+escapeHtml(item[0])+'</button>';
+        (j+1)+'</b><span class="menu-item-label">'+escapeHtml(item[0])+'</span>'+
+        (title==="CATALOG"?'<span class="catalog-chevron" aria-hidden="true">▶</span>':'')+'</button>';
     });
     return markup+'</div>';
   }
   function itemsForMenu(menu){
     if(menu==="catalog")return catalogue;
-    if(menu?.startsWith("functions:"))return functions[menu.split(":")[1]]||[];
+    if(menu?.startsWith("functions:"))return functions[menu.slice("functions:".length)]||[];
     if(menu==="settings")return settings;
     if(menu==="angle")return angleItems;
     if(menu==="number")return numberItems;
@@ -816,7 +903,7 @@ applyMenuShiftColour("green");
       const m=state.menu;
       let items=[],title="";
       if(m==="catalog"){items=catalogue;title="CATALOG"}
-      else if(m?.startsWith("functions:")){title=m.split(":")[1];items=functions[title]}
+      else if(m?.startsWith("functions:")){title=m.slice("functions:".length);items=functions[title]}
       else if(m==="settings"){title="SETUP";items=settings}
       else if(m==="angle"){title="Angle Unit";items=angleItems}
       else if(m==="number"){title="Number Format";items=numberItems}
@@ -842,7 +929,10 @@ applyMenuShiftColour("green");
         decimalMark:"Decimal Mark",digitSeparator:"Digit Separator",
         multiLineFont:"MultiLine Font"})[m];items=simpleSetupMenus[m]}
       else if(m==="format"){title="FORMAT";items=fmtItems}
-      display.innerHTML=list(items,title,m==="settings");
+      display.innerHTML=list(items,title,m==="settings"||m==="catalog"||m?.startsWith("functions:"));
+      if(m?.startsWith("functions:")&&state.message){
+        display.insertAdjacentHTML("beforeend",'<p class="catalog-notice" role="status">'+escapeHtml(state.message)+'</p>');
+      }
     } else if(state.view==="calculate")display.innerHTML=calcDisplay();
     else if(state.view==="stats"){
       display.innerHTML='<div class="lcd-title">Statistics</div><div class="mini"><p>'+
@@ -873,11 +963,16 @@ applyMenuShiftColour("green");
     const m=state.menu;
     if(m==="catalog"){
       if(i<0||i>=catalogue.length)return;
-      state.menu="functions:"+catalogue[i][0];state.selection=0;render();return;
+      state.menu="functions:"+catalogue[i][0];state.selection=0;state.message="";render();return;
     }
     if(m?.startsWith("functions:")){
-      const items=functions[m.split(":")[1]];
-      if(!items[i])return;
+      const items=functions[m.slice("functions:".length)];
+      if(!items?.[i])return;
+      if(items[i][2]===false){
+        // Do not misrepresent an unsupported calculation as working.
+        state.message=items[i][0]+" — not implemented yet";
+        render();return;
+      }
       state.view="calculate";state.menu=null;state.selection=0;insert(items[i][1]);return;
     }
     if(m==="settings"){
@@ -949,7 +1044,7 @@ applyMenuShiftColour("green");
   }
   function showMenu(name){
     state.back=state.view==="menu"?state.back:state.view;
-    state.menu=name;state.view="menu";state.selection=0;state.shift=false;render();
+    state.menu=name;state.view="menu";state.selection=0;state.shift=false;state.message="";render();
   }
   function insert(value){
     state.view="calculate";
@@ -994,7 +1089,7 @@ applyMenuShiftColour("green");
   }
   function back(){
     if(state.view==="menu"){
-      if(state.menu?.startsWith("functions:")){state.menu="catalog";state.selection=0}
+      if(state.menu?.startsWith("functions:")){state.menu="catalog";state.selection=0;state.message=""}
       else if(["numberFix","numberSci","numberNorm"].includes(state.menu)){
         state.menu="number";state.selection=0;
       }
