@@ -1887,3 +1887,34 @@ body.calc-presentation .calc-viewport .calc-fullscreen-exit{display:block!import
 body.calc-presentation .calc-stage{margin:0!important;}
 body.calc-presentation .calculator{margin:0!important;}
 body.calc-presentation .calc-viewport:focus-visible{outline:3px solid #2d7dd2;outline-offset:-3px}
+
+/* Compact chevron that hides the entire control rail without hiding calculator. */
+.calc-viewport .calculator-rail-toggle{
+  position:fixed;left:5px;top:48%;z-index:1300;
+  width:29px;height:60px;padding:0;
+  border:1px solid #9eaeba;border-radius:0 12px 12px 0;
+  background:#e9eff7;color:#2c4961;cursor:pointer;
+  box-shadow:1px 2px 7px #0002;font:700 27px/1 Arial,sans-serif;
+}
+.calc-viewport .calculator-rail-toggle:focus-visible{outline:3px solid #2d7dd2}
+html body.rail-collapsed .layout{
+ max-width:none!important;
+ width:100%!important;grid-template-columns:minmax(0,1fr)!important;
+}
+html body.rail-collapsed .layout>.skin-rail{display:none!important}
+html body.rail-collapsed .layout>.calc-viewport{
+ max-width:none!important;width:100%!important;
+ justify-self:stretch!important;
+}
+html body.rail-collapsed .calc-stage{margin-inline:auto!important;}
+/* Override older higher-specificity desktop layout rules in presentation. */
+html body.calc-presentation .layout > .calc-viewport,
+html body.light.calc-presentation .layout > .calc-viewport,
+html body:not(.light).calc-presentation .layout > .calc-viewport{
+ position:fixed!important;inset:0!important;
+ width:100vw!important;max-width:none!important;
+ height:100dvh!important;min-height:0!important;
+ margin:0!important;padding:0!important;overflow:auto!important;
+ border-radius:0!important;
+}
+html body.calc-presentation .calc-stage{margin:0!important;}
