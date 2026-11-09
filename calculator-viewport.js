@@ -6,6 +6,7 @@
   const stage=document.querySelector(".calc-stage");
   const calculator=stage?.querySelector(".calculator");
   const fit=document.getElementById("fitHeight");
+  const fitW=document.getElementById("fitWidth");
   const plus=document.getElementById("zoomIn");
   const minus=document.getElementById("zoomOut");
   if(!viewport||!stage||!calculator||!fit||!plus||!minus)return;
@@ -36,6 +37,7 @@
     calculator.style.setProperty("--calc-scale",String(scale));
     viewport.style.height=Math.max(180,Math.min(baseHeight*scale,viewportHeight()))+"px";
     fit.setAttribute("aria-pressed",String(mode==="height"));
+    fitW?.setAttribute("aria-pressed",String(mode==="width"));
     plus.disabled=scale>=MAX;
     minus.disabled=scale<=MIN;
     viewport.classList.toggle("zoomed",scale>1.001||baseWidth*scale>viewport.clientWidth+1||baseHeight*scale>viewport.clientHeight+1);
@@ -71,10 +73,18 @@
     draw();
     viewport.scrollTo({left:0,top:0,behavior:"instant"});
   }
+  function fitWidth(){
+    measure();
+    mode="width";
+    scale=Math.round(clamp(viewport.clientWidth/baseWidth)*1000)/1000;
+    draw();
+    viewport.scrollTo({left:0,top:0,behavior:"instant"});
+  }
   function zoomTo(next){manual(next);}
   plus.addEventListener("click",()=>zoomTo(scale*1.2));
   minus.addEventListener("click",()=>zoomTo(scale/1.2));
   fit.addEventListener("click",fitHeight);
+  fitW?.addEventListener("click",()=>{if(mode==="width")fitHeight();else fitWidth()});
 
   function scheduleLayout(){
     if(queued)return;
@@ -83,6 +93,7 @@
       queued=false;
       measure();
       if(mode==="height")fitHeight();
+      else if(mode==="width")fitWidth();
       else draw();
     });
   }
@@ -157,6 +168,15 @@
     event.stopImmediatePropagation();event.preventDefault();blockClick=false;
   },true);
 
+  // Double-click only blank chassis/background to switch Fit Width / Fit Height.
+  viewport.addEventListener("dblclick",event=>{
+    if(event.target.closest("button,a,input,textarea,select,[role='button'],.screen"))return;
+    event.preventDefault();
+    if(mode==="width")fitHeight();else fitWidth();
+  });
+  document.addEventListener("keydown",event=>{
+    if(event.key==="Escape"&&mode==="width"){event.preventDefault();fitHeight();}
+  });
   viewport.addEventListener("wheel",event=>{
     if(!event.ctrlKey)return;
     event.preventDefault();
