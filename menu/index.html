@@ -456,6 +456,27 @@ body.menu-dark .device{background:#393b3c!important;border-color:#34383c!importa
   .menu-fit-viewport{max-width:100%!important;align-self:center!important}
   .menu-fit-viewport>.shell{width:500px!important}
 }
+
+/* Enlarged answers, reduced only as needed; safe horizontal fallback. */
+.menu-fit-viewport #display .result{
+  font-size:var(--menu-answer-size,50px)!important;
+  line-height:1.1!important;
+  max-width:100%!important;
+  min-width:0!important;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  white-space:nowrap!important;
+  scrollbar-width:thin!important;
+}
+.menu-fit-viewport #display .result math{
+  font-size:inherit!important;
+  font-family:"Cambria Math","STIX Two Math",serif!important;
+}
+.menu-fit-viewport #display .expression,
+.menu-fit-viewport #display .result{
+  font-feature-settings:"lnum" 1,"tnum" 1!important;
+  font-variant-numeric:lining-nums tabular-nums!important;
+}
 </style>
 </head>
 <body class="menu-light">
@@ -1147,6 +1168,36 @@ applyMenuShiftColour("green");
  function schedule(){if(pending)return;pending=true;requestAnimationFrame(fit)}
  window.addEventListener("resize",schedule,{passive:true});
  window.visualViewport?.addEventListener("resize",schedule,{passive:true});
+ document.fonts?.ready.then(schedule);
+ schedule();
+})();
+</script>
+<script>
+/* Dynamic LCD result typography, using maximum legible size per answer.
+   Changes only font size: never changes the answer or the calculator scale. */
+(()=>{
+ const lcd=document.querySelector(".menu-fit-viewport .lcd");
+ const display=document.getElementById("display");
+ if(!lcd||!display)return;
+ let queued=false;
+ function fitResult(){
+   queued=false;
+   const answer=display.querySelector(".result");
+   if(!answer)return;
+   const expression=display.querySelector(".expression");
+   const room=Math.max(32,display.clientHeight-(expression?.offsetHeight||0)-18);
+   const width=Math.max(45,display.clientWidth-5);
+   for(let px=60;px>=21;px-=2){
+     answer.style.setProperty("--menu-answer-size",px+"px");
+     const math=answer.querySelector("math");
+     const w=Math.max(answer.scrollWidth,math?.getBoundingClientRect().width||0);
+     const h=Math.max(answer.scrollHeight,math?.getBoundingClientRect().height||0);
+     if(w<=width+1&&h<=room+1)break;
+   }
+ }
+ function schedule(){if(!queued){queued=true;requestAnimationFrame(fitResult)}}
+ new MutationObserver(schedule).observe(display,{subtree:true,childList:true,characterData:true});
+ new ResizeObserver(schedule).observe(lcd);
  document.fonts?.ready.then(schedule);
  schedule();
 })();
