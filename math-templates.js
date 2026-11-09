@@ -27,7 +27,7 @@
   }
   function createEditor(){
     const initial=justCalculated?"":expr;
-    editor={nodes:initial?[token(initial)]:[],path:[],calculated:false};
+    editor={nodes:initial?[token(initial)]:[],path:[],cursor:initial?1:0,calculated:false};
     justCalculated=false;
   }
   function currentText(nodes){
@@ -81,21 +81,27 @@
     if(!editor)createEditor();
     if(editor.calculated)createEditor();
     const nodes=rootNodes();
-    const numerator=type==="frac"?takeNumerator(nodes):[];
+    const at=editor.cursor;
+    // Consume a preceding numerator only when the caret is at the end.
+    const numerator=type==="frac"&&at===nodes.length?takeNumerator(nodes):[];
+    editor.cursor=Math.min(at,nodes.length);
     const n={id:nextId++,type};
     if(type==="frac"){n.top=numerator;n.bottom=[];}
     else if(type==="mixed"){n.whole=[];n.top=[];n.bottom=[];}
     else n.body=[];
-    nodes.push(n);
+    nodes.splice(editor.cursor,0,n);
+    editor.cursor++;
     // A completed numerator makes the denominator the next input field.
-    editor.path.push({node:n,slot:type==="frac"&&numerator.length?"bottom":type==="frac"?"top":type==="mixed"?"whole":"body"});
+    const field=type==="frac"&&numerator.length?"bottom":type==="frac"?"top":type==="mixed"?"whole":"body";
+    editor.path.push({node:n,slot:field});
+    editor.cursor=n[field].length;
     sync();
   }
   function literal(v){
     if(!editor)createEditor();
     if(editor.calculated){
       const chaining=/^[+−×÷^]$/.test(v);
-      editor={nodes:chaining?[token("Ans")]:[],path:[],calculated:false};
+      editor={nodes:chaining?[token("Ans")]:[],path:[],cursor:chaining?1:0,calculated:false};
     }
     if(v==="negate")v="−";
     else if(v==="square")v="^2";
@@ -118,40 +124,84 @@
     else if(v==="root")v="root(";
     if(v==="." && /(?:^|[^\d.])\d*\.\d*$/.test(currentText(rootNodes())))return;
     const nodes=rootNodes();
-    const last=nodes[nodes.length-1];
-    if((/^[0-9]$/.test(v)||v===".") && last && last.type==="text" &&
-       /^(?:\d+(?:\.\d*)?|\.\d+)$/.test(last.value)){
-      last.value+=v;
-    }else nodes.push(token(v));
+    const prior=nodes[editor.cursor-1];
+    if((/^[0-9]$/.test(v)||v===".") && prior && prior.type==="text" &&
+       /^(?:\d+(?:\.\d*)?|\.\d+)$/.test(prior.value)){
+      prior.value+=v;
+    }else{
+      nodes.splice(editor.cursor,0,token(v));
+      editor.cursor++;
+    }
     sync();
   }
   function backspace(){
     const nodes=rootNodes();
-    if(nodes.length){
-      const last=nodes[nodes.length-1];
-      if(last.type==="text" && last.value.length>1){
-        last.value=last.value.slice(0,-1);
-        if(!last.value)nodes.pop();
-      }else nodes.pop();
-    }else if(editor.path.length){
-      const step=editor.path[editor.path.length-1];
-      if(step.slot==="bottom")step.slot="top";
-      else if(step.slot==="top" && step.node.type==="mixed")step.slot="whole";
-      else editor.path.pop();
+    if(editor.cursor>0){
+      const prior=nodes[editor.cursor-1];
+      if(prior.type==="text"&&prior.value.length>1){
+        prior.value=prior.value.slice(0,-1);
+      }else{
+        nodes.splice(editor.cursor-1,1);
+        editor.cursor--;
+      }
+      sync();
+    }else navigate("previous");
+  }
+  function fieldsFor(node){
+    return node.type==="mixed"?["whole","top","bottom"]:
+      node.type==="frac"?["top","bottom"]:["body"];
+  }
+  function navigate(direction){
+    if(!editor)return;
+    const nodes=rootNodes();
+    if(direction==="previous"){
+      if(editor.cursor>0){
+        const preceding=nodes[editor.cursor-1];
+        if(preceding.type==="text"){
+          editor.cursor--;
+        }else{
+          const slot=fieldsFor(preceding).at(-1);
+          editor.path.push({node:preceding,slot});
+          editor.cursor=preceding[slot].length;
+        }
+      }else if(editor.path.length){
+        const step=editor.path.at(-1);
+        const fields=fieldsFor(step.node),index=fields.indexOf(step.slot);
+        if(index>0){
+          step.slot=fields[index-1];
+          editor.cursor=step.node[step.slot].length;
+        }else{
+          editor.path.pop();
+          editor.cursor=rootNodes().indexOf(step.node);
+        }
+      }
+    }else{
+      if(editor.cursor<nodes.length){
+        const following=nodes[editor.cursor];
+        if(following.type==="text")editor.cursor++;
+        else{
+          const slot=fieldsFor(following)[0];
+          editor.path.push({node:following,slot});
+          editor.cursor=0;
+        }
+      }else if(editor.path.length){
+        const step=editor.path.at(-1);
+        const fields=fieldsFor(step.node),index=fields.indexOf(step.slot);
+        if(index+1<fields.length){
+          step.slot=fields[index+1];editor.cursor=0;
+        }else{
+          editor.path.pop();
+          editor.cursor=rootNodes().indexOf(step.node)+1;
+        }
+      }
     }
     sync();
   }
-  function navigate(direction){
-    if(!editor||!editor.path.length)return;
-    const p=editor.path,step=p[p.length-1];
-    const fields=step.node.type==="mixed"?["whole","top","bottom"]:
-      step.node.type==="frac"?["top","bottom"]:["body"];
-    let next=fields.indexOf(step.slot)+(direction==="next"?1:-1);
-    if(next>=0 && next<fields.length){
-      step.slot=fields[next];sync();
-    }else{
-      p.pop();sync();
-    }
+  function cursorMarkup(){
+    const caret=m("mtext","▏");
+    caret.classList.add("template-insertion-caret");
+    caret.setAttribute("aria-hidden","true");
+    return caret;
   }
   function activePath(node,slot){
     if(!editor)return false;
@@ -169,11 +219,18 @@
       const empty=m("mtext","□");
       empty.classList.add("template-placeholder");
       row.append(empty);
-    }else for(const child of content)row.append(nodeMarkup(child,steps.concat([{node,slot}])));
+    }else{
+      for(let i=0;i<=content.length;i++){
+        if(activePath(node,slot)&&!editor.calculated&&i===editor.cursor)row.append(cursorMarkup());
+        if(i<content.length)row.append(nodeMarkup(content[i],steps.concat([{node,slot}])));
+      }
+    }
+    if(!content.length&&activePath(node,slot)&&!editor.calculated)row.append(cursorMarkup());
     row.addEventListener("click",event=>{
       event.stopPropagation();
       if(!editor)return;
       editor.path=steps.concat([{node,slot}]);
+      editor.cursor=content.length;
       editor.calculated=false;
       render();
     });
@@ -225,7 +282,10 @@
     math.setAttribute("display","inline");
     math.setAttribute("aria-label","Mathematical expression");
     const row=m("mrow");
-    for(const n of editor.nodes)row.append(nodeMarkup(n,[]));
+    for(let i=0;i<=editor.nodes.length;i++){
+      if(!editor.path.length&&!editor.calculated&&i===editor.cursor)row.append(cursorMarkup());
+      if(i<editor.nodes.length)row.append(nodeMarkup(editor.nodes[i],[]));
+    }
     math.append(row);
     screen.replaceChildren(math);
     screen.classList.add("typeset-expression");
