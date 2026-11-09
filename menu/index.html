@@ -390,6 +390,72 @@ body.menu-dark .device{background:#393b3c!important;border-color:#34383c!importa
  .cw-format-art .cw-format-upper,.cw-format-art .cw-format-lower{font-size:clamp(12px,2.8vw,16px)!important;}
  .cw-ten-glyph{font-size:clamp(12px,3.25vw,18px)!important;}
 }
+
+/* Classroom-height-first geometry: smaller circles without reducing legibility. */
+.menu-layout{grid-template-columns:165px minmax(0,500px)!important;max-width:685px!important;align-items:start!important}
+.menu-fit-viewport{position:relative;width:100%;max-width:500px;min-width:0;margin:0 auto}
+.menu-fit-viewport>.shell{width:500px!important;max-width:none!important;transform-origin:0 0!important;position:absolute;top:0;left:0}
+.menu-fit-viewport .device{padding:12px 18px 16px!important}
+.menu-fit-viewport .dotline{margin-bottom:5px!important}
+.menu-fit-viewport .lcd-frame{padding:9px!important;margin-bottom:9px!important}
+.menu-fit-viewport .lcd{height:176px!important;padding:9px 11px!important}
+.menu-fit-viewport .cw-control-deck{margin:4px 0 5px!important;gap:7px!important}
+.menu-fit-viewport .cw-control{max-width:42px!important;border-width:2px!important;font-size:22px!important}
+.menu-fit-viewport .cw-control-position{gap:2px!important}
+.menu-fit-viewport .cw-aux-controls{gap:3px 7px!important}
+.menu-fit-viewport .cw-dpad{max-width:148px!important}
+.menu-fit-viewport .cw-dpad button{border-width:2px!important}
+.menu-fit-viewport .cw-page-rocker{max-width:43px!important;border-width:2px!important}
+.menu-fit-viewport .cw-page-rocker button{min-height:34px!important;font-size:18px!important}
+.menu-fit-viewport .cw-functions{margin:5px 0 13px!important;gap:7px!important}
+.menu-fit-viewport .cw-function{gap:2px!important}
+.menu-fit-viewport .cw-function-key{max-width:54px!important;font-size:18px!important}
+.menu-fit-viewport .cw-function-label,.menu-fit-viewport .cw-label{font-size:11px!important}
+.menu-fit-viewport .cw-upper-keys{column-gap:11px!important;row-gap:16px!important;margin-bottom:15px!important;padding-top:5px!important}
+.menu-fit-viewport .cw-number-keys{column-gap:15px!important;row-gap:15px!important;padding-top:5px!important}
+.menu-fit-viewport .cw-upper-keys>.key,
+.menu-fit-viewport .cw-number-keys>.key{
+  box-sizing:border-box!important;
+  width:calc(100% - 5px)!important;
+  max-width:70px!important;
+  aspect-ratio:1/1!important;
+  margin-inline:auto!important;
+  min-height:0!important;
+  border-radius:50%!important;
+  font-variant-numeric:lining-nums tabular-nums!important;
+  font-feature-settings:"lnum" 1,"tnum" 1!important;
+  font-family:Arial,Helvetica,sans-serif!important;
+  font-size:26px!important;
+  line-height:1!important;
+  align-items:center!important;
+  justify-content:center!important;
+}
+.menu-fit-viewport .cw-upper-keys>.key{max-width:58px!important;font-size:21px!important}
+.menu-fit-viewport .cw-number-keys>.cw-format-key{font-size:13px!important}
+.menu-fit-viewport .cw-number-keys>.cw-exe-key{font-size:20px!important}
+.menu-fit-viewport .cw-number-keys>.cw-ten-power-key{font-size:18px!important}
+.menu-fit-viewport .cw-upper-keys>.key[data-shift-label]::before,
+.menu-fit-viewport .cw-number-keys>.key[data-shift-label]::before{
+  font-size:12px!important;
+  bottom:calc(100% + 1px)!important;
+}
+.menu-fit-viewport .action-help{margin-top:8px!important;font-size:10px!important}
+.menu-fit-viewport .note{margin-top:7px!important;font-size:10px!important}
+/* LCD digits share a consistent baseline, including 9. */
+.menu-fit-viewport .lcd .expression,
+.menu-fit-viewport .lcd .result{
+  font-family:"Cambria Math","Times New Roman",serif!important;
+  font-variant-numeric:lining-nums tabular-nums!important;
+  font-feature-settings:"lnum" 1,"tnum" 1!important;
+  line-height:1.1!important;
+}
+.menu-fit-viewport .lcd .result math{font-size:inherit!important}
+.menu-fit-viewport .lcd .result{font-size:var(--menu-answer-size,44px)!important}
+@media(max-width:700px){
+  .menu-layout{display:flex!important;flex-direction:column-reverse!important;max-width:100%!important;gap:10px!important}
+  .menu-fit-viewport{max-width:100%!important;align-self:center!important}
+  .menu-fit-viewport>.shell{width:500px!important}
+}
 </style>
 </head>
 <body class="menu-light">
@@ -401,7 +467,7 @@ body.menu-dark .device{background:#393b3c!important;border-color:#34383c!importa
 <div class="model-selector"><span class="skin-label">Menu</span><div class="model-palette" role="group" aria-label="Menu colours"><button class="skin-dot skin-red" data-menu-skin="pink" type="button" title="Pastel pink" aria-label="Menu pastel pink"></button><button class="skin-dot skin-green" data-menu-skin="mint" type="button" title="Pastel mint" aria-label="Menu pastel mint"></button><button class="skin-dot skin-blue" data-menu-skin="blue" type="button" title="Pastel blue" aria-label="Menu pastel blue"></button><button class="skin-dot skin-neutral" id="menuNeutralSkin" type="button" title="Toggle Dark / Light" aria-label="Menu dark or light"></button></div><span class="skin-status" id="menuSkinStatus"></span><div class="menu-shift-picker" role="group" aria-label="Second-function colour"><span class="shift-title">SHIFT lettering</span><button class="shift-choice shift-blue" data-menu-shift-colour="blue" type="button" aria-label="Blue SHIFT legends" title="Blue SHIFT legends" aria-pressed="false"></button><button class="shift-choice shift-green" data-menu-shift-colour="green" type="button" aria-label="Green SHIFT legends" title="Green SHIFT legends" aria-pressed="true"></button></div></div>
 </nav>
 </aside>
-<div class="shell">
+<div class="menu-fit-viewport"><div class="shell">
   <div class="topline"><a href="../" aria-label="Return to the main calculator">‹ Cal</a><span>Menu-based</span></div>
   <main class="device" aria-label="Optional menu-based calculator">
     <div class="dotline" role="img" aria-label="Four coloured dots"><i></i><i></i><i></i><i></i></div>
@@ -458,7 +524,7 @@ body.menu-dark .device{background:#393b3c!important;border-color:#34383c!importa
     <div class="action-help">Arrow keys navigate menus · Numbers select options · SHIFT + FORMAT opens formatting options</div>
   </main>
   <p class="note">Independent teaching emulator. Menu functions are being implemented against the fx-82CW/85CW/350CW manual.</p>
-</div></div>
+</div></div></div>
 <script>
 /* URL selection only: /menu/?skin=dark or /menu/?skin=light.
    Does not share state with or redirect the scientific home page. */
@@ -1054,6 +1120,35 @@ applyMenuShiftColour("green");
   });
   window.addEventListener("pageshow",()=>render());
   render();
+})();
+</script>
+<script>
+/* Uniform fit-to-height for menu model, maintaining circle geometry.
+   Fit on viewport resize; manual browser pinch remains available. */
+(()=> {
+ const stage=document.querySelector(".menu-fit-viewport");
+ const shell=stage?.querySelector(".shell");
+ if(!stage||!shell)return;
+ const naturalWidth=500;
+ let pending=false;
+ function fit(){
+  pending=false;
+  shell.style.transform="none";
+  const naturalHeight=shell.offsetHeight;
+  const availableWidth=Math.max(180,stage.clientWidth||window.innerWidth);
+  const viewportHeight=window.visualViewport?.height||window.innerHeight;
+  const availableHeight=Math.max(250,viewportHeight-stage.getBoundingClientRect().top-12);
+  // On very short devices do not sacrifice accessibility: allow page scrolling.
+  const scale=Math.max(.66,Math.min(1,availableWidth/naturalWidth,availableHeight/naturalHeight));
+  shell.style.transform="scale("+scale+")";
+  stage.style.height=Math.ceil(naturalHeight*scale)+"px";
+  stage.style.setProperty("--menu-view-scale",String(scale));
+ }
+ function schedule(){if(pending)return;pending=true;requestAnimationFrame(fit)}
+ window.addEventListener("resize",schedule,{passive:true});
+ window.visualViewport?.addEventListener("resize",schedule,{passive:true});
+ document.fonts?.ready.then(schedule);
+ schedule();
 })();
 </script>
 </body></html>
