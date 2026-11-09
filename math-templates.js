@@ -158,7 +158,14 @@
       if(editor.cursor>0){
         const preceding=nodes[editor.cursor-1];
         if(preceding.type==="text"){
-          editor.cursor--;
+          // Move through a multi-digit literal one character at a time.
+          // Split only numeric tokens; operators/functions remain atomic.
+          if(/^\\d+(?:\\.\\d+)?$/.test(preceding.value)&&preceding.value.length>1){
+            const text=preceding.value;
+            preceding.value=text.slice(0,-1);
+            nodes.splice(editor.cursor,0,token(text.slice(-1)));
+            // The caret now sits before the final digit.
+          }else editor.cursor--;
         }else{
           const slot=fieldsFor(preceding).at(-1);
           editor.path.push({node:preceding,slot});
