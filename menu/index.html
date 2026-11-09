@@ -572,6 +572,114 @@ body.menu-dark[data-menu-shift-colour] .cw-shift-key{
   max-width:100%!important;
 }
 .menu-fit-viewport #display .result{font-size:var(--menu-answer-size,70px)!important;}
+
+/* Rounded-rectangle keycaps — preserve CW positions and navigation cluster.
+   More generous face width than circular keys gives SHIFT captions usable space. */
+.menu-fit-viewport .cw-upper-keys,
+.menu-fit-viewport .cw-number-keys{
+  align-items:stretch!important;
+  column-gap:9px!important;
+  row-gap:20px!important;
+}
+.menu-fit-viewport .cw-upper-keys{
+  margin-bottom:17px!important;
+}
+.menu-fit-viewport .cw-upper-keys > button.key,
+.menu-fit-viewport .cw-number-keys > button.key{
+  box-sizing:border-box!important;
+  display:flex!important;
+  flex:none!important;
+  width:100%!important;
+  max-width:none!important;
+  min-width:0!important;
+  height:46px!important;
+  min-height:46px!important;
+  aspect-ratio:auto!important;
+  margin:0!important;
+  border-radius:15px!important;
+  padding:0 4px!important;
+  align-items:center!important;
+  justify-content:center!important;
+  line-height:1!important;
+  overflow:visible!important;
+}
+.menu-fit-viewport .cw-number-keys > button.key{
+  height:52px!important;
+  min-height:52px!important;
+  border-radius:17px!important;
+}
+.menu-fit-viewport .cw-functions{
+  gap:9px!important;
+  margin-bottom:17px!important;
+}
+.menu-fit-viewport .cw-functions .cw-function-key{
+  box-sizing:border-box!important;
+  width:100%!important;
+  max-width:none!important;
+  height:43px!important;
+  min-height:43px!important;
+  aspect-ratio:auto!important;
+  border-radius:15px!important;
+  padding:0 3px!important;
+}
+.menu-fit-viewport .cw-functions .cw-shift-key{
+  border-radius:15px!important;
+}
+/* Secondary function ink sits just above each rectangular key. */
+.menu-fit-viewport .cw-upper-keys > button.key[data-shift-label]::before,
+.menu-fit-viewport .cw-number-keys > button.key[data-shift-label]::before{
+  box-sizing:border-box!important;
+  width:100%!important;
+  max-width:100%!important;
+  left:0!important;
+  bottom:calc(100% + 1px)!important;
+  font-size:clamp(14px,1.65vw,17px)!important;
+  font-weight:800!important;
+  text-align:center!important;
+  white-space:nowrap!important;
+  line-height:1.08!important;
+  text-shadow:none!important;
+}
+/* FORMAt remains fully inside its dedicated rounded rectangular key. */
+.menu-fit-viewport .cw-number-keys > .cw-format-key{
+  overflow:hidden!important;
+}
+.menu-fit-viewport .cw-format-art .cw-format-word{
+  font-size:16px!important;
+  letter-spacing:-.045em!important;
+}
+.menu-fit-viewport .cw-format-art .cw-format-upper,
+.menu-fit-viewport .cw-format-art .cw-format-lower{
+  font-size:18px!important;
+}
+/* Preserve the intended permanent SHIFT-colour outlines on rectangular faces. */
+body[data-menu-shift-colour] .menu-fit-viewport .cw-upper-keys > button.key[data-shift-label],
+body[data-menu-shift-colour] .menu-fit-viewport .cw-number-keys > button.key[data-shift-label]{
+  outline:2px solid var(--menu-shift)!important;
+  outline-offset:-2px!important;
+}
+body.menu-dark[data-menu-shift-colour] .menu-fit-viewport .cw-upper-keys > button.key[data-shift-label],
+body.menu-dark[data-menu-shift-colour] .menu-fit-viewport .cw-number-keys > button.key[data-shift-label]{
+  outline-color:var(--menu-shift-dark)!important;
+}
+/* The circular ON/HOME/SETTINGS controls, central D-pad and page rocker
+   deliberately retain their shapes. */
+@media(max-width:700px){
+  .menu-fit-viewport .cw-upper-keys,
+  .menu-fit-viewport .cw-number-keys{column-gap:6px!important;row-gap:18px!important}
+  .menu-fit-viewport .cw-upper-keys > button.key{
+    height:42px!important;min-height:42px!important;border-radius:13px!important;
+  }
+  .menu-fit-viewport .cw-number-keys > button.key{
+    height:48px!important;min-height:48px!important;border-radius:15px!important;
+  }
+  .menu-fit-viewport .cw-functions .cw-function-key{
+    height:40px!important;min-height:40px!important;border-radius:13px!important;
+  }
+  .menu-fit-viewport .cw-number-keys > .cw-format-key .cw-format-word{
+    font-size:14px!important;
+  }
+}
 </style>
 </head>
 <body class="menu-light">
