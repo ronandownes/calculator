@@ -1765,3 +1765,20 @@ body[data-shift-colour] .calculator .top .roundgroup em{
     min-height:31px!important;
   }
 }
+
+/* Editable fraction/root insertion point: arrows navigate back into completed slots. */
+.calculator .expression .template-insertion-caret,
+.calculator #expression .template-insertion-caret{
+  color:#236aad!important;
+  font-weight:800!important;
+  font-size:.82em!important;
+  opacity:1!important;
+}
+body:not(.light) .calculator .expression .template-insertion-caret,
+body:not(.light) .calculator #expression .template-insertion-caret{
+  color:#365b89!important;
+}
+.calculator #expression .template-active{
+  outline:1px dashed #3978ad!important;
+  outline-offset:2px!important;
+}
