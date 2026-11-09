@@ -514,6 +514,53 @@ body.menu-dark .device{background:#393b3c!important;border-color:#34383c!importa
  font:700 12px/1.1 Arial,sans-serif;
  color:#633d24;
 }
+
+/* Persistent SHIFT-colour outlines and legible second-function captions.
+   Some caption area intentionally overlaps the circular key edge. */
+.menu-fit-viewport .cw-upper-keys>.key{max-width:53px!important;}
+.menu-fit-viewport .cw-number-keys>.key{max-width:64px!important;}
+body[data-menu-shift-colour] .menu-fit-viewport .cw-upper-keys>.key[data-shift-label],
+body[data-menu-shift-colour] .menu-fit-viewport .cw-number-keys>.key[data-shift-label]{
+ outline:2px solid var(--menu-shift)!important;outline-offset:-1px!important;
+}
+body.menu-dark[data-menu-shift-colour] .menu-fit-viewport .cw-upper-keys>.key[data-shift-label],
+body.menu-dark[data-menu-shift-colour] .menu-fit-viewport .cw-number-keys>.key[data-shift-label]{
+ outline-color:var(--menu-shift-dark)!important;
+}
+.menu-fit-viewport .cw-upper-keys>.key[data-shift-label]::before,
+.menu-fit-viewport .cw-number-keys>.key[data-shift-label]::before{
+ bottom:calc(100% - 6px)!important;
+ font-size:clamp(14px,1.8vw,17px)!important;
+ line-height:1.05!important;
+ font-weight:800!important;
+ z-index:2!important;
+ text-shadow:0 1px 0 #ffffff91;
+}
+body.menu-dark .menu-fit-viewport .cw-upper-keys>.key[data-shift-label]::before,
+body.menu-dark .menu-fit-viewport .cw-number-keys>.key[data-shift-label]::before{
+ text-shadow:0 1px 0 #28342cb8;
+}
+body[data-menu-shift-colour] .cw-shift-key{
+ outline:3px solid var(--menu-shift)!important;
+ outline-offset:2px!important;
+}
+body.menu-dark[data-menu-shift-colour] .cw-shift-key{
+ outline-color:var(--menu-shift-dark)!important;
+}
+.menu-sidebar .menu-view-picker{display:flex;flex-direction:column;gap:8px;}
+.menu-sidebar .menu-view-buttons{display:flex;flex-wrap:wrap;gap:5px;}
+.menu-sidebar .menu-view-buttons button{
+ min-height:40px;min-width:56px;flex:1 1 auto;
+ padding:5px 7px;border:1px solid #cbd4df;border-radius:8px;
+ background:#fff;color:#263b50;cursor:pointer;
+ font:700 11px Arial,sans-serif;
+}
+.menu-sidebar .menu-view-buttons button[aria-pressed="true"]{background:#e0f0e5;border-color:#3a885d;}
+.menu-sidebar .menu-view-buttons button:focus-visible{outline:3px solid #2d7dd2;outline-offset:2px;}
+.menu-sidebar .menu-view-help{font:500 10px/1.4 Arial,sans-serif;color:#627183;}
+.menu-fit-viewport{overflow:auto!important;overscroll-behavior:contain;max-height:calc(100dvh - 12px);}
+.menu-fit-viewport.detail-zoom{cursor:grab;touch-action:pan-x pan-y;}
+.menu-fit-viewport.detail-zoom.is-dragging{cursor:grabbing;user-select:none;}
 </style>
 </head>
 <body class="menu-light">
@@ -524,6 +571,15 @@ body.menu-dark .device{background:#393b3c!important;border-color:#34383c!importa
 <div class="model-selector"><span class="skin-label">Scientific</span><div class="model-palette" role="group" aria-label="Scientific colours"><a class="skin-dot skin-red" href="../?skin=pink" title="Scientific pastel pink" aria-label="Scientific pastel pink"></a><a class="skin-dot skin-green" href="../?skin=mint" title="Scientific pastel mint" aria-label="Scientific pastel mint"></a><a class="skin-dot skin-blue" href="../?skin=blue" title="Scientific pastel blue" aria-label="Scientific pastel blue"></a><a class="skin-dot skin-neutral" href="../" title="Scientific dark" aria-label="Scientific dark, homepage"></a></div></div>
 <div class="model-selector"><span class="skin-label">Menu</span><div class="model-palette" role="group" aria-label="Menu colours"><button class="skin-dot skin-red" data-menu-skin="pink" type="button" title="Pastel pink" aria-label="Menu pastel pink"></button><button class="skin-dot skin-green" data-menu-skin="mint" type="button" title="Pastel mint" aria-label="Menu pastel mint"></button><button class="skin-dot skin-blue" data-menu-skin="blue" type="button" title="Pastel blue" aria-label="Menu pastel blue"></button><button class="skin-dot skin-neutral" id="menuNeutralSkin" type="button" title="Toggle Dark / Light" aria-label="Menu dark or light"></button></div><span class="skin-status" id="menuSkinStatus"></span><div class="menu-shift-picker" role="group" aria-label="Second-function colour"><span class="shift-title">SHIFT lettering</span><button class="shift-choice shift-blue" data-menu-shift-colour="blue" type="button" aria-label="Blue SHIFT legends" title="Blue SHIFT legends" aria-pressed="false"></button><button class="shift-choice shift-green" data-menu-shift-colour="green" type="button" aria-label="Green SHIFT legends" title="Green SHIFT legends" aria-pressed="true"></button></div></div>
 </nav>
+<div class="menu-view-picker" role="group" aria-label="Menu calculator viewing controls">
+ <span class="skin-label">VIEW</span>
+ <div class="menu-view-buttons">
+  <button type="button" id="menuFitHeight" aria-pressed="true">↕ Fit height</button>
+  <button type="button" id="menuFitWidth" aria-pressed="false">↔ Fit width</button>
+  <button type="button" id="menuZoomDetail" aria-pressed="false">＋ Zoom</button>
+ </div>
+ <span class="menu-view-help">Double-click the calculator's blank case to zoom; drag to pan · Esc to reset</span>
+</div>
 </aside>
 <div class="menu-fit-viewport"><div class="shell">
   <main class="device" aria-label="Menu calculator with circular keys">
@@ -1238,28 +1294,67 @@ applyMenuShiftColour("green");
 })();
 </script>
 <script>
-/* Uniform fit-to-height for menu model, maintaining circle geometry.
-   Fit on viewport resize; manual browser pinch remains available. */
+/* Menu Fit Height / Fit Width / Zoom and drag-pan.
+   All scales are uniform so circles remain circles. */
 (()=> {
  const stage=document.querySelector(".menu-fit-viewport");
  const shell=stage?.querySelector(".shell");
- if(!stage||!shell)return;
+ const fitH=document.getElementById("menuFitHeight");
+ const fitW=document.getElementById("menuFitWidth");
+ const zoom=document.getElementById("menuZoomDetail");
+ if(!stage||!shell||!fitH||!fitW||!zoom)return;
  const naturalWidth=500;
- let pending=false;
+ let mode="height",pending=false,drag=null;
  function fit(){
   pending=false;
   shell.style.transform="none";
-  const naturalHeight=shell.offsetHeight;
-  const availableWidth=Math.max(180,stage.clientWidth||window.innerWidth);
-  const viewportHeight=window.visualViewport?.height||window.innerHeight;
-  const availableHeight=Math.max(250,viewportHeight-stage.getBoundingClientRect().top-12);
-  // On very short devices do not sacrifice accessibility: allow page scrolling.
-  const scale=Math.max(.66,Math.min(1,availableWidth/naturalWidth,availableHeight/naturalHeight));
+  const naturalHeight=Math.max(100,shell.offsetHeight);
+  const availableWidth=Math.max(180,stage.clientWidth);
+  const screenHeight=window.visualViewport?.height||window.innerHeight;
+  const availableHeight=Math.max(250,screenHeight-stage.getBoundingClientRect().top-10);
+  const byWidth=availableWidth/naturalWidth;
+  const byHeight=Math.max(.66,Math.min(byWidth,availableHeight/naturalHeight));
+  const scale=mode==="height"?byHeight:mode==="width"?byWidth:Math.min(3,byWidth*1.75);
   shell.style.transform="scale("+scale+")";
-  stage.style.height=Math.ceil(naturalHeight*scale)+"px";
-  stage.style.setProperty("--menu-view-scale",String(scale));
+  stage.style.height=Math.ceil(Math.min(naturalHeight*scale,availableHeight))+"px";
+  stage.classList.toggle("detail-zoom",mode==="detail");
+  for(const [b,k] of [[fitH,"height"],[fitW,"width"],[zoom,"detail"]])
+    b.setAttribute("aria-pressed",String(mode===k));
  }
- function schedule(){if(pending)return;pending=true;requestAnimationFrame(fit)}
+ function schedule(){if(!pending){pending=true;requestAnimationFrame(fit)}}
+ function setMode(value){
+  mode=value;
+  fit();
+  stage.scrollTo({left:0,top:0,behavior:"instant"});
+ }
+ fitH.addEventListener("click",()=>setMode("height"));
+ fitW.addEventListener("click",()=>setMode(mode==="width"?"height":"width"));
+ zoom.addEventListener("click",()=>setMode(mode==="detail"?"height":"detail"));
+ stage.addEventListener("dblclick",event=>{
+  if(event.target.closest("button,a,input,select,textarea,.lcd"))return;
+  event.preventDefault();setMode(mode==="detail"?"height":"detail");
+ });
+ stage.addEventListener("pointerdown",event=>{
+  if(!stage.classList.contains("detail-zoom")||event.button!==0||event.pointerType==="touch"||
+    event.target.closest("button,a,input,select,textarea"))return;
+  drag={x:event.clientX,y:event.clientY,left:stage.scrollLeft,top:stage.scrollTop};
+  stage.setPointerCapture?.(event.pointerId);
+  stage.classList.add("is-dragging");
+ });
+ stage.addEventListener("pointermove",event=>{
+  if(!drag)return;
+  stage.scrollLeft=drag.left-(event.clientX-drag.x);
+  stage.scrollTop=drag.top-(event.clientY-drag.y);
+ });
+ function stopDrag(event){
+  drag=null;stage.classList.remove("is-dragging");
+  if(event&&stage.hasPointerCapture?.(event.pointerId))stage.releasePointerCapture(event.pointerId);
+ }
+ stage.addEventListener("pointerup",stopDrag);
+ stage.addEventListener("pointercancel",stopDrag);
+ document.addEventListener("keydown",event=>{
+  if(event.key==="Escape"&&mode!=="height"){event.preventDefault();setMode("height");}
+ });
  window.addEventListener("resize",schedule,{passive:true});
  window.visualViewport?.addEventListener("resize",schedule,{passive:true});
  document.fonts?.ready.then(schedule);
@@ -1296,4 +1391,5 @@ applyMenuShiftColour("green");
  schedule();
 })();
 </script>
+<script src="../result-focus.js?v=1"></script>
 </body></html>
