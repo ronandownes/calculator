@@ -15,7 +15,7 @@
   screen.appendChild(root);
 
   const settings=window.calculatorSettings={
-    output:"math",format:"norm",norm:2,digits:3,sciDigits:10,
+    output:"math",format:"norm",norm:1,digits:3,sciDigits:10,
     fraction:"improper",statistics:false,table:"both",
     decimalMark:"dot",separators:false,font:"normal"
   };
@@ -68,7 +68,20 @@
     unavailable:[["1","Mode not yet available"]]
   };
   const hyperbolic={1:"sinh",2:"cosh",3:"tanh",4:"asinh",5:"acosh",6:"atanh"};
-  let page=null,trail=[],choice="1",historyPosition=-1;
+  // SETUP is three numbered screens (4 + 4 + 2), as on the fx-EX.
+  const setupRoutes=["inputOutput","angle","numberFormat","fractions",
+    "statistics","table","decimal","separator","font","contrast"];
+  let page=null,trail=[],choice="1",historyPosition=-1,setupPage=0;
+  function items(){
+    if(page!=="setup")return pages[page]||[];
+    return pages.setup.slice(setupPage*4,(setupPage+1)*4)
+      .map(([_,label],i)=>[String(i+1),label]);
+  }
+  function advanceSetup(delta){
+    const next=Math.max(0,Math.min(2,setupPage+delta));
+    if(next===setupPage)return false;
+    setupPage=next;choice="1";draw();return true;
+  }
 
   function draw(){
     if(!page)return;
@@ -78,7 +91,7 @@
     const grid=document.createElement("div");
     grid.className=(page==="angle"||page==="hyperbolic")?"angle-grid":"option-list";
     grid.setAttribute("role","group");
-    for(const [number,label] of pages[page]){
+    for(const [number,label] of items()){
       const button=document.createElement("button");
       button.type="button";
       button.dataset.option=number;
@@ -88,6 +101,15 @@
       grid.appendChild(button);
     }
     root.appendChild(grid);
+    if(page==="setup"){
+      // A slim page marker like the EX menu scroll indicator.
+      root.classList.add("setup-paged");
+      const marker=document.createElement("span");
+      marker.className="setup-page-indicator";
+      marker.textContent=setupPage===0?"▼":setupPage===2?"▲":"▲\n▼";
+      marker.setAttribute("aria-label","Setup page "+(setupPage+1)+" of 3");
+      root.appendChild(marker);
+    }else root.classList.remove("setup-paged");
     if(page==="angle"){
       const arrow=document.createElement("span");
       arrow.className="angle-mark";
@@ -99,7 +121,8 @@
   function show(next,keepPrevious=true){
     if(!pages[next])return;
     if(page&&keepPrevious)trail.push(page);
-    page=next;choice=pages[next][0][0];draw();
+    if(next==="setup"&&keepPrevious)setupPage=0;
+    page=next;choice=items()[0]?.[0]||"1";draw();
   }
   function close(){
     page=null;trail=[];root.hidden=true;
@@ -117,7 +140,7 @@
     show(trail.pop(),false);
   }
   function choose(number){
-    if(!page||!pages[page].some(([n])=>n===number))return false;
+    if(!page||!items().some(([n])=>n===number))return false;
     if(page==="options"){
       show(number==="1"?"hyperbolic":"angle");
       return true;
@@ -129,10 +152,8 @@
     }
     if(page==="unavailable"){close();return true;}
     if(page==="setup"){
-      show(({
-        "1":"inputOutput","2":"angle","3":"numberFormat","4":"fractions","5":"statistics",
-        "6":"table","7":"decimal","8":"separator","9":"font","0":"contrast"
-      })[number]);
+      const index=setupPage*4+Number(number)-1;
+      if(setupRoutes[index])show(setupRoutes[index]);
       return true;
     }
     if(page==="numberFormat"){
@@ -200,8 +221,14 @@
     }
     if(direction==="left"){back();return true;}
     if(direction==="right"){choose(choice);return true;}
-    const choices=pages[page].map(([n])=>n),current=choices.indexOf(choice);
-    const next=(current+(direction==="down"?1:-1)+choices.length)%choices.length;
+    const choices=items().map(([n])=>n),current=choices.indexOf(choice);
+    const step=direction==="down"?1:-1;
+    if(page==="setup"&&current+step>=choices.length){advanceSetup(1);return true;}
+    if(page==="setup"&&current+step<0){
+      if(advanceSetup(-1)){choice=items().at(-1)[0];draw();}
+      return true;
+    }
+    const next=Math.max(0,Math.min(choices.length-1,current+step));
     choice=choices[next];draw();
     root.querySelector('[data-option="'+choice+'"]')?.scrollIntoView({block:"nearest"});
     return true;
@@ -231,6 +258,8 @@
       if(key==="Backspace"){event.preventDefault();event.stopImmediatePropagation();back();return;}
       const dir=({ArrowUp:"up",ArrowDown:"down",ArrowLeft:"left",ArrowRight:"right"})[key];
       if(dir){event.preventDefault();event.stopImmediatePropagation();arrow(dir);return;}
+      if(key==="PageDown"&&page==="setup"){event.preventDefault();advanceSetup(1);return;}
+      if(key==="PageUp"&&page==="setup"){event.preventDefault();advanceSetup(-1);return;}
       if(key==="Enter"){event.preventDefault();event.stopImmediatePropagation();choose(choice);}
     }else if(!window.calculatorTemplateState && /^Arrow(?:Up|Down|Left|Right)$/.test(key)){
       if(arrow(key.slice(5).toLowerCase())){event.preventDefault();event.stopImmediatePropagation();}
