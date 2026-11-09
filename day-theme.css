@@ -1810,3 +1810,26 @@ body:not(.light) .calculator .screen #result math{
   font-variant-numeric:lining-nums tabular-nums!important;
   font-feature-settings:"lnum" 1,"tnum" 1!important;
 }
+
+/* Keep the selected SHIFT ink visible without holding SHIFT.
+   Alpha-only red labels remain red: no red SHIFT choice is exposed. */
+body[data-shift-colour] #keys button[data-alt]:not([data-alt=""])
+ .keyname{
+  outline:2px solid var(--chosen-shift-ring)!important;
+  outline-offset:-2px!important;
+}
+body[data-shift-colour] .calculator .top #shift{
+  outline:2px solid var(--chosen-shift-ring)!important;
+  outline-offset:2px!important;
+}
+.skin-rail #fitWidth{
+  min-height:40px;
+  border:1px solid #d2d9e2;
+  border-radius:8px;
+  font-weight:700;
+}
+.skin-rail #fitWidth[aria-pressed="true"]{
+  background:#dcecf9;
+  border-color:#78a5d1;
+}
+.skin-rail #fitWidth:focus-visible{outline:3px solid #2d7dd2;outline-offset:2px;}
