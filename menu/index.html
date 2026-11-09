@@ -680,6 +680,32 @@ body.menu-dark[data-menu-shift-colour] .menu-fit-viewport .cw-number-keys > butt
     font-size:14px!important;
   }
 }
+
+/* Full-window menu calculator: only the calculator is visible. */
+.menu-fit-viewport .menu-fullscreen-exit{
+ display:none;position:fixed;top:12px;right:12px;z-index:1500;
+ background:#f8fafc;color:#15283a;border:2px solid #7b95b0;
+ border-radius:9px;min-height:44px;padding:10px 14px;
+ font:700 13px Arial,sans-serif;cursor:pointer;box-shadow:0 2px 8px #0005;
+}
+body.menu-presentation{
+ margin:0!important;padding:0!important;overflow:hidden!important;
+}
+body.menu-presentation .menu-layout{
+ display:block!important;position:fixed!important;inset:0!important;
+ max-width:none!important;width:100vw!important;height:100dvh!important;
+ padding:0!important;margin:0!important;
+}
+body.menu-presentation .menu-sidebar{display:none!important;}
+body.menu-presentation .menu-fit-viewport{
+ display:block!important;position:fixed!important;inset:0!important;
+ box-sizing:border-box!important;width:100vw!important;height:100dvh!important;
+ max-width:none!important;max-height:none!important;margin:0!important;
+ padding:0!important;overflow:auto!important;overscroll-behavior:contain!important;
+ background:#e7e9ed!important;scrollbar-width:thin;
+}
+body.menu-presentation .menu-fit-viewport .menu-fullscreen-exit{display:block!important}
+body.menu-presentation .menu-fit-viewport > .shell{margin:0!important;}
 </style>
 </head>
 <body class="menu-light">
@@ -696,11 +722,12 @@ body.menu-dark[data-menu-shift-colour] .menu-fit-viewport .cw-number-keys > butt
   <button type="button" id="menuFitHeight" aria-pressed="true">↕ Fit height</button>
   <button type="button" id="menuFitWidth" aria-pressed="false">↔ Fit width</button>
   <button type="button" id="menuZoomDetail" aria-pressed="false">＋ Zoom</button>
+  <button type="button" id="menuFullScreen" aria-pressed="false">⛶ Full screen</button>
  </div>
  <span class="menu-view-help">Double-click the calculator's blank case to zoom; drag to pan · Esc to reset</span>
 </div>
 </aside>
-<div class="menu-fit-viewport"><div class="shell">
+<div class="menu-fit-viewport"><button type="button" id="menuExitFullScreen" class="menu-fullscreen-exit" aria-label="Exit full-screen calculator">✕ Exit full screen</button><div class="shell">
   <main class="device" aria-label="Menu calculator with circular keys">
     <div class="dotline" role="img" aria-label="Four coloured dots"><i></i><i></i><i></i><i></i></div>
     <div class="lcd-frame"><div class="lcd" aria-live="polite">
@@ -753,9 +780,7 @@ body.menu-dark[data-menu-shift-colour] .menu-fit-viewport .cw-number-keys > butt
       <button class="key" data-cmd="1" data-shift-label="D">1</button><button class="key" data-cmd="2" data-shift-label="E">2</button><button class="key" data-cmd="3" data-shift-label="F">3</button><button class="key" data-cmd="+" data-shift-label="°′″">+</button><button class="key" data-cmd="−" data-shift-label="(−)">−</button>
       <button class="key" data-cmd="0" data-shift-label="x">0</button><button class="key" data-cmd="." data-shift-label="y">.</button><button class="key cw-ten-power-key" data-cmd="exp10" data-shift-label="z" aria-label="Times ten to the power"><span class="cw-ten-glyph" aria-hidden="true">×10<sup>□</sup></span></button><button class="key cw-format-key" data-cmd="format" aria-label="FORMAT"><span class="cw-format-art" aria-hidden="true"><span class="cw-format-upper">↷</span><span class="cw-format-word">FORMAT</span><span class="cw-format-lower">↶</span></span></button><button class="key cw-exe-key" data-cmd="exe" data-shift-label="≈">EXE</button>
     </div>
-    <div class="action-help">Arrow keys navigate menus · Numbers select options · SHIFT + FORMAT opens formatting options</div>
-  </main>
-  <p class="note">Independent teaching emulator. Menu functions are being implemented against the fx-82CW/85CW/350CW manual.</p>
+    </main>
 </div></div></div>
 <script>
 /* URL selection only: /menu/?skin=dark or /menu/?skin=light.
@@ -1413,67 +1438,105 @@ applyMenuShiftColour("green");
 })();
 </script>
 <script>
-/* Menu Fit Height / Fit Width / Zoom and drag-pan.
-   All scales are uniform so circles remain circles. */
-(()=> {
+/* Uniform presentation zoom for menu calculator. */
+(()=>{
+ "use strict";
  const stage=document.querySelector(".menu-fit-viewport");
  const shell=stage?.querySelector(".shell");
  const fitH=document.getElementById("menuFitHeight");
  const fitW=document.getElementById("menuFitWidth");
  const zoom=document.getElementById("menuZoomDetail");
- if(!stage||!shell||!fitH||!fitW||!zoom)return;
- const naturalWidth=500;
- let mode="height",pending=false,drag=null;
+ const full=document.getElementById("menuFullScreen");
+ const exit=document.getElementById("menuExitFullScreen");
+ if(!stage||!shell||!fitH||!fitW||!zoom||!full||!exit)return;
+ const naturalWidth=500,clamp=(x)=>Math.max(.4,Math.min(6,x));
+ let mode="height",manualScale=1,scale=1,pending=false,drag=null;
+ let priorMode="height",priorScale=1,priorX=0,priorY=0;
  function fit(){
-  pending=false;
-  shell.style.transform="none";
-  const naturalHeight=Math.max(100,shell.offsetHeight);
-  const availableWidth=Math.max(180,stage.clientWidth);
-  const screenHeight=window.visualViewport?.height||window.innerHeight;
-  const availableHeight=Math.max(250,screenHeight-stage.getBoundingClientRect().top-10);
-  const byWidth=availableWidth/naturalWidth;
-  const byHeight=Math.max(.66,Math.min(byWidth,availableHeight/naturalHeight));
-  const scale=mode==="height"?byHeight:mode==="width"?byWidth:Math.min(3,byWidth*1.75);
-  shell.style.transform="scale("+scale+")";
-  stage.style.height=Math.ceil(Math.min(naturalHeight*scale,availableHeight))+"px";
-  stage.classList.toggle("detail-zoom",mode==="detail");
-  for(const [b,k] of [[fitH,"height"],[fitW,"width"],[zoom,"detail"]])
-    b.setAttribute("aria-pressed",String(mode===k));
+   pending=false;
+   shell.style.transform="none";
+   const naturalHeight=Math.max(100,shell.offsetHeight);
+   const availableWidth=Math.max(180,stage.clientWidth);
+   const windowHeight=window.visualViewport?.height||window.innerHeight;
+   const availableHeight=Math.max(250,windowHeight-stage.getBoundingClientRect().top-8);
+   const byWidth=availableWidth/naturalWidth;
+   const byHeight=Math.max(.66,Math.min(byWidth,availableHeight/naturalHeight));
+   scale=clamp(mode==="height"?byHeight:mode==="width"?byWidth:
+     mode==="detail"?byWidth*1.7:manualScale);
+   shell.style.transform="scale("+scale+")";
+   stage.style.height=Math.ceil(Math.min(naturalHeight*scale,availableHeight))+"px";
+   // Scaled absolute-positioned shell contributes to scrollable extents.
+   stage.classList.toggle("detail-zoom",mode==="detail"||mode==="manual"||document.body.classList.contains("menu-presentation"));
+   for(const [b,k] of [[fitH,"height"],[fitW,"width"],[zoom,"detail"]])
+     b.setAttribute("aria-pressed",String(mode===k));
  }
  function schedule(){if(!pending){pending=true;requestAnimationFrame(fit)}}
  function setMode(value){
-  mode=value;
-  fit();
-  stage.scrollTo({left:0,top:0,behavior:"instant"});
+   mode=value;fit();
+   stage.scrollTo({left:0,top:0,behavior:"instant"});
+ }
+ function fullScreen(on){
+   if(document.body.classList.contains("menu-presentation")===on)return;
+   if(on){priorMode=mode;priorScale=manualScale;priorX=stage.scrollLeft;priorY=stage.scrollTop;}
+   document.body.classList.toggle("menu-presentation",on);
+   full.setAttribute("aria-pressed",String(on));
+   if(on)setMode("width");
+   else{
+     mode=priorMode;manualScale=priorScale;fit();
+     stage.scrollTo({left:priorX,top:priorY,behavior:"instant"});
+     full.focus({preventScroll:true});
+   }
  }
  fitH.addEventListener("click",()=>setMode("height"));
  fitW.addEventListener("click",()=>setMode(mode==="width"?"height":"width"));
  zoom.addEventListener("click",()=>setMode(mode==="detail"?"height":"detail"));
+ full.addEventListener("click",()=>fullScreen(true));
+ exit.addEventListener("click",()=>fullScreen(false));
  stage.addEventListener("dblclick",event=>{
-  if(event.target.closest("button,a,input,select,textarea,.lcd"))return;
-  event.preventDefault();setMode(mode==="detail"?"height":"detail");
+   if(event.target.closest("button,a,input,select,textarea,.lcd"))return;
+   event.preventDefault();setMode(mode==="detail"?"height":"detail");
  });
+ // Ctrl + mouse wheel magnifies the CALCULATOR (not browser page).
+ stage.addEventListener("wheel",event=>{
+   if(!event.ctrlKey)return;
+   event.preventDefault();
+   const rect=stage.getBoundingClientRect();
+   const pointX=event.clientX-rect.left+stage.scrollLeft;
+   const pointY=event.clientY-rect.top+stage.scrollTop;
+   const nx=pointX/scale,ny=pointY/scale;
+   manualScale=clamp(scale*Math.exp(-event.deltaY*.009));
+   mode="manual";fit();
+   stage.scrollLeft=nx*scale-(event.clientX-rect.left);
+   stage.scrollTop=ny*scale-(event.clientY-rect.top);
+ },{passive:false});
  stage.addEventListener("pointerdown",event=>{
-  if(!stage.classList.contains("detail-zoom")||event.button!==0||event.pointerType==="touch"||
-    event.target.closest("button,a,input,select,textarea"))return;
-  drag={x:event.clientX,y:event.clientY,left:stage.scrollLeft,top:stage.scrollTop};
-  stage.setPointerCapture?.(event.pointerId);
-  stage.classList.add("is-dragging");
+   if(!stage.classList.contains("detail-zoom")||event.button!==0||
+     event.pointerType==="touch"||
+     event.target.closest("button,a,input,select,textarea,[role='button']"))return;
+   drag={x:event.clientX,y:event.clientY,left:stage.scrollLeft,top:stage.scrollTop};
+   stage.setPointerCapture?.(event.pointerId);
+   stage.classList.add("is-dragging");
  });
  stage.addEventListener("pointermove",event=>{
-  if(!drag)return;
-  stage.scrollLeft=drag.left-(event.clientX-drag.x);
-  stage.scrollTop=drag.top-(event.clientY-drag.y);
+   if(!drag)return;
+   stage.scrollLeft=drag.left-(event.clientX-drag.x);
+   stage.scrollTop=drag.top-(event.clientY-drag.y);
  });
  function stopDrag(event){
-  drag=null;stage.classList.remove("is-dragging");
-  if(event&&stage.hasPointerCapture?.(event.pointerId))stage.releasePointerCapture(event.pointerId);
+   drag=null;stage.classList.remove("is-dragging");
+   if(event&&stage.hasPointerCapture?.(event.pointerId))
+     stage.releasePointerCapture(event.pointerId);
  }
  stage.addEventListener("pointerup",stopDrag);
  stage.addEventListener("pointercancel",stopDrag);
  document.addEventListener("keydown",event=>{
-  if(event.key==="Escape"&&mode!=="height"){event.preventDefault();setMode("height");}
- });
+   if(event.key!=="Escape")return;
+   if(document.body.classList.contains("menu-presentation")){
+     event.preventDefault();event.stopImmediatePropagation();fullScreen(false);
+   }else if(mode!=="height"){
+     event.preventDefault();event.stopImmediatePropagation();setMode("height");
+   }
+ },true);
  window.addEventListener("resize",schedule,{passive:true});
  window.visualViewport?.addEventListener("resize",schedule,{passive:true});
  document.fonts?.ready.then(schedule);
