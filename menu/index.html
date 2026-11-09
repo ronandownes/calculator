@@ -756,6 +756,11 @@ html body.menu-presentation .menu-rail-toggle{display:none!important}
  width:100%;padding-bottom:3px;border-bottom:3px solid currentColor;
 }
 .menu-fit-viewport .fraction-key-glyph span:last-child{padding-top:3px}
+
+.menu-fit-viewport #display .expression math{
+ font-size:inherit!important;vertical-align:middle;
+ font-family:"Cambria Math","STIX Two Math",serif!important;
+}
 </style>
 </head>
 <body class="menu-light">
@@ -1130,7 +1135,13 @@ applyMenuShiftColour("green");
   }
   function calcDisplay(){
     const raw=state.expr.replace(/asin\(/g,"sin⁻¹(").replace(/acos\(/g,"cos⁻¹(").replace(/atan\(/g,"tan⁻¹(").replace(/sqrt\(/g,"√(").replace(/ran#/g,"Ran#");
-    let out='<div class="expression">'+escapeHtml(raw||"0")+'</div>';
+    // A simple numeric fraction uses a real mathematical fraction bar.
+    const simple=raw.match(/^(-?\d+)\/([1-9]\d*)$/);
+    const typed=simple?
+      '<math xmlns="http://www.w3.org/1998/Math/MathML" aria-label="'+escapeHtml(raw)+'"><mfrac><mn>'+
+      escapeHtml(simple[1])+'</mn><mn>'+escapeHtml(simple[2])+'</mn></mfrac></math>':
+      escapeHtml(raw||"0");
+    let out='<div class="expression">'+typed+'</div>';
     if(state.answer!==null)out+='<div class="result">'+(state.factorText?escapeHtml(state.factorText):resultMarkup(state.answer))+'</div>';
     if(state.message)out+='<div class="mini">'+escapeHtml(state.message)+'</div>';
     return out;
