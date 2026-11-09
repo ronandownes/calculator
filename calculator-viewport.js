@@ -96,6 +96,9 @@
       previousScrollLeft=viewport.scrollLeft;previousScrollTop=viewport.scrollTop;
     }
     document.body.classList.toggle("calc-presentation",on);
+    // Enter the browser's native fullscreen where permitted; CSS is the fallback.
+    if(on)document.documentElement.requestFullscreen?.().catch(()=>{});
+    else if(document.fullscreenElement)document.exitFullscreen?.().catch(()=>{});
     full?.setAttribute("aria-pressed",String(on));
     if(on)fitWidth();
     else{
@@ -109,6 +112,10 @@
       full?.focus({preventScroll:true});
     }
   }
+  document.addEventListener("fullscreenchange",()=>{
+    if(!document.fullscreenElement&&document.body.classList.contains("calc-presentation"))
+      setFullScreen(false);
+  });
   full?.addEventListener("click",()=>setFullScreen(true));
   exitFull?.addEventListener("click",()=>setFullScreen(false));
   document.addEventListener("keydown",event=>{
