@@ -1782,3 +1782,31 @@ body:not(.light) .calculator #expression .template-insertion-caret{
   outline:1px dashed #3978ad!important;
   outline-offset:2px!important;
 }
+
+/* UDL: use LCD area for the result; reduce only when its content needs space.
+   Uniform lining numerals keep 9 on the same baseline as all other digits. */
+.calculator .screen #result,
+body.light .calculator .screen #result,
+body:not(.light) .calculator .screen #result{
+  font-family:"Cambria Math","Times New Roman",serif!important;
+  font-variant-numeric:lining-nums tabular-nums!important;
+  font-feature-settings:"lnum" 1,"tnum" 1!important;
+  font-size:var(--lcd-result-size,48px)!important;
+  line-height:1.08!important;
+  min-width:0!important;
+  max-width:100%!important;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  white-space:nowrap!important;
+  scrollbar-width:thin;
+}
+.calculator .screen #result math,
+body.light .calculator .screen #result math,
+body:not(.light) .calculator .screen #result math{
+  font-size:inherit!important;
+  font-family:"Cambria Math","STIX Two Math",serif!important;
+}
+.calculator .screen #expression{
+  font-variant-numeric:lining-nums tabular-nums!important;
+  font-feature-settings:"lnum" 1,"tnum" 1!important;
+}
