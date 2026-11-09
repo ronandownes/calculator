@@ -1479,6 +1479,8 @@ applyMenuShiftColour("green");
    if(document.body.classList.contains("menu-presentation")===on)return;
    if(on){priorMode=mode;priorScale=manualScale;priorX=stage.scrollLeft;priorY=stage.scrollTop;}
    document.body.classList.toggle("menu-presentation",on);
+   if(on)document.documentElement.requestFullscreen?.().catch(()=>{});
+   else if(document.fullscreenElement)document.exitFullscreen?.().catch(()=>{});
    full.setAttribute("aria-pressed",String(on));
    if(on)setMode("width");
    else{
@@ -1490,6 +1492,10 @@ applyMenuShiftColour("green");
  fitH.addEventListener("click",()=>setMode("height"));
  fitW.addEventListener("click",()=>setMode(mode==="width"?"height":"width"));
  zoom.addEventListener("click",()=>setMode(mode==="detail"?"height":"detail"));
+ document.addEventListener("fullscreenchange",()=>{
+   if(!document.fullscreenElement&&document.body.classList.contains("menu-presentation"))
+     fullScreen(false);
+ });
  full.addEventListener("click",()=>fullScreen(true));
  exit.addEventListener("click",()=>fullScreen(false));
  stage.addEventListener("dblclick",event=>{
