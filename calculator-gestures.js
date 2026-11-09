@@ -7,7 +7,7 @@
  const surface=menu?document.querySelector(".menu-fit-viewport"):document.querySelector(".calc-viewport");
  if(!surface)return;
  const IGNORE="button,a,input,textarea,select,[role='button'],[contenteditable],.lcd,.screen,.calc-fullscreen-exit,.menu-fullscreen-exit";
- const WAIT=390,MAX_MOVE=14,MAX_GAP=460,MAX_DISTANCE=36;
+ const WAIT=510,MAX_MOVE=14,MAX_GAP=460,MAX_DISTANCE=36;
  let pending=null,taps=0,lastTime=0,lastX=0,lastY=0,down=null;
  function blank(target){
    if(!(target instanceof Element)||target.closest(IGNORE))return false;
