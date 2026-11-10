@@ -1352,8 +1352,8 @@ applyMenuShiftColour("green");
         if(i===0){state.decimal=false;}
         else if(i===1){state.decimal=true;}
         else if(i===2){
-          if(!Number.isSafeInteger(value)||value<2)
-            throw Error("Prime Factor requires a positive integer ≥ 2");
+          if(!Number.isSafeInteger(value)||value<2||value>1e12)
+            throw Error("Prime Factor requires an integer from 2 to 10^12");
           const factors=[];let remaining=value;
           for(let p=2;p*p<=remaining&&p<=1000000;p+=(p===2?1:2)){
             if(remaining%p!==0)continue;
