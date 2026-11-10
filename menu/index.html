@@ -955,8 +955,12 @@ applyMenuShiftColour("green");
     digitSeparator:[["On","Group digits"],["Off","No grouping"]],
     multiLineFont:[["Normal Font","Large"],["Small Font","Compact"]]
   };
-  const fmtItems=[["Standard / Decimal","Toggle result"],["Fraction","Exact if possible"],
-    ["Decimal","Approximation"],["Scientific","Scientific display"],["Prime factors","Whole-number factorisation"]];
+  const fmtItems=[
+    ["Standard","Natural textbook result"],["Decimal","Decimal result"],
+    ["Prime Factor","Factor a positive integer"],["Improper Fraction","Numerator / denominator"],
+    ["Mixed Fraction","Whole part and fraction"],["ENG Notation","Exponent divisible by three"],
+    ["Sexagesimal","Degrees, minutes and seconds"]
+  ];
   const escapeHtml=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   function scientific(n,places,keepTrailing=true){
     const [rawMantissa,exponent]=n.toExponential(places).split("e");
@@ -1333,34 +1337,52 @@ applyMenuShiftColour("green");
       returnFromSetup();return;
     }
     if(m==="format"){
-      if(i<0||i>4)return;
+      if(i<0||i>=fmtItems.length)return;
       state.view=state.back;state.menu=null;
-      if(i===4){
-        try{
-          if(state.answer===null){
-            let source=state.expr;
-            const opened=[...source].filter(c=>c==="(").length;
-            const closed=[...source].filter(c=>c===")").length;
-            if(opened>closed)source+=")".repeat(opened-closed);
-            state.answer=evaluate(source);state.ans=state.answer;state.expr=source;
+      state.message="";state.factorText=null;
+      try{
+        if(state.answer===null){
+          let source=state.expr;
+          const opened=(source.match(/\(/g)||[]).length;
+          const closed=(source.match(/\)/g)||[]).length;
+          if(opened>closed)source+=")".repeat(opened-closed);
+          state.answer=evaluate(source);state.ans=state.answer;state.expr=source;
+        }
+        const value=state.answer;
+        if(i===0){state.decimal=false;}
+        else if(i===1){state.decimal=true;}
+        else if(i===2){
+          if(!Number.isSafeInteger(value)||value<2)
+            throw Error("Prime Factor requires a positive integer ≥ 2");
+          const factors=[];let remaining=value;
+          for(let p=2;p*p<=remaining&&p<=1000000;p+=(p===2?1:2)){
+            if(remaining%p!==0)continue;
+            let k=0;
+            do{remaining/=p;k++;}while(remaining%p===0);
+            factors.push(k>1?p+"^"+k:String(p));
           }
-          const n=state.answer;
-          if(!Number.isSafeInteger(n)||n<2)throw Error("Prime factors require a whole number ≥ 2");
-          const factors=[];let value=n;
-          for(let p=2;p*p<=value&&p<=1000000;p+=(p===2?1:2)){
-            if(value%p===0){let k=0;do{value/=p;k++}while(value%p===0);factors.push(k>1?p+"^"+k:String(p));}
+          if(remaining>1)factors.push(String(remaining));
+          state.factorText=factors.join(" × ");state.decimal=false;
+        }else if(i===3||i===4){
+          state.decimal=false;state.inputOutput="MathI/MathO";
+          state.fractionResult=i===3?"improper":"mixed";
+        }else if(i===5){
+          if(value===0)state.factorText="0";
+          else{
+            const exp=Math.floor(Math.log10(Math.abs(value))/3)*3;
+            const mantissa=Number((value/10**exp).toPrecision(10));
+            state.factorText=mantissa+" × 10^"+exp;
           }
-          if(value>1)factors.push(String(value));
-          state.factorText=String(n)+" = "+factors.join(" × ");
-          state.message="";
-        }catch(error){state.factorText=null;state.message=error.message;}
-      }else{
-        state.factorText=null;
-        if(i===0)state.decimal=!state.decimal;
-        else if(i===1)state.decimal=false;
-        else state.decimal=true;
-        if(i===3)state.message="Scientific formatting selected";
-        else state.message="";
+        }else if(i===6){
+          // Interpret the numerical value as degrees.
+          const magnitude=Math.abs(value);
+          const degrees=Math.floor(magnitude);
+          const minutes=Math.floor((magnitude-degrees)*60);
+          const seconds=Number((((magnitude-degrees)*60-minutes)*60).toFixed(6));
+          state.factorText=(value<0?"−":"")+degrees+"° "+minutes+"′ "+seconds+"″";
+        }
+      }catch(error){
+        state.factorText=null;state.message=error.message||"Math ERROR";
       }
       render();return;
     }
