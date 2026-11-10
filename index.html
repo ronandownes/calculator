@@ -312,7 +312,7 @@ body.light .theme-switch button[aria-pressed="true"]{
 'use strict';
 const $ = id => document.getElementById(id);
 let expr='', ans=0, deg=true, angleUnit='deg', inverse=false, history=[], justCalculated=false, memory=0, alpha=false;
-const funcs = new Set(['sin','cos','tan','asin','acos','atan','sqrt','log','ln','abs','cbrt','exp','pow10','recip','fact','floor','ceil','sinh','cosh','tanh','asinh','acosh','atanh','Ran#','RanInt#']);
+const funcs = new Set(['sin','cos','tan','asin','acos','atan','sqrt','log','ln','abs','cbrt','exp','pow10','recip','fact','floor','ceil','sinh','cosh','tanh','asinh','acosh','atanh','logbase','Ran#','RanInt#']);
 const nearZero = n => Math.abs(n)<1e-13 ? 0 : n;
 function factorial(n){
  if(!Number.isInteger(n)||n<0||n>170)throw Error('Factorial: use a whole number 0–170');
@@ -353,7 +353,13 @@ function evaluate(input){
      return lower+Math.floor(Math.random()*(upper-lower+1));
    }
    if(!funcs.has(w))throw Error('Unknown function: '+w);
-   take('(');const n=expression(0);take(')');
+   take('(');const n=expression(0);
+   if(w==='logbase'){
+     take(',');const argument=expression(0);take(')');
+     if(n<=0||n===1||argument<=0)throw Error('Logarithm requires base > 0, base ≠ 1, argument > 0');
+     return Math.log(argument)/Math.log(n);
+   }
+   take(')');
    const rad=angleUnit==='grad'?Math.PI/200:(deg?Math.PI/180:1);
    switch(w){
     case 'sinh':return Math.sinh(n);
@@ -525,4 +531,4 @@ document.addEventListener('keydown',e=>{
  else if(k==='Escape'){add('AC');e.preventDefault()}
 });
 render();
-</script><script src="enhancements.js?v=5"></script><script src="alpha-variables.js?v=4"></script><script src="exact-output.js?v=3"></script><script src="lcd-menus.js?v=6"></script><script src="math-templates.js?v=8"></script><script src="random-functions.js?v=2"></script><script src="calculator-skins.js?v=5"></script><script src="lcd-autofit.js?v=3"></script><script src="lcd-palette.js?v=1"></script><script src="calculator-viewport.js?v=11"></script><script src="result-focus.js?v=1"></script><script src="calculator-gestures.js?v=1"></script></body></html>
+</script><script src="enhancements.js?v=5"></script><script src="alpha-variables.js?v=4"></script><script src="exact-output.js?v=3"></script><script src="lcd-menus.js?v=6"></script><script src="math-templates.js?v=9"></script><script src="random-functions.js?v=2"></script><script src="calculator-skins.js?v=5"></script><script src="lcd-autofit.js?v=3"></script><script src="lcd-palette.js?v=1"></script><script src="calculator-viewport.js?v=11"></script><script src="result-focus.js?v=1"></script><script src="calculator-gestures.js?v=1"></script></body></html>
