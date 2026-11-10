@@ -761,6 +761,9 @@ html body.menu-presentation .menu-rail-toggle{display:none!important}
  font-size:inherit!important;vertical-align:middle;
  font-family:"Cambria Math","STIX Two Math",serif!important;
 }
+
+.menu-fit-viewport #display .expression math{font-size:inherit!important;vertical-align:middle!important}
+.menu-fit-viewport #display .log-active{background:#b2d4e8;outline:2px solid #276caf}
 </style>
 </head>
 <body class="menu-light">
@@ -878,7 +881,7 @@ applyMenuShiftColour("green");
     ans:0,expr:"",answer:null,decimal:false,numberFormat:"norm",fixedDigits:3,sciDigits:5,normMode:1,
     inputOutput:"MathI/MathO",fractionResult:"improper",freqOn:false,tableMode:"both",
     decimalMark:"dot",digitSeparator:false,multiLineFont:"normal",contrast:5,
-    stats:"",message:"",factorText:null,tableRows:[],box:"",ratio:null};
+    stats:"",message:"",factorText:null,tableRows:[],box:"",ratio:null,logDraft:null};
   const home=[["Calculate","Basic calculations"],["Statistics","Mean and spread"],["Table","Function values"],["Math Box","Dice and coin"]];
   // fx-82CW / fx-85CW / fx-350CW CATALOG order (official CW manual,
   // Advanced Calculations, pp. 43–50). This is NOT the EX catalogue.
@@ -1133,14 +1136,61 @@ applyMenuShiftColour("green");
   function returnFromSetup(){
     state.view=state.back;state.menu=null;state.selection=0;render();
   }
+
+  function logDraftText(){
+    const d=state.logDraft;
+    return d.prefix+"logbase("+d.base+","+d.arg+")";
+  }
+  function startLogDraft(){
+    state.logDraft={prefix:state.answer===null?state.expr:"",base:"",arg:"",slot:"base"};
+    state.answer=null;state.message="";state.factorText=null;
+    state.view="calculate";state.expr=logDraftText();render();
+  }
+  function editLogDraft(v){
+    const d=state.logDraft;
+    if(!d)return false;
+    if(v==="right"||v==="down"||v===","){
+      if(d.slot==="base")d.slot="arg";
+      else if(d.arg){state.logDraft=null;render();return true;}
+    }else if(v==="back"||v==="up"){
+      if(d.slot==="arg")d.slot="base";
+      else{state.logDraft=null;render();return true;}
+    }else if(v==="del"){
+      d[d.slot]=d[d.slot].slice(0,-1);
+    }else if(v==="ac"){
+      state.logDraft=null;state.expr="";state.answer=null;render();return true;
+    }else if(v==="exe"||v==="ok"){
+      if(!d.base||!d.arg){state.message="Complete both logarithm fields";render();return true;}
+      state.logDraft=null;calculate();return true;
+    }else if(/^[0-9.]$/.test(v)){
+      if(v==="."&&d[d.slot].includes("."))return true;
+      d[d.slot]+=v;
+    }else return false;
+    state.expr=logDraftText();state.message="";render();return true;
+  }
+  function mathsInput(raw){
+    const draft=state.logDraft,log=draft||raw.match(/^logbase\(([^,]*),([^()]*)\)$/);
+    if(log){
+      const b=draft?draft.base:log[1],a=draft?draft.arg:log[2];
+      const slot=(v,kind)=>'<mrow class="'+(draft&&draft.slot===kind?'log-active':'')+
+        '">'+(v?'<mn>'+escapeHtml(v)+'</mn>':'<mtext>□</mtext>')+'</mrow>';
+      return (draft?escapeHtml(draft.prefix):'')+
+        '<math xmlns="http://www.w3.org/1998/Math/MathML" aria-label="Logarithm with base and argument"><mrow>'+
+        '<msub><mi mathvariant="normal">log</mi>'+slot(b,"base")+'</msub>'+
+        '<mo>(</mo>'+slot(a,"arg")+'<mo>)</mo></mrow></math>';
+    }
+    const frac=raw.match(/^(-?\d+)\/([1-9]\d*)$/);
+    if(frac)return '<math xmlns="http://www.w3.org/1998/Math/MathML"><mfrac><mn>'+
+      escapeHtml(frac[1])+'</mn><mn>'+escapeHtml(frac[2])+'</mn></mfrac></math>';
+    const root=raw.match(/^(sqrt|cbrt)\(([^()]*)\)$/);
+    if(root)return '<math xmlns="http://www.w3.org/1998/Math/MathML">'+
+       (root[1]==="sqrt"?'<msqrt><mtext>'+escapeHtml(root[2]||"□")+'</mtext></msqrt>':
+         '<mroot><mtext>'+escapeHtml(root[2]||"□")+'</mtext><mn>3</mn></mroot>')+'</math>';
+    return escapeHtml(raw||"0");
+  }
   function calcDisplay(){
     const raw=state.expr.replace(/asin\(/g,"sin⁻¹(").replace(/acos\(/g,"cos⁻¹(").replace(/atan\(/g,"tan⁻¹(").replace(/sqrt\(/g,"√(").replace(/ran#/g,"Ran#");
-    // A simple numeric fraction uses a real mathematical fraction bar.
-    const simple=raw.match(/^(-?\d+)\/([1-9]\d*)$/);
-    const typed=simple?
-      '<math xmlns="http://www.w3.org/1998/Math/MathML" aria-label="'+escapeHtml(raw)+'"><mfrac><mn>'+
-      escapeHtml(simple[1])+'</mn><mn>'+escapeHtml(simple[2])+'</mn></mfrac></math>':
-      escapeHtml(raw||"0");
+    const typed=mathsInput(raw);
     let out='<div class="expression">'+typed+'</div>';
     if(state.answer!==null)out+='<div class="result">'+(state.factorText?escapeHtml(state.factorText):resultMarkup(state.answer))+'</div>';
     if(state.message)out+='<div class="mini">'+escapeHtml(state.message)+'</div>';
@@ -1233,7 +1283,9 @@ applyMenuShiftColour("green");
         state.message=items[i][0]+" — not implemented yet";
         render();return;
       }
-      state.view="calculate";state.menu=null;state.selection=0;insert(items[i][1]);return;
+      state.view="calculate";state.menu=null;state.selection=0;
+      if(items[i][1]==="logbase("){startLogDraft();return;}
+      insert(items[i][1]);return;
     }
     if(m==="settings"){
       if(i<0||i>=settings.length)return;
@@ -1363,6 +1415,10 @@ applyMenuShiftColour("green");
     }else{state.view="home";state.selection=0;render()}
   }
   function press(cmd){
+    if(state.logDraft){
+      if(editLogDraft(cmd))return;
+      if(!["shift","home","settings","catalog","format"].includes(cmd))return;
+    }
     if(cmd==="on"){state.view="home";state.selection=0;state.shift=false;render();return}
     if(cmd==="variables"){showMenu("catalog");return}
     if(cmd==="function"){showMenu("catalog");return}
@@ -1439,6 +1495,7 @@ applyMenuShiftColour("green");
       render();return;
     }
     if(state.view!=="calculate")return;
+    if(cmd==="log"&&!state.shift){startLogDraft();return;}
     // CW alternate numeric keys: π and e are printed over 7 and 8.
     if(state.shift&&cmd==="7"){state.shift=false;insert("π");return}
     if(state.shift&&cmd==="8"){state.shift=false;insert("e");return}
