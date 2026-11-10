@@ -1168,29 +1168,40 @@ applyMenuShiftColour("green");
     }else return false;
     state.expr=logDraftText();state.message="";render();return true;
   }
-  function mathsInput(raw){
-    const draft=state.logDraft,log=draft||raw.match(/^logbase\(([^,]*),([^()]*)\)$/);
+  function mathsInput(input,pretty){
+    const draft=state.logDraft,log=draft||input.match(/^logbase\(([^,]*),([^()]*)\)$/);
     if(log){
       const b=draft?draft.base:log[1],a=draft?draft.arg:log[2];
       const slot=(v,kind)=>'<mrow class="'+(draft&&draft.slot===kind?'log-active':'')+
-        '">'+(v?'<mn>'+escapeHtml(v)+'</mn>':'<mtext>□</mtext>')+'</mrow>';
+        '" aria-label="'+kind+'">'+(v?'<mn>'+escapeHtml(v)+'</mn>':'<mtext>□</mtext>')+'</mrow>';
       return (draft?escapeHtml(draft.prefix):'')+
-        '<math xmlns="http://www.w3.org/1998/Math/MathML" aria-label="Logarithm with base and argument"><mrow>'+
+        '<math xmlns="http://www.w3.org/1998/Math/MathML" aria-label="Logarithm with base '+escapeHtml(b||"blank")+
+        ' and argument '+escapeHtml(a||"blank")+'"><mrow>'+
         '<msub><mi mathvariant="normal">log</mi>'+slot(b,"base")+'</msub>'+
         '<mo>(</mo>'+slot(a,"arg")+'<mo>)</mo></mrow></math>';
     }
-    const frac=raw.match(/^(-?\d+)\/([1-9]\d*)$/);
+    const frac=input.match(/^(-?\d+)\/([1-9]\d*)$/);
     if(frac)return '<math xmlns="http://www.w3.org/1998/Math/MathML"><mfrac><mn>'+
       escapeHtml(frac[1])+'</mn><mn>'+escapeHtml(frac[2])+'</mn></mfrac></math>';
-    const root=raw.match(/^(sqrt|cbrt)\(([^()]*)\)$/);
-    if(root)return '<math xmlns="http://www.w3.org/1998/Math/MathML">'+
-       (root[1]==="sqrt"?'<msqrt><mtext>'+escapeHtml(root[2]||"□")+'</mtext></msqrt>':
-         '<mroot><mtext>'+escapeHtml(root[2]||"□")+'</mtext><mn>3</mn></mroot>')+'</math>';
-    return escapeHtml(raw||"0");
+    const root=input.match(/^(sqrt|cbrt)\(([^()]*)\)$/);
+    if(root){
+      const inside='<mtext>'+escapeHtml(root[2]||"□")+'</mtext>';
+      return '<math xmlns="http://www.w3.org/1998/Math/MathML">'+
+        (root[1]==="sqrt"?'<msqrt>'+inside+'</msqrt>':
+         '<mroot>'+inside+'<mn>3</mn></mroot>')+'</math>';
+    }
+    const power=input.match(/^(-?\d+(?:\.\d+)?|\w+)\^(-?\d+(?:\.\d+)?|\w+)$/);
+    if(power)return '<math xmlns="http://www.w3.org/1998/Math/MathML"><msup><mn>'+
+      escapeHtml(power[1])+'</mn><mn>'+escapeHtml(power[2])+'</mn></msup></math>';
+    const common=input.match(/^(log|ln)\(([^()]*)\)$/);
+    if(common)return '<math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi mathvariant="normal">'+
+      common[1]+'</mi><mo>(</mo><mtext>'+escapeHtml(common[2]||"□")+
+      '</mtext><mo>)</mo></mrow></math>';
+    return escapeHtml(pretty||"0");
   }
   function calcDisplay(){
     const raw=state.expr.replace(/asin\(/g,"sin⁻¹(").replace(/acos\(/g,"cos⁻¹(").replace(/atan\(/g,"tan⁻¹(").replace(/sqrt\(/g,"√(").replace(/ran#/g,"Ran#");
-    const typed=mathsInput(raw);
+    const typed=mathsInput(state.expr,raw);
     let out='<div class="expression">'+typed+'</div>';
     if(state.answer!==null)out+='<div class="result">'+(state.factorText?escapeHtml(state.factorText):resultMarkup(state.answer))+'</div>';
     if(state.message)out+='<div class="mini">'+escapeHtml(state.message)+'</div>';
