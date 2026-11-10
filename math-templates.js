@@ -34,6 +34,7 @@
     return nodes.map(n => n.type==="text"?n.value:
       n.type==="frac"?"(("+currentText(n.top)+")÷("+currentText(n.bottom)+"))":
       n.type==="mixed"?"(("+currentText(n.whole)+")+(("+currentText(n.top)+")÷("+currentText(n.bottom)+")))":
+      n.type==="logbase"?"logbase("+currentText(n.base)+","+currentText(n.arg)+")":
       (n.type==="sqrt"?"sqrt(":"cbrt(")+currentText(n.body)+")").join("");
   }
   function serialize(nodes,emptyAsZero=false){
@@ -42,6 +43,7 @@
       const contents=(items)=>serialize(items,emptyAsZero)||(emptyAsZero?"0":"");
       if(n.type==="frac")return "(("+contents(n.top)+")÷("+contents(n.bottom)+"))";
       if(n.type==="mixed")return "(("+contents(n.whole)+")+(("+contents(n.top)+")÷("+contents(n.bottom)+")))";
+      if(n.type==="logbase")return "logbase("+contents(n.base)+","+contents(n.arg)+")";
       return (n.type==="sqrt"?"sqrt(":"cbrt(")+contents(n.body)+")";
     }).join("");
   }
@@ -51,6 +53,7 @@
       if(n.type==="frac")return !n.top.length||!n.bottom.length||incomplete(n.top)||incomplete(n.bottom);
       if(n.type==="mixed")return !n.whole.length||!n.top.length||!n.bottom.length||
         incomplete(n.whole)||incomplete(n.top)||incomplete(n.bottom);
+      if(n.type==="logbase")return !n.base.length||!n.arg.length||incomplete(n.base)||incomplete(n.arg);
       return !n.body.length||incomplete(n.body);
     });
   }
@@ -88,11 +91,12 @@
     const n={id:nextId++,type};
     if(type==="frac"){n.top=numerator;n.bottom=[];}
     else if(type==="mixed"){n.whole=[];n.top=[];n.bottom=[];}
+    else if(type==="logbase"){n.base=[];n.arg=[];}
     else n.body=[];
     nodes.splice(editor.cursor,0,n);
     editor.cursor++;
     // A completed numerator makes the denominator the next input field.
-    const field=type==="frac"&&numerator.length?"bottom":type==="frac"?"top":type==="mixed"?"whole":"body";
+    const field=type==="frac"&&numerator.length?"bottom":type==="frac"?"top":type==="mixed"?"whole":type==="logbase"?"base":"body";
     editor.path.push({node:n,slot:field});
     editor.cursor=n[field].length;
     sync();
@@ -149,7 +153,8 @@
   }
   function fieldsFor(node){
     return node.type==="mixed"?["whole","top","bottom"]:
-      node.type==="frac"?["top","bottom"]:["body"];
+      node.type==="frac"?["top","bottom"]:
+      node.type==="logbase"?["base","arg"]:["body"];
   }
   function navigate(direction){
     if(!editor)return;
@@ -221,7 +226,8 @@
     row.classList.add("template-slot");
     if(activePath(node,slot) && !editor.calculated)row.classList.add("template-active");
     row.setAttribute("aria-label",slot==="top"?"Numerator":slot==="bottom"?"Denominator":
-      slot==="whole"?"Whole-number part":"Radicand");
+      slot==="whole"?"Whole-number part":slot==="base"?"Logarithm base":
+      slot==="arg"?"Logarithm argument":"Radicand");
     if(!content.length){
       const empty=m("mtext","□");
       empty.classList.add("template-placeholder");
@@ -274,6 +280,12 @@
       row.append(slotMarkup(node,"whole",steps),f);
       return row;
     }
+    if(node.type==="logbase"){
+      const row=m("mrow"),log=m("msub");
+      log.append(m("mi","log"),slotMarkup(node,"base",steps));
+      row.append(log,m("mo","("),slotMarkup(node,"arg",steps),m("mo",")"));
+      return row;
+    }
     if(node.type==="sqrt"){
       const r=m("msqrt");
       r.append(slotMarkup(node,"body",steps));
@@ -321,7 +333,7 @@
     showMath();
   }
   append=function(v){
-    if(v==="frac"||v==="mixed"||v==="sqrt"||v==="cbrt"){
+    if(v==="frac"||v==="mixed"||v==="sqrt"||v==="cbrt"||v==="logbase"){
       template(v);return;
     }
     if(editor){literal(v);return;}
@@ -337,7 +349,7 @@
     else screen.classList.remove("typeset-expression");
   };
   handle=function(v){
-    if(v==="frac"||v==="mixed"||v==="sqrt"||v==="cbrt"){template(v);return;}
+    if(v==="frac"||v==="mixed"||v==="sqrt"||v==="cbrt"||v==="logbase"){template(v);return;}
     if(!editor)return previousHandle(v);
     if(v==="AC"||v==="reset"){editor=null;return previousHandle(v);}
     if(v==="DEL"){backspace();return;}
