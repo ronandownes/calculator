@@ -1512,8 +1512,9 @@ applyMenuShiftColour("green");
     if(state.shift&&cmd==="8"){state.shift=false;insert("e");return}
     if(state.shift&&["sin","cos","tan"].includes(cmd)){state.shift=false;insert("a"+cmd+"(");return}
     if(state.shift&&cmd==="sqrt"){state.shift=false;insert("cbrt(");return}
-    if(state.shift&&cmd==="square"){state.shift=false;insert("^3");return}
-    if(state.shift&&cmd==="log"){state.shift=false;insert("10^(");return}
+    if(state.shift&&cmd==="square"){state.shift=false;insert("log(");return}
+    if(state.shift&&cmd==="power"){state.shift=false;insert("^(-1)");return}
+    if(state.shift&&cmd==="log"){state.shift=false;insert("ln(");return}
     if(state.shift&&cmd==="ln"){state.shift=false;insert("exp(");return}
     state.shift=false;
     const value=({"x":"x","sqrt":"sqrt(","square":"^2","power":"^","log":"log(","ln":"ln(","pi":"π","percent":"%","ans":"Ans","fraction":"/"})[cmd]||cmd;
