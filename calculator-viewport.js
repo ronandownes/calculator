@@ -26,14 +26,16 @@
 
   const MIN=0.25,MAX=5,clamp=x=>Math.min(MAX,Math.max(MIN,x));
   let scale=1;
-  let mode=(innerWidth>=800&&innerHeight>=700)?"height":null;
+  // Always start by fitting the complete fixed-shape calculator, even in a narrow window.
+  let mode="height";
   let gesture=null,drag=null,space=false,blockClick=false,queued=false;
-  let baseWidth=660,baseHeight=900;
+  const NATIVE_WIDTH=660;
+  let baseWidth=NATIVE_WIDTH,baseHeight=900;
 
   function measure(){
-    // Responsive width is calculated before scaling, never separately in x/y.
-    const available=Math.max(210,viewport.clientWidth);
-    baseWidth=Math.min(660,available);
+    // Never squeeze the keypad's intrinsic width when the window narrows.
+    // The entire 660px-wide device must scale by a SINGLE uniform factor.
+    baseWidth=NATIVE_WIDTH;
     calculator.style.setProperty("--calc-base-width",baseWidth+"px");
     calculator.style.setProperty("--calc-scale","1");
     // Offset height is invariant under CSS transform.
@@ -42,7 +44,7 @@
   }
   function viewportHeight(){
     const height=window.visualViewport?.height||innerHeight;
-    return Math.max(180,height-viewport.getBoundingClientRect().top-12);
+    return Math.max(180,height-Math.max(0,viewport.getBoundingClientRect().top)-12);
   }
   function draw(){
     stage.style.width=(baseWidth*scale)+"px";

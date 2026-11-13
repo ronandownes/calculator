@@ -295,6 +295,36 @@
     r.append(slotMarkup(node,"body",steps),m("mn","3"));
     return r;
   }
+  // Render powers as raised MathML, not caret notation. These changes
+  // affect only the picture on the LCD, never the expression evaluator.
+  function typesetPowers(row){
+    const isExponent=v=>/^(?:[+−-]?\d+|[nxyie])$/.test(v);
+    for(const marker of [...row.children]){
+      if(!marker.parentNode)continue;
+      const text=marker.textContent.trim();
+      if(!text.startsWith("^"))continue;
+      let exponent=text.slice(1),taken=[];
+      if(exponent.startsWith("(")&&exponent.endsWith(")"))
+        exponent=exponent.slice(1,-1);
+      if(!exponent){
+        let next=marker.nextElementSibling;
+        if(!next)continue;
+        exponent=next.textContent.trim();
+        taken.push(next);
+        if((exponent==="−"||exponent==="-"||exponent==="+")&&
+           next.nextElementSibling && /^\d+$/.test(next.nextElementSibling.textContent.trim())){
+          exponent+=next.nextElementSibling.textContent.trim();
+          taken.push(next.nextElementSibling);
+        }
+      }
+      const base=marker.previousElementSibling;
+      if(!base||base.classList?.contains("template-insertion-caret")||!isExponent(exponent))continue;
+      const raised=m("msup");
+      raised.append(base,m(/[nxyie]/.test(exponent)?"mi":"mn",exponent));
+      marker.replaceWith(raised);
+      for(const consumed of taken)consumed.remove();
+    }
+  }
   function showMath(){
     if(!editor)return;
     const math=m("math");
@@ -305,6 +335,7 @@
       if(!editor.path.length&&!editor.calculated&&i===editor.cursor)row.append(cursorMarkup());
       if(i<editor.nodes.length)row.append(nodeMarkup(editor.nodes[i],[]));
     }
+    typesetPowers(row);
     math.append(row);
     screen.replaceChildren(math);
     screen.classList.add("typeset-expression");
