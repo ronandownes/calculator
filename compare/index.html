@@ -30,6 +30,11 @@ header{position:sticky;top:0;z-index:5;background:#fff;box-shadow:0 1px 7px #1d2
 .panels.mode-menu{grid-template-columns:minmax(0,1fr)}
 .panels.mode-scientific #menu-pane,.panels.mode-menu #scientific-pane{display:none}
 .note{margin:0;padding:8px 14px;background:#fff;border-top:1px solid #dbe2ea;color:#56687b;font-size:12px}
+#minimizeToolbar{padding:6px 9px;border:1px solid #cdd7e1;border-radius:7px;background:#fff;color:#38516a;cursor:pointer;font-size:12px}
+header.minimized .top{padding:4px 9px}
+header.minimized .heading{font-size:13px}
+header.minimized .top .tabs,header.minimized .top .options,header.minimized .sub{display:none}
+#minimizeToolbar:focus-visible,#fitBoth:focus-visible{outline:3px solid #2d7dd2;outline-offset:2px}
 @media(max-width:850px){.panels.mode-both{grid-template-columns:1fr}.pane iframe{height:65dvh;min-height:480px}.top{padding:8px}.heading{flex:1 1 100%}}
 @media print{header,.note{display:none}.panels{grid-template-columns:1fr 1fr!important}.pane iframe{height:85vh}}
 </style>
@@ -37,7 +42,7 @@ header{position:sticky;top:0;z-index:5;background:#fff;box-shadow:0 1px 7px #1d2
 <body>
 <header>
  <div class="top">
-  <span class="heading">Maths · Calculator comparison</span>
+  <span class="heading">Maths · Calculator comparison</span><button type="button" id="minimizeToolbar" aria-pressed="false" title="Hide or reveal presentation controls">Hide controls</button>
   <nav class="tabs" role="group" aria-label="Calculator viewing mode">
    <button type="button" data-view="scientific" aria-pressed="false">Scientific</button>
    <button type="button" data-view="menu" aria-pressed="false">Menu-driven</button>
@@ -45,7 +50,7 @@ header{position:sticky;top:0;z-index:5;background:#fff;box-shadow:0 1px 7px #1d2
   </nav>
   <div class="options">
    <button type="button" id="sync" aria-pressed="true">Sync on</button>
-   <button type="button" id="reset">Clear both</button>
+   <button type="button" id="reset">Clear both</button><button type="button" id="fitBoth">Fit both</button>
   </div>
  </div>
  <div class="sub"><span id="message" role="status" aria-live="polite">Loading both calculators…</span><span>Each calculator retains its own keys and layout.</span></div>
@@ -69,6 +74,14 @@ header{position:sticky;top:0;z-index:5;background:#fff;box-shadow:0 1px 7px #1d2
  const panels=document.getElementById("panels"),message=document.getElementById("message");
  const header=document.querySelector("header");
  const syncButton=document.getElementById("sync");
+ const minimize=document.getElementById("minimizeToolbar");
+ minimize.addEventListener("click",()=>{
+   const on=header.classList.toggle("minimized");
+   minimize.setAttribute("aria-pressed",String(on));
+   minimize.textContent=on?"Show controls":"Hide controls";
+   scheduleFit();
+ });
+ document.getElementById("fitBoth").addEventListener("click",scheduleFit);
  let mode="both",sync=true,pending=Promise.resolve(),serial=0;
  const ready={scientific:false,menu:false};
  const delay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
