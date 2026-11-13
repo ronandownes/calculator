@@ -38,7 +38,13 @@
   answer.className="calc-answer-result";
   answer.setAttribute("aria-label","Answer");
   content.append(formula,answer);
-  float.append(header,content);
+  const resizeGrip=document.createElement("button");
+  resizeGrip.type="button";
+  resizeGrip.className="calc-answer-resize";
+  resizeGrip.textContent="◢";
+  resizeGrip.setAttribute("aria-label","Resize floating answer: drag lower-right corner or use arrow keys");
+  resizeGrip.title="Drag to resize (arrow keys also work)";
+  float.append(header,content,resizeGrip);
   document.body.append(float);
 
   const dock=document.createElement("section");
@@ -92,7 +98,10 @@
     const showFloat=mode==="always"||(mode==="auto"&&!lcdVisible);
     float.hidden=!showFloat;
     dock.hidden=mode!=="bottom";
-    if(showFloat)queueRefresh();
+    if(showFloat){
+      queueRefresh();
+      scheduleOverlap();
+    }else float.classList.remove("over-keys");
   }
   function updateMode(){
     mode=["auto","always","bottom","off"].includes(select.value)?select.value:"auto";
@@ -131,6 +140,28 @@
   // Mouse, stylus, touch and keyboard all work; it is always clamped in view.
   let drag=null;
   let saved=null;
+  let resizeDrag=null;
+  let overlapScheduled=false;
+  const keyTargets=[...calculator.querySelectorAll("#keys button, .top button")];
+  function updateOverlap(){
+    overlapScheduled=false;
+    if(float.hidden){float.classList.remove("over-keys");return;}
+    const a=float.getBoundingClientRect();
+    const overlaps=keyTargets.some(button=>{
+      const b=button.getBoundingClientRect();
+      return Math.min(a.right,b.right)-Math.max(a.left,b.left)>6 &&
+        Math.min(a.bottom,b.bottom)-Math.max(a.top,b.top)>6;
+    });
+    float.classList.toggle("over-keys",overlaps);
+  }
+  function scheduleOverlap(){
+    if(overlapScheduled)return;
+    overlapScheduled=true;
+    requestAnimationFrame(updateOverlap);
+  }
+  const scroller=document.querySelector(".calc-viewport");
+  scroller?.addEventListener("scroll",scheduleOverlap,{passive:true});
+  window.addEventListener("scroll",scheduleOverlap,{passive:true,capture:true});
   function place(left,top){
     const width=float.offsetWidth||260,height=float.offsetHeight||130;
     const maxX=Math.max(0,innerWidth-width);
@@ -142,6 +173,7 @@
     float.style.top=y+"px";
     float.style.right="auto";
     float.style.bottom="auto";
+    scheduleOverlap();
   }
   handle.addEventListener("pointerdown",event=>{
     if(!event.isPrimary||event.button!==0)return;
@@ -151,6 +183,7 @@
       left:rect.left,top:rect.top
     };
     handle.setPointerCapture(event.pointerId);
+    float.classList.add("is-dragging");
     event.preventDefault();
   });
   handle.addEventListener("pointermove",event=>{
@@ -161,11 +194,58 @@
   function release(event){
     if(!drag||drag.id!==event.pointerId)return;
     drag=null;
+    float.classList.remove("is-dragging");
+    scheduleOverlap();
     if(handle.hasPointerCapture(event.pointerId))
       handle.releasePointerCapture(event.pointerId);
   }
   handle.addEventListener("pointerup",release);
   handle.addEventListener("pointercancel",release);
+
+  // Lower-right corner resizes both dimensions, maintaining a sensible minimum.
+  // The answer's mathematical font grows with the panel width.
+  function resizeTo(width,height){
+    const box=float.getBoundingClientRect();
+    const maxWidth=Math.max(180,innerWidth-box.left-6);
+    const maxHeight=Math.max(110,innerHeight-box.top-6);
+    float.style.width=Math.round(Math.min(maxWidth,Math.max(180,width)))+"px";
+    float.style.height=Math.round(Math.min(maxHeight,Math.max(110,height)))+"px";
+    scheduleOverlap();
+  }
+  resizeGrip.addEventListener("pointerdown",event=>{
+    if(!event.isPrimary||event.button!==0)return;
+    const rect=float.getBoundingClientRect();
+    place(rect.left,rect.top);
+    resizeDrag={id:event.pointerId,x:event.clientX,y:event.clientY,
+      width:rect.width,height:rect.height};
+    resizeGrip.setPointerCapture(event.pointerId);
+    float.classList.add("is-resizing");
+    event.preventDefault();
+  });
+  resizeGrip.addEventListener("pointermove",event=>{
+    if(!resizeDrag||resizeDrag.id!==event.pointerId)return;
+    resizeTo(resizeDrag.width+event.clientX-resizeDrag.x,
+      resizeDrag.height+event.clientY-resizeDrag.y);
+  });
+  function finishResize(event){
+    if(!resizeDrag||resizeDrag.id!==event.pointerId)return;
+    resizeDrag=null;
+    float.classList.remove("is-resizing");
+    scheduleOverlap();
+    if(resizeGrip.hasPointerCapture(event.pointerId))
+      resizeGrip.releasePointerCapture(event.pointerId);
+  }
+  resizeGrip.addEventListener("pointerup",finishResize);
+  resizeGrip.addEventListener("pointercancel",finishResize);
+  resizeGrip.addEventListener("keydown",event=>{
+    const step=event.shiftKey?32:16;
+    const delta={ArrowRight:[step,0],ArrowLeft:[-step,0],
+      ArrowDown:[0,step],ArrowUp:[0,-step]}[event.key];
+    if(!delta)return;
+    const box=float.getBoundingClientRect();
+    resizeTo(box.width+delta[0],box.height+delta[1]);
+    event.preventDefault();
+  });
   handle.addEventListener("keydown",event=>{
     const offsets={ArrowLeft:[-16,0],ArrowRight:[16,0],
       ArrowUp:[0,-16],ArrowDown:[0,16]};
@@ -186,6 +266,7 @@
   });
   window.addEventListener("resize",()=>{
     if(saved)place(saved.x,saved.y);
+    scheduleOverlap();
   },{passive:true});
 
   // Initial automatic mode retains a single LCD while it is on screen.
