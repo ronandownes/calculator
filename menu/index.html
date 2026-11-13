@@ -854,12 +854,23 @@ html body .menu-fit-viewport .cw-control-deck button.menu-key-flash{
  box-shadow:0 0 0 2px var(--press-outline),0 0 14px var(--press-glow)!important;
  transform:translateY(1px) scale(.975)!important;
 }
+
+/* Four small, purposeful navigation dots — kept outside the calculator face. */
+.menu-sidebar .menu-four-dots{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:3px;align-items:center;width:165px;max-width:100%;background:#fff;border:1px solid #e3e8ee;border-radius:12px;padding:8px 4px}
+.menu-sidebar .menu-four-dots a{display:flex;flex-direction:column;align-items:center;gap:4px;font:700 10px Arial,Helvetica,sans-serif;text-decoration:none;color:#354558;padding:4px 0;min-width:0}
+.menu-sidebar .menu-four-dots i{width:17px;height:17px;border:2px solid white;border-radius:50%;box-shadow:0 0 0 1px #bdc7d2;display:block}
+.menu-sidebar .menu-four-dots .red i{background:#e63329}
+.menu-sidebar .menu-four-dots .green i{background:#3fae49}
+.menu-sidebar .menu-four-dots .blue i{background:#2d7dd2}
+.menu-sidebar .menu-four-dots .black i{background:#171b22}
+.menu-sidebar .menu-four-dots a:focus-visible{outline:3px solid #2d7dd2;outline-offset:2px;border-radius:4px}
+@media(max-width:700px){.menu-sidebar .menu-four-dots{width:180px}}
 </style>
 </head>
 <body class="menu-light">
 <div class="menu-layout">
 <aside class="menu-sidebar" aria-label="Calculator selection">
-<a class="site-logo" href="../" aria-label="Maths calculator homepage"><img src="../maths-logo.svg" alt="Maths" width="155"></a>
+<nav class="menu-four-dots" aria-label="Four-dot Maths navigation"><a class="red" href="https://ronandownes.github.io/calculator/" title="Calculator" aria-label="Red dot: Scientific calculator"><i aria-hidden="true"></i><span>Calc</span></a><a class="green" href="https://ronandownes.github.io/book/" title="Maths Book" aria-label="Green dot: Maths Book"><i aria-hidden="true"></i><span>Book</span></a><a class="blue" href="https://ronandownes.github.io/maths/" title="Maths Apps" aria-label="Blue dot: Maths Apps"><i aria-hidden="true"></i><span>Apps</span></a><a class="black" href="https://ronandownes.github.io/calculator/resources/" title="External Resources" aria-label="Black dot: External Resources"><i aria-hidden="true"></i><span>More</span></a></nav>
 <nav class="calculator-chooser" aria-label="Calculator styles">
 <div class="model-selector"><span class="skin-label">Scientific</span><div class="model-palette" role="group" aria-label="Scientific colours"><a class="skin-dot skin-red" href="../?skin=pink" title="Scientific pastel pink" aria-label="Scientific pastel pink"></a><a class="skin-dot skin-green" href="../?skin=mint" title="Scientific pastel mint" aria-label="Scientific pastel mint"></a><a class="skin-dot skin-blue" href="../?skin=blue" title="Scientific pastel blue" aria-label="Scientific pastel blue"></a><a class="skin-dot skin-neutral" href="../" title="Scientific dark" aria-label="Scientific dark, homepage"></a></div></div>
 <div class="model-selector"><span class="skin-label">Menu</span><div class="model-palette" role="group" aria-label="Menu colours"><button class="skin-dot skin-red" data-menu-skin="pink" type="button" title="Pastel pink" aria-label="Menu pastel pink"></button><button class="skin-dot skin-green" data-menu-skin="mint" type="button" title="Pastel mint" aria-label="Menu pastel mint"></button><button class="skin-dot skin-blue" data-menu-skin="blue" type="button" title="Pastel blue" aria-label="Menu pastel blue"></button><button class="skin-dot skin-neutral" id="menuNeutralSkin" type="button" title="Toggle Dark / Light" aria-label="Menu dark or light"></button></div><span class="skin-status" id="menuSkinStatus"></span><div class="menu-shift-picker" role="group" aria-label="Second-function colour"><span class="shift-title">SHIFT lettering</span><button class="shift-choice shift-blue" data-menu-shift-colour="blue" type="button" aria-label="Blue SHIFT legends" title="Blue SHIFT legends" aria-pressed="false"></button><button class="shift-choice shift-green" data-menu-shift-colour="green" type="button" aria-label="Green SHIFT legends" title="Green SHIFT legends" aria-pressed="true"></button></div></div>
