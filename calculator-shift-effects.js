@@ -18,7 +18,7 @@
     if(handle)cancelAnimationFrame(handle);
     handle=0;
     document.body.style.removeProperty("--chosen-shift");
-    document.body.style.removeProperty("--chosen-shift-ring");
+    // Keep SHIFT button outlines in their selected solid colour.
   }
   function tick(now){
     if(effect==="plain")return;
@@ -31,7 +31,7 @@
       const brightness=light ? (effect==="rainbow"?34:38) : (effect==="rainbow"?73:75);
       const ink="hsl("+hue.toFixed(2)+" "+sat+"% "+brightness+"%)";
       document.body.style.setProperty("--chosen-shift",ink);
-      document.body.style.setProperty("--chosen-shift-ring",ink);
+      // The moving effect applies to lettering only, not keypad outlines.
       lastFrame=now;
     }
     if(!reduce.matches)handle=requestAnimationFrame(tick);
