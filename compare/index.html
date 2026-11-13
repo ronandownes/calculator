@@ -60,7 +60,7 @@ header{position:sticky;top:0;z-index:5;background:#fff;box-shadow:0 1px 7px #1d2
   <iframe id="menu" title="Interactive menu-driven calculator" src="../menu/?compare=1&amp;skin=dark" loading="eager" allow="fullscreen"></iframe>
  </section>
 </main>
-<p class="note">Supported two-way examples: numbers, the four operations, brackets, square roots, squares, powers, sin/cos/tan, inverse trig, and EXE/=. Different key sequences are shown when needed. Other modes and specialist functions stay independent rather than giving a potentially incorrect match. For trigonometry, use the same angle unit on both calculators.</p>
+<p class="note">Supported two-way examples: numbers, arithmetic, proper fraction templates, navigation between numerator and denominator, roots, powers, sin/cos/tan, inverse trig, and EXE/=. Different key sequences are shown when needed. Other modes and specialist functions stay independent rather than giving a potentially incorrect match. For trigonometry, use the same angle unit on both calculators.</p>
 <script>
 (()=>{
  "use strict";
@@ -127,6 +127,11 @@ header{position:sticky;top:0;z-index:5;background:#fff;box-shadow:0 1px 7px #1d2
      const el=event.target?.closest?.("button")||null;
      if(!el||!doc.contains(el))return null;
      if(kind==="scientific"){
+       if(el.closest("#nav")&&frames.scientific.contentWindow.calculatorTemplateState){
+         const arrow=el.dataset.nav;
+         if(arrow==="right"||arrow==="down")return "fraction-next";
+         if(arrow==="left"||arrow==="up")return "fraction-prev";
+       }
        if(el.id==="shift"||el.id==="alpha"||el.id==="on")return null;
        if(!el.closest("#keys"))return null;
        const shifted=doc.getElementById("shift")?.classList.contains("active")||false;
@@ -134,6 +139,10 @@ header{position:sticky;top:0;z-index:5;background:#fff;box-shadow:0 1px 7px #1d2
        return sciToAction(key);
      }
      if(el.dataset.cmd==="shift")return null;
+     if(el.closest(".cw-dpad")&&frames.menu.contentWindow.menuFractionState){
+       if(el.dataset.cmd==="right"||el.dataset.cmd==="down")return "fraction-next";
+       if(el.dataset.cmd==="back"||el.dataset.cmd==="up")return "fraction-prev";
+     }
      if(!el.closest(".cw-upper-keys,.cw-number-keys"))return null;
      if(!doc.getElementById("display")?.querySelector(".expression"))return null;
      const shifted=doc.body.classList.contains("shift-active");
@@ -143,6 +152,11 @@ header{position:sticky;top:0;z-index:5;background:#fff;box-shadow:0 1px 7px #1d2
      if(event.ctrlKey||event.metaKey||event.altKey||
        ["INPUT","TEXTAREA","SELECT"].includes(doc.activeElement?.tagName))return null;
      const key=event.key;
+     const activeEditor=kind==="scientific"
+       ?frames.scientific.contentWindow.calculatorTemplateState
+       :frames.menu.contentWindow.menuFractionState;
+     if(activeEditor&&["ArrowLeft","ArrowRight","ArrowUp","ArrowDown"].includes(key))
+       return ["ArrowRight","ArrowDown"].includes(key)?"fraction-next":"fraction-prev";
      const normal={"*":"×","/":"÷","-":"−","Enter":"=","Backspace":"DEL"};
      const cmd=normal[key]||key;
      if(!/^[0-9.]$/.test(cmd)&&!["+","−","×","÷","(",")","^","=","DEL"].includes(cmd))return null;
@@ -154,7 +168,7 @@ header{position:sticky;top:0;z-index:5;background:#fff;box-shadow:0 1px 7px #1d2
  }
  function sciToAction(key){
    if(!key)return null;
-   const safe=new Set(["0","1","2","3","4","5","6","7","8","9",".","+","−","×","÷","(",")","^","sqrt","square","cube","cbrt","inversepower","sin","cos","tan","asin","acos","atan","log","ln","exp","pow10","ans","pi","=","AC","DEL"]);
+   const safe=new Set(["0","1","2","3","4","5","6","7","8","9",".","+","−","×","÷","(",")","^","sqrt","square","cube","cbrt","inversepower","sin","cos","tan","asin","acos","atan","log","ln","exp","pow10","ans","pi","frac","=","AC","DEL"]);
    return safe.has(key)?key:null;
  }
  function menuToAction(cmd,shifted){
@@ -167,12 +181,14 @@ header{position:sticky;top:0;z-index:5;background:#fff;box-shadow:0 1px 7px #1d2
      if(/^[0-9.]$/.test(cmd))return cmd;
      return null;
    }
-   const equivalent={"exe":"=","ac":"AC","del":"DEL","power":"^"};
+   const equivalent={"exe":"=","ac":"AC","del":"DEL","power":"^","fraction":"frac"};
    const key=equivalent[cmd]||cmd;
-   const safe=new Set(["0","1","2","3","4","5","6","7","8","9",".","+","−","×","÷","(",")","^","sqrt","square","sin","cos","tan","ans","AC","DEL","="]);
+   const safe=new Set(["0","1","2","3","4","5","6","7","8","9",".","+","−","×","÷","(",")","^","sqrt","square","sin","cos","tan","ans","frac","AC","DEL","="]);
    return safe.has(key)?key:null;
  }
  function sequenceFor(kind,action){
+   if(action==="fraction-next")return ["NEXT"];
+   if(action==="fraction-prev")return ["PREV"];
    if(kind==="scientific"){
      const shifted={asin:"sin",acos:"cos",atan:"tan",cbrt:"sqrt",exp:"ln",pi:"tenexp"};
      if(shifted[action])return ["SHIFT",shifted[action]];
@@ -183,7 +199,7 @@ header{position:sticky;top:0;z-index:5;background:#fff;box-shadow:0 1px 7px #1d2
    if(shifted[action])return ["SHIFT",shifted[action]];
    if(action==="cube")return ["power","3"];
    if(action==="pow10")return null;
-   return ({AC:["ac"],DEL:["del"],"=":["exe"],"^":["power"]})[action]||[action];
+   return ({AC:["ac"],DEL:["del"],"=":["exe"],"^":["power"],frac:["fraction"]})[action]||[action];
  }
  async function press(kind,cmd){
    const doc=frames[kind].contentDocument;
@@ -191,6 +207,11 @@ header{position:sticky;top:0;z-index:5;background:#fff;box-shadow:0 1px 7px #1d2
    let button;
    if(cmd==="SHIFT"){
      button=kind==="scientific"?doc.getElementById("shift"):doc.querySelector('.cw-functions [data-cmd="shift"]');
+   }else if(cmd==="NEXT"||cmd==="PREV"){
+     const direction=cmd==="NEXT"?"right":"left";
+     button=kind==="scientific"
+       ?doc.querySelector('#nav button[data-nav="'+direction+'"]')
+       :doc.querySelector('.cw-dpad button[data-cmd="'+(direction==="left"?"back":"right")+'"]');
    }else if(kind==="scientific"){
      button=doc.querySelector('#keys button[data-key="'+CSS.escape(cmd)+'"]');
    }else{
@@ -213,6 +234,11 @@ header{position:sticky;top:0;z-index:5;background:#fff;box-shadow:0 1px 7px #1d2
    }
    if(to==="menu"&&!frames.menu.contentDocument.getElementById("display")?.querySelector(".expression")){
      return status("Menu calculator is outside Calculate mode. Choose HOME → Calculate, or Clear both.");
+   }
+   if(action.startsWith("fraction-")){
+     const active=to==="scientific"?frames.scientific.contentWindow.calculatorTemplateState:
+       frames.menu.contentWindow.menuFractionState;
+     if(!active)return status("Fraction navigation is available once a fraction template is open on both calculators.");
    }
    const steps=sequenceFor(to,action);
    if(!steps?.length)return status("That function stays independent: no reliable equivalent key sequence.");
