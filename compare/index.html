@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en-IE">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Compare scientific and menu-driven calculators side by side with optional bidirectional key mirroring.">
+<title>Compare calculators | Maths</title>
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<style>
+:root{font:15px/1.4 Arial,Helvetica,sans-serif;color:#202c3b;background:#e9edf2}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%}
+button,a{font:inherit}
+button:focus-visible,a:focus-visible{outline:3px solid #2d7dd2;outline-offset:2px}
+header{position:sticky;top:0;z-index:5;background:#fff;box-shadow:0 1px 7px #1d2c3b24}
+.top{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:8px 13px}
+.heading{font-size:17px;font-weight:800;color:#24384b}
+.tabs,.options{display:flex;align-items:center;flex-wrap:wrap;gap:4px}
+.tabs button,.options button{border:1px solid #cad3dd;background:#f9fbfd;color:#33485d;border-radius:7px;padding:8px 11px;cursor:pointer;font-size:13px;font-weight:700}
+.tabs button[aria-pressed="true"]{background:#1d3655;color:#fff;border-color:#1d3655}
+.options button[aria-pressed="true"]{background:#e2f5e9;color:#196439;border-color:#9bd4b0}
+.sub{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:5px 14px;background:#f5f8fb;border-top:1px solid #e4e9f0;color:#536477;font-size:12px}
+#message{min-height:1em}
+.panels{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;padding:8px}
+.pane{min-width:0;overflow:hidden;border:1px solid #d3dae3;border-radius:12px;background:#f6f7f8;box-shadow:0 3px 10px #1d314916}
+.pane-head{display:flex;justify-content:space-between;align-items:center;gap:5px;background:#fdfefe;padding:9px 12px;border-bottom:1px solid #dce3e9}
+.pane-head h2{font-size:14px;margin:0}
+.pane-head a{font-size:12px;color:#155d98}
+.pane iframe{display:block;width:100%;height:calc(100dvh - 160px);min-height:510px;border:0;background:#e8e8e8}
+.panels.mode-scientific{grid-template-columns:minmax(0,1fr)}
+.panels.mode-menu{grid-template-columns:minmax(0,1fr)}
+.panels.mode-scientific #menu-pane,.panels.mode-menu #scientific-pane{display:none}
+.note{margin:0;padding:8px 14px;background:#fff;border-top:1px solid #dbe2ea;color:#56687b;font-size:12px}
+@media(max-width:850px){.panels.mode-both{grid-template-columns:1fr}.pane iframe{height:65dvh;min-height:520px}.top{padding:8px}.heading{flex:1 1 100%}}
+@media print{header,.note{display:none}.panels{grid-template-columns:1fr 1fr!important}.pane iframe{height:85vh}}
+</style>
+</head>
+<body>
+<header>
+ <div class="top">
+  <span class="heading">Maths · Calculator comparison</span>
+  <nav class="tabs" role="group" aria-label="Calculator viewing mode">
+   <button type="button" data-view="scientific" aria-pressed="false">Scientific</button>
+   <button type="button" data-view="menu" aria-pressed="false">Menu-driven</button>
+   <button type="button" data-view="both" aria-pressed="true">Both side by side</button>
+  </nav>
+  <div class="options">
+   <button type="button" id="sync" aria-pressed="true">Sync on</button>
+   <button type="button" id="reset">Clear both</button>
+  </div>
+ </div>
+ <div class="sub"><span id="message" role="status" aria-live="polite">Loading both calculators…</span><span>Each calculator retains its own keys and layout.</span></div>
+</header>
+<main class="panels mode-both" id="panels" aria-label="Calculator comparison">
+ <section class="pane" id="scientific-pane">
+  <div class="pane-head"><h2>Scientific calculator</h2><a href="../" target="_blank" rel="noopener">Open separately</a></div>
+  <iframe id="scientific" title="Interactive scientific calculator" src="../?compare=1&amp;skin=dark" loading="eager" allow="fullscreen"></iframe>
+ </section>
+ <section class="pane" id="menu-pane">
+  <div class="pane-head"><h2>Menu-driven calculator</h2><a href="../menu/" target="_blank" rel="noopener">Open separately</a></div>
+  <iframe id="menu" title="Interactive menu-driven calculator" src="../menu/?compare=1&amp;skin=dark" loading="eager" allow="fullscreen"></iframe>
+ </section>
+</main>
+<p class="note">Supported two-way examples: numbers, the four operations, brackets, square roots, squares, powers, sin/cos/tan, inverse trig, and EXE/=. Different key sequences are shown when needed. Other modes and specialist functions stay independent rather than giving a potentially incorrect match. For trigonometry, use the same angle unit on both calculators.</p>
+<script>
+(()=>{
+ "use strict";
+ const frames={scientific:document.getElementById("scientific"),menu:document.getElementById("menu")};
+ const tabs=[...document.querySelectorAll("[data-view]")];
+ const panels=document.getElementById("panels"),message=document.getElementById("message");
+ const syncButton=document.getElementById("sync");
+ let mode="both",sync=true,pending=Promise.resolve(),serial=0;
+ const ready={scientific:false,menu:false};
+ const delay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+ function status(text){message.textContent=text;}
+ function chooseView(view){
+   if(!["both","scientific","menu"].includes(view))return;
+   mode=view;
+   panels.className="panels mode-"+view;
+   tabs.forEach(button=>button.setAttribute("aria-pressed",String(button.dataset.view===view)));
+   try{history.replaceState(null,"","#"+view);}catch(_){}
+   // Viewport listeners recalculate their own proportional fit after the panes resize.
+   for(const frame of Object.values(frames)){
+     if(ready[frame.id])frame.contentWindow.dispatchEvent(new Event("resize"));
+   }
+ }
+ tabs.forEach(button=>button.addEventListener("click",()=>chooseView(button.dataset.view)));
+ syncButton.addEventListener("click",()=>{
+   sync=!sync;
+   syncButton.setAttribute("aria-pressed",String(sync));
+   syncButton.textContent=sync?"Sync on":"Sync off";
+   status(sync?"Two-way key mirroring is on.":"Independent operation: each calculator keeps its own input.");
+ });
+ document.getElementById("reset").addEventListener("click",()=>{
+   pending=pending.then(async()=>{
+     if(ready.scientific)await press("scientific","AC");
+     if(ready.menu)await press("menu","ac");
+     status("Both calculations cleared.");
+   });
+ });
+ function kindEvent(kind,event){
+   if(event.defaultPrevented&&event.type==="click")return null;
+   const doc=frames[kind].contentDocument;
+   if(event.type==="click"){
+     const el=event.target instanceof Element?event.target.closest("button"):null;
+     if(!el||!doc.contains(el))return null;
+     if(kind==="scientific"){
+       if(el.id==="shift"||el.id==="alpha"||el.id==="on")return null;
+       if(!el.closest("#keys"))return null;
+       const shifted=doc.getElementById("shift")?.classList.contains("active")||false;
+       const key=shifted?(el.dataset.altkey||el.dataset.key):el.dataset.key;
+       return sciToAction(key);
+     }
+     if(el.dataset.cmd==="shift")return null;
+     if(!el.closest(".cw-upper-keys,.cw-number-keys"))return null;
+     const shifted=doc.body.classList.contains("shift-active");
+     return menuToAction(el.dataset.cmd,shifted);
+   }
+   if(event.type==="keydown"){
+     if(event.ctrlKey||event.metaKey||event.altKey||
+       ["INPUT","TEXTAREA","SELECT"].includes(doc.activeElement?.tagName))return null;
+     const key=event.key;
+     const normal={"*":"×","/":"÷","-":"−","Enter":"=","Backspace":"DEL"};
+     const cmd=normal[key]||key;
+     if(!/^[0-9.]$/.test(cmd)&&!["+","−","×","÷","(",")","^","=","DEL"].includes(cmd))return null;
+     if(kind==="scientific")return sciToAction(cmd);
+     return menuToAction(cmd==="="? "exe":cmd==="DEL"?"del":cmd,doc.body.classList.contains("shift-active"));
+   }
+   return null;
+ }
+ function sciToAction(key){
+   if(!key)return null;
+   const safe=new Set(["0","1","2","3","4","5","6","7","8","9",".","+","−","×","÷","(",")","^","sqrt","square","cube","cbrt","inversepower","sin","cos","tan","asin","acos","atan","log","ln","exp","pow10","ans","pi","=","AC","DEL"]);
+   return safe.has(key)?key:null;
+ }
+ function menuToAction(cmd,shifted){
+   if(!cmd)return null;
+   if(shifted){
+     const specials={"7":"pi","sin":"asin","cos":"acos","tan":"atan","sqrt":"cbrt","square":"log","power":"inversepower","log":"ln","ln":"exp"};
+     if(specials[cmd])return specials[cmd];
+     // Other shifted keys are not covered by the synchroniser.
+     return null;
+   }
+   const equivalent={"exe":"=","ac":"AC","del":"DEL","power":"^"};
+   const key=equivalent[cmd]||cmd;
+   const safe=new Set(["0","1","2","3","4","5","6","7","8","9",".","+","−","×","÷","(",")","^","sqrt","square","sin","cos","tan","ans","AC","DEL","="]);
+   return safe.has(key)?key:null;
+ }
+ function sequenceFor(kind,action){
+   if(kind==="scientific"){
+     const shifted={asin:"sin",acos:"cos",atan:"tan",cbrt:"sqrt",exp:"ln",pi:"tenexp"};
+     if(shifted[action])return ["SHIFT",shifted[action]];
+     return ({AC:["AC"],DEL:["DEL"],"=":["="],inversepower:["inversepower"],cube:["cube"]})[action]
+       || (document.querySelector("#none")?[]:[action]);
+   }
+   const shifted={asin:"sin",acos:"cos",atan:"tan",cbrt:"sqrt",log:"square",ln:"log",inversepower:"power",exp:"ln",pi:"7"};
+   if(shifted[action])return ["SHIFT",shifted[action]];
+   if(action==="cube")return ["power","3"];
+   if(action==="pow10")return null;
+   return ({AC:["ac"],DEL:["del"],"=":["exe"],"^":["power"]})[action]||[action];
+ }
+ async function press(kind,cmd){
+   const doc=frames[kind].contentDocument;
+   if(!doc)return false;
+   let button;
+   if(cmd==="SHIFT"){
+     button=kind==="scientific"?doc.getElementById("shift"):doc.querySelector('.cw-functions [data-cmd="shift"]');
+   }else if(kind==="scientific"){
+     button=doc.querySelector('#keys button[data-key="'+CSS.escape(cmd)+'"]');
+   }else{
+     button=doc.querySelector('.cw-upper-keys button[data-cmd="'+CSS.escape(cmd)+'"],.cw-number-keys button[data-cmd="'+CSS.escape(cmd)+'"]');
+   }
+   if(!button)return false;
+   suppressed=true;
+   try{button.click();}finally{suppressed=false;}
+   return true;
+ }
+ let suppressed=false;
+ async function mirror(from,action,stamp){
+   const to=from==="scientific"?"menu":"scientific";
+   if(!ready[to])return status("The other calculator is still loading.");
+   // Don't mirror trigonometry if one machine is in radians and the other in degrees.
+   if(["sin","cos","tan","asin","acos","atan"].includes(action)){
+     const a=frames.scientific.contentDocument.getElementById("mode")?.textContent.trim()[0];
+     const b=frames.menu.contentDocument.getElementById("angle")?.textContent.trim()[0];
+     if(a&&b&&a!==b)return status("Angle units differ. Set both calculators to the same units before comparing trigonometry.");
+   }
+   const steps=sequenceFor(to,action);
+   if(!steps?.length)return status("That function stays independent: no reliable equivalent key sequence.");
+   const targetDoc=frames[to].contentDocument;
+   const targetShift=to==="scientific"
+     ?targetDoc.getElementById("shift")?.classList.contains("active")
+     :targetDoc.body.classList.contains("shift-active");
+   // Don't let a previous, unused SHIFT selection turn a copied digit into another operation.
+   if(targetShift)await press(to,"SHIFT");
+   for(let i=0;i<steps.length;i++){
+     const found=await press(to,steps[i]);
+     if(!found)return status("The equivalent "+action+" key is not available on the "+to+" calculator.");
+     if(i<steps.length-1)await delay(135);
+   }
+   status((from==="scientific"?"Scientific":"Menu-driven")+" → "+(to==="scientific"?"Scientific":"Menu-driven")+": "+action+
+     (steps.length>1?" ("+steps.map(x=>x==="SHIFT"?"SHIFT":x).join(" then ")+")":""));
+ }
+ function observe(kind){
+   const frame=frames[kind],doc=frame.contentDocument;
+   if(!doc)return;
+   // Capturing input avoids modifying the calculators' existing calculation engines.
+   const relay=event=>{
+     if(!sync||suppressed||event.repeat)return;
+     const action=kindEvent(kind,event);
+     if(!action)return;
+     const token=++serial;
+     pending=pending.then(()=>mirror(kind,action,token)).catch(e=>status("Mirroring paused: "+e.message));
+   };
+   doc.addEventListener("click",relay,true);
+   doc.addEventListener("keydown",relay,true);
+   // Make each calculator larger in a narrow classroom panel and let it scroll vertically.
+   const rail=doc.getElementById(kind==="scientific"?"toggleCalculatorRail":"menuRailToggle");
+   if(rail)rail.click();
+   const fitWidth=doc.getElementById(kind==="scientific"?"fitWidth":"menuFitWidth");
+   if(kind==="scientific")fitWidth?.click();
+   // The menu model starts on Home. Enter Calculate before the first mirrored key.
+   if(kind==="menu"){
+     const calculate=doc.querySelector("#display .home-grid [data-choice='0']");
+     if(calculate)calculate.click();
+   }
+   ready[kind]=true;
+   if(ready.scientific&&ready.menu)status("Both calculators ready. Work on either; supported keys follow on the other.");
+   else status("One calculator ready; loading the second…");
+ }
+ for(const [kind,frame] of Object.entries(frames))
+   frame.addEventListener("load",()=>{ready[kind]=false;observe(kind)});
+ chooseView(["both","scientific","menu"].includes(location.hash.slice(1))?location.hash.slice(1):"both");
+})();
+</script>
+</body></html>
