@@ -389,3 +389,84 @@ body.light .calc-answer-float .calc-answer-content{background:#e8f2e7}
     padding:12px 20px 12px!important;
   }
 }
+
+/* Floating answer: pass-through overlay, resizing and overlap-aware legibility.
+   Only the grab/close/resize controls receive pointers; calculator keys below
+   the answer's body remain clickable, even when the panel overlaps them. */
+.calc-answer-float{
+  pointer-events:none!important;
+  container-type:inline-size;
+  min-width:180px!important;
+  min-height:110px!important;
+  max-width:calc(100vw - 12px)!important;
+  max-height:min(85dvh,720px)!important;
+  opacity:.87;
+  transition:opacity 160ms ease;
+}
+.calc-answer-float.over-keys:not(.is-dragging):not(.is-resizing){
+  opacity:.28;
+}
+.calc-answer-float.is-dragging,
+.calc-answer-float.is-resizing,
+.calc-answer-float:focus-within{
+  opacity:1!important;
+}
+.calc-answer-float .calc-answer-header{pointer-events:none!important}
+.calc-answer-float .calc-answer-handle,
+.calc-answer-float .calc-answer-close,
+.calc-answer-float .calc-answer-resize{
+  pointer-events:auto!important;
+}
+.calc-answer-float .calc-answer-handle{touch-action:none!important}
+.calc-answer-float .calc-answer-content{
+  pointer-events:none!important;
+  flex:1 1 auto!important;
+  min-height:0!important;
+  overflow:hidden!important;
+  padding-bottom:24px!important;
+}
+.calc-answer-float .calc-answer-expression{
+  font-size:clamp(18px,7cqw,38px)!important;
+  font-weight:500!important;
+}
+.calc-answer-float .calc-answer-result{
+  font-size:clamp(27px,12cqw,68px)!important;
+  font-weight:650!important;
+}
+.calc-answer-float.is-dragging .calc-answer-expression,
+.calc-answer-float.is-resizing .calc-answer-expression{font-weight:750!important}
+.calc-answer-float.is-dragging .calc-answer-result,
+.calc-answer-float.is-resizing .calc-answer-result{font-weight:850!important}
+.calc-answer-float .calc-answer-resize{
+  position:absolute;
+  z-index:3;
+  bottom:0;
+  right:0;
+  display:flex;
+  align-items:flex-end;
+  justify-content:flex-end;
+  width:36px;
+  height:36px;
+  padding:0 4px 2px 0;
+  background:transparent;
+  color:#344e67;
+  border:0;
+  border-radius:0 0 13px 0;
+  cursor:nwse-resize;
+  touch-action:none;
+  user-select:none;
+  font:900 23px/1 Arial,sans-serif;
+  text-shadow:0 1px 0 #fff9;
+}
+.calc-answer-float .calc-answer-resize:focus-visible{
+  outline:3px solid #2d7dd2!important;
+  outline-offset:-4px;
+}
+.calc-answer-float .calc-answer-resize:hover,
+.calc-answer-float .calc-answer-resize:active{
+  color:#1d70b5;
+  background:#79bded33;
+}
+@media(prefers-reduced-motion:reduce){
+  .calc-answer-float{transition:none!important}
+}
