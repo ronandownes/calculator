@@ -828,6 +828,32 @@ html body.menu-rail-collapsed:not(.menu-presentation) .menu-fit-viewport{
  html body .menu-fit-viewport button{transition:none!important}
  html body.shift-active .menu-fit-viewport button[data-shift-label]::before{animation:none!important}
 }
+
+/* Strong specificity for all five former coloured function keys, and
+   retained glow AFTER pointer release. Earlier rules must not win. */
+html body .menu-fit-viewport .cw-functions .cw-function:nth-child(1) .cw-function-key,
+html body .menu-fit-viewport .cw-functions .cw-function:nth-child(2) .cw-function-key,
+html body .menu-fit-viewport .cw-functions .cw-function:nth-child(3) .cw-function-key,
+html body .menu-fit-viewport .cw-functions .cw-function:nth-child(4) .cw-function-key,
+html body .menu-fit-viewport .cw-functions .cw-function:nth-child(5) .cw-function-key{
+ background:#050505!important;color:#fff!important;border-color:#050505!important;
+ box-shadow:none!important;
+}
+html body .menu-fit-viewport .cw-upper-keys>button.key.menu-key-flash,
+html body .menu-fit-viewport .cw-number-keys>button.key.menu-key-flash,
+html body .menu-fit-viewport .cw-functions .cw-function .cw-function-key.menu-key-flash,
+html body .menu-fit-viewport .cw-functions .cw-function:nth-child(1) .cw-function-key.menu-key-flash,
+html body .menu-fit-viewport .cw-functions .cw-function:nth-child(2) .cw-function-key.menu-key-flash,
+html body .menu-fit-viewport .cw-functions .cw-function:nth-child(3) .cw-function-key.menu-key-flash,
+html body .menu-fit-viewport .cw-functions .cw-function:nth-child(4) .cw-function-key.menu-key-flash,
+html body .menu-fit-viewport .cw-functions .cw-function:nth-child(5) .cw-function-key.menu-key-flash,
+html body .menu-fit-viewport .cw-control-deck button.menu-key-flash{
+ background:var(--press-fill)!important;color:#fff!important;
+ border-color:var(--press-outline)!important;
+ outline:2px solid var(--press-outline)!important;outline-offset:0!important;
+ box-shadow:0 0 0 2px var(--press-outline),0 0 14px var(--press-glow)!important;
+ transform:translateY(1px) scale(.975)!important;
+}
 </style>
 </head>
 <body class="menu-light">
