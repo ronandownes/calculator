@@ -11,10 +11,10 @@
 
   // Single source of truth for LCD text sizing (in unzoomed calculator pixels).
   const LCD = Object.freeze({
-    regularInput: 30,
-    regularAnswer: 31,
-    narrowInput: 26,
-    narrowAnswer: 28,
+    regularInput: 60,
+    regularAnswer: 62,
+    narrowInput: 52,
+    narrowAnswer: 56,
     narrowScreen: 320,
     scrollStep: 82
   });
