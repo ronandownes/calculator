@@ -865,6 +865,55 @@ html body .menu-fit-viewport .cw-control-deck button.menu-key-flash{
 .menu-sidebar .menu-four-dots .black i{background:#171b22}
 .menu-sidebar .menu-four-dots a:focus-visible{outline:3px solid #2d7dd2;outline-offset:2px;border-radius:4px}
 @media(max-width:700px){.menu-sidebar .menu-four-dots{width:180px}}
+
+/* Optional gently migrating LED colour around the menu calculator rim.
+   Black buttons and the LCD are never recoloured. OFF is the default. */
+.menu-sidebar .menu-led{display:flex;flex-direction:column;gap:6px;max-width:165px}
+.menu-sidebar .led-mode-buttons{display:flex;flex-wrap:wrap;gap:4px}
+.menu-sidebar .led-mode-buttons button,.menu-sidebar .led-fix button{
+ min-height:32px;padding:6px 7px;border:1px solid #c6d1dd;border-radius:7px;background:#fff;
+ color:#263a50;font:700 11px/1.2 Arial,sans-serif;cursor:pointer
+}
+.menu-sidebar .led-mode-buttons button[aria-pressed="true"],
+.menu-sidebar .led-fix button[aria-pressed="true"]{
+ background:#263b50;color:#fff;border-color:#263b50
+}
+.menu-sidebar .led-fix button:disabled{opacity:.45;cursor:not-allowed}
+.menu-sidebar .led-fix{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.menu-sidebar .led-fix label{font:600 10px Arial,sans-serif;color:#69788a}
+.menu-sidebar #ledColour{width:35px;height:29px;min-width:35px;padding:2px;border:1px solid #bbc6d2;border-radius:6px;background:#fff;cursor:pointer}
+.menu-sidebar .menu-led button:focus-visible,.menu-sidebar #ledColour:focus-visible{
+ outline:3px solid #2d7dd2;outline-offset:2px
+}
+@property --led-turn{syntax:"<angle>";inherits:false;initial-value:0deg}
+.menu-fit-viewport .device{position:relative}
+.menu-fit-viewport .device::after{
+ content:"";position:absolute;z-index:2;inset:-5px;
+ border:5px solid transparent;border-radius:inherit;
+ pointer-events:none;opacity:0;
+ background:var(--led-fixed-colour,#2d7dd2) border-box;
+ -webkit-mask:linear-gradient(#000 0 0) padding-box,linear-gradient(#000 0 0);
+ -webkit-mask-composite:xor;mask-composite:exclude;
+ transition:opacity .3s ease
+}
+body.led-rainbow .menu-fit-viewport .device::after{
+ background:conic-gradient(from var(--led-turn),#e63329,#ffb12a,#f7db47,#3fae49,#2d7dd2,#8956ed,#e63329) border-box;
+ opacity:.94;animation:menu-led-turn 22s linear infinite
+}
+body.led-galaxy .menu-fit-viewport .device::after{
+ background:conic-gradient(from var(--led-turn),#09122e,#5b41bf,#18244b,#a34eb9,#1b6996,#09122e) border-box;
+ opacity:.96;animation:menu-led-turn 30s linear infinite
+}
+body.led-fixed .menu-fit-viewport .device::after{
+ opacity:.98;background:var(--led-fixed-colour,#2d7dd2) border-box
+}
+body.led-frozen .menu-fit-viewport .device::after{animation-play-state:paused!important}
+@keyframes menu-led-turn{to{--led-turn:360deg}}
+@media(max-width:700px){.menu-sidebar .menu-led{max-width:210px}}
+@media(prefers-reduced-motion:reduce){
+ body.led-rainbow .menu-fit-viewport .device::after,
+ body.led-galaxy .menu-fit-viewport .device::after{animation:none!important}
+}
 </style>
 </head>
 <body class="menu-light">
@@ -875,6 +924,7 @@ html body .menu-fit-viewport .cw-control-deck button.menu-key-flash{
 <div class="model-selector"><span class="skin-label">Scientific</span><div class="model-palette" role="group" aria-label="Scientific colours"><a class="skin-dot skin-red" href="../?skin=pink" title="Scientific pastel pink" aria-label="Scientific pastel pink"></a><a class="skin-dot skin-green" href="../?skin=mint" title="Scientific pastel mint" aria-label="Scientific pastel mint"></a><a class="skin-dot skin-blue" href="../?skin=blue" title="Scientific pastel blue" aria-label="Scientific pastel blue"></a><a class="skin-dot skin-neutral" href="../" title="Scientific dark" aria-label="Scientific dark, homepage"></a></div></div>
 <div class="model-selector"><span class="skin-label">Menu</span><div class="model-palette" role="group" aria-label="Menu colours"><button class="skin-dot skin-red" data-menu-skin="pink" type="button" title="Pastel pink" aria-label="Menu pastel pink"></button><button class="skin-dot skin-green" data-menu-skin="mint" type="button" title="Pastel mint" aria-label="Menu pastel mint"></button><button class="skin-dot skin-blue" data-menu-skin="blue" type="button" title="Pastel blue" aria-label="Menu pastel blue"></button><button class="skin-dot skin-neutral" id="menuNeutralSkin" type="button" title="Toggle Dark / Light" aria-label="Menu dark or light"></button></div><span class="skin-status" id="menuSkinStatus"></span><div class="menu-shift-picker" role="group" aria-label="Second-function colour"><span class="shift-title">SHIFT lettering</span><button class="shift-choice shift-blue" data-menu-shift-colour="blue" type="button" aria-label="Blue SHIFT legends" title="Blue SHIFT legends" aria-pressed="false"></button><button class="shift-choice shift-green" data-menu-shift-colour="green" type="button" aria-label="Green SHIFT legends" title="Green SHIFT legends" aria-pressed="true"></button></div></div>
 </nav>
+<section class="menu-led" aria-label="Optional LED calculator edge colours"><span class="skin-label">LED edge</span><div class="led-mode-buttons" role="group" aria-label="LED effect"><button type="button" data-led="off" aria-pressed="true">Off</button><button type="button" data-led="rainbow" aria-pressed="false">Rainbow</button><button type="button" data-led="galaxy" aria-pressed="false">Galaxy</button><button type="button" data-led="fixed" aria-pressed="false">Fixed</button></div><div class="led-fix"><button type="button" id="ledFreeze" aria-pressed="false" disabled>Freeze</button><label for="ledColour">Colour</label><input id="ledColour" type="color" value="#2d7dd2" aria-label="Choose fixed LED colour"></div></section>
 <div class="menu-view-picker" role="group" aria-label="Menu calculator viewing controls">
  <span class="skin-label">VIEW</span>
  <div class="menu-view-buttons">
@@ -972,6 +1022,45 @@ function applyMenuShiftColour(colour){
 }
 menuShiftButtons.forEach(b=>b.addEventListener("click",()=>applyMenuShiftColour(b.dataset.menuShiftColour)));
 applyMenuShiftColour("green");
+
+/* Decorative LED rim. State stored only in this browser; no external service. */
+const ledButtons=[...document.querySelectorAll("[data-led]")];
+const ledFreeze=document.getElementById("ledFreeze");
+const ledColour=document.getElementById("ledColour");
+let ledMode="off",ledPaused=false;
+function ledPersist(){
+ try{localStorage.setItem("maths-menu-led-v1",JSON.stringify({mode:ledMode,colour:ledColour.value}));}catch(_){}
+}
+function ledUpdate(){
+ document.body.classList.remove("led-rainbow","led-galaxy","led-fixed","led-frozen");
+ if(ledMode!=="off")document.body.classList.add("led-"+ledMode);
+ if(ledPaused&&["rainbow","galaxy"].includes(ledMode))
+   document.body.classList.add("led-frozen");
+ document.body.style.setProperty("--led-fixed-colour",ledColour.value);
+ ledButtons.forEach(button=>button.setAttribute("aria-pressed",String(button.dataset.led===ledMode)));
+ ledFreeze.disabled=!["rainbow","galaxy"].includes(ledMode);
+ ledFreeze.setAttribute("aria-pressed",String(ledPaused&&!ledFreeze.disabled));
+ ledFreeze.textContent=ledPaused&&!ledFreeze.disabled?"Resume":"Freeze";
+}
+ledButtons.forEach(button=>button.addEventListener("click",()=>{
+ ledMode=button.dataset.led;ledPaused=false;ledUpdate();ledPersist();
+}));
+ledFreeze.addEventListener("click",()=>{
+ if(ledFreeze.disabled)return;
+ ledPaused=!ledPaused;
+ document.body.classList.toggle("led-frozen",ledPaused);
+ ledFreeze.textContent=ledPaused?"Resume":"Freeze";
+ ledFreeze.setAttribute("aria-pressed",String(ledPaused));
+});
+ledColour.addEventListener("input",()=>{
+ ledMode="fixed";ledPaused=false;ledUpdate();ledPersist();
+});
+try{
+ const stored=JSON.parse(localStorage.getItem("maths-menu-led-v1")||"null");
+ if(stored&&["off","rainbow","galaxy","fixed"].includes(stored.mode))ledMode=stored.mode;
+ if(stored&&/^#[0-9a-fA-F]{6}$/.test(stored.colour))ledColour.value=stored.colour;
+}catch(_){}
+ledUpdate();
 </script>
 <script>
 (() => {
