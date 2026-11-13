@@ -2049,6 +2049,15 @@ setLedMode("off");
     else if(k==="/"){e.preventDefault();press("÷")}
     else if(k==="^"||k==="("||k===")"||k===","||k===":"){e.preventDefault();press(k)}
   });
+  Object.defineProperty(window,"menuFractionState",{
+    configurable:true,
+    get(){
+      const ed=state.mathEditor;
+      return ed?{active:true,calculated:ed.calculated,
+        incomplete:mathIncomplete(ed.nodes),
+        slot:ed.path.at(-1)?.slot||"outside"}:null;
+    }
+  });
   window.addEventListener("pageshow",()=>render());
   render();
 })();
