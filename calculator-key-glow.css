@@ -1,0 +1,31 @@
+/* Classic scientific calculator face, with non-invasive keypress feedback.
+   No sizing, spacing, shape, colour-skin or LCD layout changes. */
+body{--press-accent:#ffbe4b;--press-fill:#37322a;--press-ink:#fff;--press-glow:#ffb64d77}
+body.light{--press-accent:#2d7dd2;--press-fill:#dcecff;--press-ink:#171c25;--press-glow:#4d9aeb66}
+body.light.skin-pink{--press-accent:#df6096;--press-fill:#ffe5ee;--press-ink:#442035;--press-glow:#df609666}
+body.light.skin-mint{--press-accent:#2b975d;--press-fill:#def7e6;--press-ink:#193726;--press-glow:#2b975d66}
+body.light.skin-blue{--press-accent:#2d7dd2;--press-fill:#e1efff;--press-ink:#1b3044;--press-glow:#2d7dd266}
+body.light.skin-orange{--press-accent:#d87908;--press-fill:#ffe4bf;--press-ink:#492709;--press-glow:#ed922f66}
+.calculator #keys button.key-flash .keyname,
+.calculator #keys button:active .keyname{
+  background:var(--press-fill)!important;
+  color:var(--press-ink)!important;
+  box-shadow:0 0 0 2px var(--press-accent),0 0 13px var(--press-glow)!important;
+  outline:2px solid var(--press-accent)!important;
+  outline-offset:-2px!important;
+  transform:translateY(1px) scale(.985)!important;
+}
+.calculator #keys button[data-key="DEL"].key-flash .keyname,
+.calculator #keys button[data-key="AC"].key-flash .keyname{
+  background:#ffd16f!important;color:#17120b!important;
+}
+.calculator .top button.key-flash{outline:3px solid var(--press-accent)!important}
+body.shift-engaged .calculator #keys button[data-altkey]:not([data-altkey=""]) .upper:not(:empty){
+  font-weight:900!important;
+  transform:scale(1.055);
+  transform-origin:center bottom;
+  text-shadow:0 0 1px currentColor;
+}
+@media(prefers-reduced-motion:reduce){
+ .calculator #keys button .keyname{transition:none!important}
+}
