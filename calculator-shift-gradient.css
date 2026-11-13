@@ -1,42 +1,34 @@
-/* Optional migrating light inside the SECOND-FUNCTION legends only.
-   Does not recolour the case, LCD, number keys or ALPHA lettering. */
-body.shift-effect-galaxy{
-  --animated-shift-ink:linear-gradient(108deg,#a5d3f7,#8278cf,#cba9f1,#85b9e2,#a5d3f7);
-}
-body.light.shift-effect-galaxy{
-  --animated-shift-ink:linear-gradient(108deg,#183f88,#4e2985,#723ca5,#12638e,#183f88);
-}
-body.shift-effect-rainbow{
-  --animated-shift-ink:linear-gradient(108deg,#fb807a,#ffe89a,#b6f4a7,#8ecbff,#c6a1ff,#fb807a);
-}
-body.light.shift-effect-rainbow{
-  --animated-shift-ink:linear-gradient(108deg,#9d2f4b,#a05c0d,#1c784a,#1969a5,#653b9a,#9d2f4b);
-}
-body:is(.shift-effect-galaxy,.shift-effect-rainbow) #keys button .upper:not(.alphas):not(.alpha-legend):not(:has(svg)),
+/* Live SHIFT colour migration — use the actual text colour rather than
+   background-clip:text. The former gradient was hidden by strong blue
+   !important text rules and by nested mathematical <span> elements.
+   This deliberately colours SECOND-FUNCTION lettering only. */
+body:is(.shift-effect-galaxy,.shift-effect-rainbow) #keys button .upper,
+body:is(.shift-effect-galaxy,.shift-effect-rainbow) #keys button .upper *,
 body:is(.shift-effect-galaxy,.shift-effect-rainbow) .calculator .top .roundgroup:first-child .keylabel,
 body:is(.shift-effect-galaxy,.shift-effect-rainbow) .calculator .top .roundgroup em{
-  background-image:var(--animated-shift-ink)!important;
-  background-size:325% 100%!important;
-  background-position:0% 50%;
-  -webkit-background-clip:text!important;
-  background-clip:text!important;
-  -webkit-text-fill-color:transparent!important;
-  animation:calc-shift-colour-drift 26s ease-in-out infinite!important;
+  color:var(--shift-ink-local,var(--chosen-shift))!important;
+  -webkit-text-fill-color:currentColor!important;
+  background-image:none!important;
+  background-clip:border-box!important;
+  -webkit-background-clip:border-box!important;
+  text-shadow:none!important;
 }
-body.shift-effect-rainbow #keys button .upper:not(.alphas):not(.alpha-legend):not(:has(svg)),
-body.shift-effect-rainbow .calculator .top .roundgroup:first-child .keylabel,
-body.shift-effect-rainbow .calculator .top .roundgroup em{
-  animation-duration:31s!important;
+/* Mathematical SVG labels, including the fractional SHIFT template,
+   follow the moving ink without recolouring the main button. */
+body:is(.shift-effect-galaxy,.shift-effect-rainbow) #keys button .upper svg{
+  color:var(--shift-ink-local,var(--chosen-shift))!important;
 }
-@keyframes calc-shift-colour-drift{
-  0%{background-position:0% 50%}
-  50%{background-position:100% 50%}
-  100%{background-position:0% 50%}
+body:is(.shift-effect-galaxy,.shift-effect-rainbow) #keys button .upper svg [fill]:not([fill="none"]){
+  fill:currentColor!important;
 }
+body:is(.shift-effect-galaxy,.shift-effect-rainbow) #keys button .upper svg [stroke]:not([stroke="none"]){
+  stroke:currentColor!important;
+}
+/* ALPHA legends remain red. SHIFT key border remains solid.
+   Respect the user's system preference for reduced motion. */
 @media(prefers-reduced-motion:reduce){
- body:is(.shift-effect-galaxy,.shift-effect-rainbow) #keys button .upper,
- body:is(.shift-effect-galaxy,.shift-effect-rainbow) .calculator .top .roundgroup:first-child .keylabel,
- body:is(.shift-effect-galaxy,.shift-effect-rainbow) .calculator .top .roundgroup em{
-   animation:none!important;
- }
+  body:is(.shift-effect-galaxy,.shift-effect-rainbow) #keys button .upper,
+  body:is(.shift-effect-galaxy,.shift-effect-rainbow) .calculator .top .roundgroup em{
+    transition:none!important;
+  }
 }
