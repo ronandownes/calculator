@@ -282,3 +282,94 @@ body.light .calc-answer-float .calc-answer-content{background:#e8f2e7}
 @media(prefers-reduced-motion:reduce){
   .calc-answer-float{transition:none!important;animation:none!important}
 }
+
+/* Intrinsic calculator geometry is stable at every browser width.
+   Narrow windows shrink the full 660px device through the viewport's
+   uniform scale(), rather than reducing individual key columns/heights. */
+@media(max-width:700px){
+  html body .calc-viewport .calc-stage>.calculator{
+    width:660px!important;
+    min-width:660px!important;
+    max-width:none!important;
+    padding:0 28px 27px!important;
+  }
+  html body .calc-viewport .calculator .screenframe{
+    padding:13px!important;
+    margin:2px 3px 17px!important;
+  }
+  html body .calc-viewport .calculator .screen{
+    height:174px!important;
+    padding:9px 16px 12px!important;
+  }
+  html body .calc-viewport .calculator .top{
+    padding:5px 10px 4px!important;
+    gap:4px!important;
+  }
+  html body .calc-viewport .calculator .top .nav,
+  html body.light .calc-viewport .calculator .top .nav{
+    width:94px!important;
+    height:77px!important;
+    border-width:8px!important;
+  }
+  html body .calc-viewport .calculator .top .nav::after{
+    width:20px!important;
+    height:20px!important;
+  }
+  html body .calc-viewport .calculator .top .nav .nav-chevron{
+    width:10px!important;
+    height:10px!important;
+    border-top-width:2.5px!important;
+    border-right-width:2.5px!important;
+  }
+  html body .calc-viewport .calculator .top .roundgroup>button{
+    width:43px!important;
+    height:43px!important;
+  }
+  html body .calc-viewport .calculator .top .roundgroup .keylabel{
+    font-size:11px!important;
+  }
+  html body .calc-viewport .calculator #keys .spanrow:not(.five)>button{
+    height:61px!important;
+    padding:16px 0 3px!important;
+  }
+  html body .calc-viewport .calculator #keys .spanrow.five>button{
+    height:70px!important;
+    padding:17px 0 3px!important;
+  }
+  html body .calc-viewport .calculator #keys .spanrow:not(.five)>button .keyname{
+    height:40px!important;
+    min-height:40px!important;
+  }
+  html body .calc-viewport .calculator #keys .spanrow.five>button .keyname{
+    height:49px!important;
+    min-height:49px!important;
+  }
+  html body .calc-viewport .calculator #keys .spanrow.five button.number .keyname,
+  html body.light .calc-viewport .calculator #keys .spanrow.five button.number .keyname{
+    font-size:34px!important;
+  }
+  html body .calc-viewport .calculator #keys .spanrow{
+    column-gap:8px!important;
+  }
+  html body .calc-viewport .calculator #keys .shift-notation{
+    font-size:16px!important;
+  }
+  html body.shift-engaged .calc-viewport .calculator #keys .shift-notation{
+    font-size:17px!important;
+  }
+  html body .calc-viewport .calculator #keys button[data-key="log"],
+  html body .calc-viewport .calculator #keys button[data-key="ln"],
+  html body .calc-viewport .calculator #keys button[data-key="sin"],
+  html body .calc-viewport .calculator #keys button[data-key="cos"],
+  html body .calc-viewport .calculator #keys button[data-key="tan"]{
+    padding-top:21px!important;
+  }
+  html body .calc-viewport .calculator #keys button[data-key="sqrt"] .keyname svg.root-key-icon{
+    width:44px!important;
+    height:32px!important;
+  }
+  html body .calc-viewport .calculator #keys button[data-key="frac"] .keyname svg.fraction-key-icon{
+    width:43px!important;
+    height:37px!important;
+  }
+}
