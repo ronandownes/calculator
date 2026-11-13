@@ -906,6 +906,36 @@ body[data-menu-shift-colour="orange"]{
 .menu-sidebar .menu-led button:focus-visible,.menu-sidebar #ledColour:focus-visible{outline:3px solid #2d7dd2;outline-offset:2px}
 .menu-fit-viewport .device::after{display:none!important}
 @media(max-width:700px){.menu-sidebar .menu-led{max-width:210px}}
+
+/* Numerator over a real MathML fraction bar, with clear editable fields. */
+.menu-fit-viewport #display .expression math.editable-fraction{
+  display:inline-block!important;
+  font-family:"Cambria Math",Cambria,Georgia,serif!important;
+  font-size:1.22em!important;
+  vertical-align:middle;
+  max-width:none;
+}
+.menu-fit-viewport #display .editable-fraction mfrac{
+  math-style:normal;
+  font-size:1.0em;
+}
+.menu-fit-viewport #display .editable-fraction .menu-math-slot{
+  padding:2px 4px;
+  cursor:text;
+  border-radius:3px;
+}
+.menu-fit-viewport #display .editable-fraction .menu-math-selected{
+  background:#7db8f333!important;
+  outline:1.5px dotted #236fbb;
+  outline-offset:1px;
+}
+.menu-fit-viewport #display .editable-fraction .menu-math-placeholder{
+  color:#607683;
+  font-size:.88em;
+}
+.menu-fit-viewport #display .editable-fraction .menu-math-caret{
+  color:#1a5da4;font-weight:800;
+}
 </style>
 </head>
 <body class="menu-light">
@@ -1377,7 +1407,226 @@ setLedMode("off");
     }else return false;
     state.expr=logDraftText();state.message="";render();return true;
   }
+
+  /* Genuine editable MathML fraction templates, not a decorative slash.
+     The numeric evaluator receives a parenthesised quotient only on EXE.
+     Multiple and nested fractions can be entered without losing the bar. */
+  let mathId=0;
+  function mathList(){
+    let list=state.mathEditor.nodes;
+    for(const step of state.mathEditor.path)list=step.node[step.slot];
+    return list;
+  }
+  function mathSerial(nodes,fill=false){
+    return nodes.map(n=>{
+      if(n.type==="text")return n.value;
+      const top=mathSerial(n.top,fill)||(fill?"0":"");
+      const bottom=mathSerial(n.bottom,fill)||(fill?"1":"");
+      return "(("+top+")/("+bottom+"))";
+    }).join("");
+  }
+  function mathIncomplete(nodes){
+    return nodes.some(n=>n.type==="frac"&&
+      (!n.top.length||!n.bottom.length||mathIncomplete(n.top)||mathIncomplete(n.bottom)));
+  }
+  function mathCurrent(nodes,path){
+    const e=state.mathEditor;
+    return path.length===e.path.length&&path.every((p,i)=>
+      p.node===e.path[i].node&&p.slot===e.path[i].slot);
+  }
+  function mathNodeMarkup(nodes,path=[]){
+    const ed=state.mathEditor,active=mathCurrent(nodes,path);
+    let out="";
+    for(let i=0;i<=nodes.length;i++){
+      if(active&&!ed.calculated&&i===ed.cursor)
+        out+='<mtext class="menu-math-caret" aria-hidden="true">▏</mtext>';
+      if(i===nodes.length)break;
+      const node=nodes[i];
+      if(node.type==="text"){
+        const v=node.value;
+        out+=/^[0-9]+(?:\.[0-9]+)?$/.test(v)?'<mn>'+escapeHtml(v)+'</mn>':
+          /^[+−×÷=(),^]$/.test(v)?'<mo>'+escapeHtml(v)+'</mo>':
+          '<mtext>'+escapeHtml(v)+'</mtext>';
+        continue;
+      }
+      function slot(which){
+        const selected=mathCurrent(node[which],path.concat([{node,slot:which}]));
+        const children=mathNodeMarkup(node[which],path.concat([{node,slot:which}]));
+        return '<mrow data-math-id="'+node.id+'" data-math-slot="'+which+'"'+
+          ' aria-label="'+(which==="top"?"Numerator":"Denominator")+'"'+
+          ' class="menu-math-slot'+(selected?' menu-math-selected':'')+'">'+
+          (node[which].length?children:
+            '<mtext class="menu-math-placeholder">□</mtext>'+children)+'</mrow>';
+      }
+      out+='<mfrac linethickness="2.2px">'+slot("top")+slot("bottom")+'</mfrac>';
+    }
+    return out;
+  }
+  function mathMarkup(){
+    return '<math xmlns="http://www.w3.org/1998/Math/MathML" class="editable-fraction"'+
+      ' aria-label="Editable mathematical expression with numerator and denominator">'+
+      '<mrow>'+mathNodeMarkup(state.mathEditor.nodes)+'</mrow></math>';
+  }
+  function mathSync(){
+    state.expr=mathSerial(state.mathEditor.nodes,true);
+    state.mathEditor.calculated=false;
+    state.answer=null;state.factorText=null;state.message="";
+    render();
+  }
+  function mathStart(){
+    if(state.mathEditor&&!state.mathEditor.calculated)return;
+    const initial=state.answer!==null?"":state.expr;
+    state.mathEditor={nodes:initial?[{type:"text",value:initial}]:[],
+      cursor:initial?1:0,path:[],calculated:false};
+    state.answer=null;
+  }
+  function mathFraction(){
+    mathStart();
+    const ed=state.mathEditor,list=mathList();
+    let top=[],pos=ed.cursor;
+    if(pos>0){
+      const prev=list[pos-1];
+      if(prev.type==="text"){
+        const match=prev.value.match(/(?:^|[+−×÷*/^(])(\d+(?:\.\d*)?|\.\d+|Ans|π)$/);
+        if(match){
+          top=[{type:"text",value:match[1]}];
+          if(match[1].length===prev.value.length)list.splice(--pos,1);
+          else prev.value=prev.value.slice(0,-match[1].length);
+        }
+      }else if(prev.type==="frac"&&!mathIncomplete([prev])){
+        top=[list.splice(--pos,1)[0]];
+      }
+    }
+    const frac={type:"frac",id:++mathId,top,bottom:[]};
+    list.splice(pos,0,frac);
+    ed.cursor=pos+1;
+    const slot=top.length?"bottom":"top";
+    ed.path.push({node:frac,slot});
+    ed.cursor=frac[slot].length;
+    mathSync();
+  }
+  function mathAppend(v){
+    mathStart();
+    const ed=state.mathEditor,list=mathList();
+    const prev=list[ed.cursor-1];
+    if(/^[0-9.]$/.test(v)&&prev?.type==="text"&&
+      /^(?:\d+(?:\.\d*)?|\.\d+)$/.test(prev.value)){
+      if(v==="."&&prev.value.includes("."))return;
+      prev.value+=v;
+    }else{
+      list.splice(ed.cursor,0,{type:"text",value:v});
+      ed.cursor++;
+    }
+    mathSync();
+  }
+  function mathMove(forward){
+    const ed=state.mathEditor;
+    if(!ed)return;
+    const list=mathList();
+    if(forward){
+      if(ed.cursor<list.length){
+        const next=list[ed.cursor];
+        if(next.type==="frac"){
+          ed.path.push({node:next,slot:"top"});ed.cursor=0;
+        }else ed.cursor++;
+      }else if(ed.path.length){
+        const step=ed.path.at(-1);
+        if(step.slot==="top"){step.slot="bottom";ed.cursor=step.node.bottom.length;}
+        else{ed.path.pop();ed.cursor=mathList().indexOf(step.node)+1;}
+      }
+    }else{
+      if(ed.cursor>0){
+        const prev=list[ed.cursor-1];
+        if(prev.type==="frac"){
+          ed.path.push({node:prev,slot:"bottom"});ed.cursor=prev.bottom.length;
+        }else ed.cursor--;
+      }else if(ed.path.length){
+        const step=ed.path.at(-1);
+        if(step.slot==="bottom"){step.slot="top";ed.cursor=step.node.top.length;}
+        else{ed.path.pop();ed.cursor=Math.max(0,mathList().indexOf(step.node));}
+      }
+    }
+    mathSync();
+  }
+  function mathDelete(){
+    const ed=state.mathEditor,list=mathList();
+    if(ed.cursor>0){
+      const prev=list[ed.cursor-1];
+      if(prev.type==="text"&&prev.value.length>1)prev.value=prev.value.slice(0,-1);
+      else{list.splice(ed.cursor-1,1);ed.cursor--;}
+      mathSync();
+    }else mathMove(false);
+  }
+  function mathPress(cmd){
+    if(state.view!=="calculate")return false;
+    if(cmd==="shift")return false;
+    if(cmd==="on"||cmd==="home"){
+      state.mathEditor=null;return false;
+    }
+    if(cmd==="fraction"){state.shift=false;mathFraction();return true;}
+    if(!state.mathEditor)return false;
+    if(["settings","catalog","function","variables","tools","format"].includes(cmd))
+      return false;
+    if(cmd==="ac"){
+      state.mathEditor=null;state.expr="";state.answer=null;
+      state.factorText=null;state.message="";render();return true;
+    }
+    if(cmd==="del"){mathDelete();return true;}
+    if(cmd==="right"||cmd==="down"){mathMove(true);return true;}
+    if(cmd==="back"||cmd==="up"){mathMove(false);return true;}
+    if(cmd==="exe"||cmd==="ok"){
+      if(mathIncomplete(state.mathEditor.nodes)){
+        state.message="Complete the numerator and denominator";render();return true;
+      }
+      state.expr=mathSerial(state.mathEditor.nodes);
+      state.mathEditor.calculated=true;
+      calculate();
+      return true;
+    }
+    let value=cmd;
+    if(state.shift){
+      const alt={"7":"π","8":"e","sin":"asin(","cos":"acos(","tan":"atan(",
+        "sqrt":"cbrt(","square":"log(","power":"^(-1)",
+        "log":"ln(","ln":"exp("};
+      if(alt[cmd])value=alt[cmd];
+      state.shift=false;
+    }
+    if(value===cmd){
+      const mapped={"square":"^2","power":"^","sqrt":"sqrt(",
+        "sin":"sin(","cos":"cos(","tan":"tan(",
+        "log":"log(","ln":"ln(","ans":"Ans","exp10":"10^(",
+        "fraction":null,"x":"x"};
+      if(Object.prototype.hasOwnProperty.call(mapped,cmd))value=mapped[cmd];
+    }
+    if(typeof value!=="string")return false;
+    if(!/^[0-9.+−×÷()^%,!πe]$/.test(value)&&
+      !["Ans","x","^2","sqrt(","sin(","cos(","tan(",
+        "asin(","acos(","atan(","cbrt(","log(","ln(","exp(","^(-1)","10^("].includes(value))
+      return false;
+    mathAppend(value);return true;
+  }
+  function mathChooseSlot(id,slot){
+    if(!state.mathEditor)return false;
+    function find(list,path){
+      for(const node of list){
+        if(node.type!=="frac")continue;
+        if(node.id===id)return path.concat([{node,slot}]);
+        for(const field of ["top","bottom"]){
+          const p=find(node[field],path.concat([{node,slot:field}]));
+          if(p)return p;
+        }
+      }
+      return null;
+    }
+    const path=find(state.mathEditor.nodes,[]);
+    if(!path)return false;
+    state.mathEditor.path=path;
+    state.mathEditor.cursor=path.at(-1).node[slot].length;
+    state.mathEditor.calculated=false;
+    render();return true;
+  }
   function mathsInput(input,pretty){
+    if(state.mathEditor)return mathMarkup();
     const draft=state.logDraft,log=draft||input.match(/^logbase\(([^,]*),([^()]*)\)$/);
     if(log){
       const b=draft?draft.base:log[1],a=draft?draft.arg:log[2];
@@ -1597,6 +1846,7 @@ setLedMode("off");
     state.menu=name;state.view="menu";state.selection=0;state.shift=false;state.message="";render();
   }
   function insert(value){
+    state.mathEditor=null;
     state.view="calculate";
     if(state.answer!==null){
       if(!/^[+\-−×÷^%!]$/.test(value))state.expr="";
@@ -1653,6 +1903,7 @@ setLedMode("off");
     }else{state.view="home";state.selection=0;render()}
   }
   function press(cmd){
+    if((cmd==="fraction"||state.mathEditor)&&mathPress(cmd))return;
     if(state.logDraft){
       if(editLogDraft(cmd))return;
       if(!["shift","home","settings","catalog","format"].includes(cmd))return;
@@ -1748,6 +1999,8 @@ setLedMode("off");
     insert(value);
   }
   document.addEventListener("click",e=>{
+    const slot=e.target?.closest?.("[data-math-id][data-math-slot]");
+    if(slot&&mathChooseSlot(Number(slot.dataset.mathId),slot.dataset.mathSlot))return;
     const target=e.target.closest("[data-cmd],[data-choice],[data-special]");
     if(!target)return;
     if(target.dataset.cmd){press(target.dataset.cmd);return}
