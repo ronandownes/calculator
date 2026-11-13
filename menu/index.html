@@ -1522,9 +1522,10 @@ setLedMode("off");
     state.answer=null;state.factorText=null;state.message="";
     render();
   }
-  function mathStart(){
+  function mathStart(nextValue=""){
     if(state.mathEditor&&!state.mathEditor.calculated)return;
-    const initial=state.answer!==null?"":state.expr;
+    const chain=state.answer!==null&&/^[+−×÷^]$/.test(nextValue);
+    const initial=state.answer!==null?(chain?"Ans":""):state.expr;
     state.mathEditor={nodes:initial?[{type:"text",value:initial}]:[],
       cursor:initial?1:0,path:[],calculated:false};
     state.answer=null;
@@ -1555,7 +1556,7 @@ setLedMode("off");
     mathSync();
   }
   function mathAppend(v){
-    mathStart();
+    mathStart(v);
     const ed=state.mathEditor,list=mathList();
     const prev=list[ed.cursor-1];
     if(/^[0-9.]$/.test(v)&&prev?.type==="text"&&
@@ -2044,7 +2045,7 @@ setLedMode("off");
     if(state.shift&&cmd==="log"){state.shift=false;insert("ln(");return}
     if(state.shift&&cmd==="ln"){state.shift=false;insert("exp(");return}
     state.shift=false;
-    const value=({"x":"x","sqrt":"sqrt(","square":"^2","power":"^","sin":"sin(","cos":"cos(","tan":"tan(","log":"log(","ln":"ln(","pi":"π","percent":"%","ans":"Ans","fraction":"/"})[cmd]||cmd;
+    const value=({"x":"x","sqrt":"sqrt(","square":"^2","power":"^","sin":"sin(","cos":"cos(","tan":"tan(","log":"log(","ln":"ln(","pi":"π","percent":"%","ans":"Ans"})[cmd]||cmd;
     insert(value);
   }
   document.addEventListener("click",e=>{
