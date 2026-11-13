@@ -1,0 +1,42 @@
+/* Optional migrating light inside the SECOND-FUNCTION legends only.
+   Does not recolour the case, LCD, number keys or ALPHA lettering. */
+body.shift-effect-galaxy{
+  --animated-shift-ink:linear-gradient(108deg,#a5d3f7,#8278cf,#cba9f1,#85b9e2,#a5d3f7);
+}
+body.light.shift-effect-galaxy{
+  --animated-shift-ink:linear-gradient(108deg,#183f88,#4e2985,#723ca5,#12638e,#183f88);
+}
+body.shift-effect-rainbow{
+  --animated-shift-ink:linear-gradient(108deg,#fb807a,#ffe89a,#b6f4a7,#8ecbff,#c6a1ff,#fb807a);
+}
+body.light.shift-effect-rainbow{
+  --animated-shift-ink:linear-gradient(108deg,#9d2f4b,#a05c0d,#1c784a,#1969a5,#653b9a,#9d2f4b);
+}
+body:is(.shift-effect-galaxy,.shift-effect-rainbow) #keys button .upper:not(.alphas):not(.alpha-legend):not(:has(svg)),
+body:is(.shift-effect-galaxy,.shift-effect-rainbow) .calculator .top .roundgroup:first-child .keylabel,
+body:is(.shift-effect-galaxy,.shift-effect-rainbow) .calculator .top .roundgroup em{
+  background-image:var(--animated-shift-ink)!important;
+  background-size:325% 100%!important;
+  background-position:0% 50%;
+  -webkit-background-clip:text!important;
+  background-clip:text!important;
+  -webkit-text-fill-color:transparent!important;
+  animation:calc-shift-colour-drift 26s ease-in-out infinite!important;
+}
+body.shift-effect-rainbow #keys button .upper:not(.alphas):not(.alpha-legend):not(:has(svg)),
+body.shift-effect-rainbow .calculator .top .roundgroup:first-child .keylabel,
+body.shift-effect-rainbow .calculator .top .roundgroup em{
+  animation-duration:31s!important;
+}
+@keyframes calc-shift-colour-drift{
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
+@media(prefers-reduced-motion:reduce){
+ body:is(.shift-effect-galaxy,.shift-effect-rainbow) #keys button .upper,
+ body:is(.shift-effect-galaxy,.shift-effect-rainbow) .calculator .top .roundgroup:first-child .keylabel,
+ body:is(.shift-effect-galaxy,.shift-effect-rainbow) .calculator .top .roundgroup em{
+   animation:none!important;
+ }
+}
