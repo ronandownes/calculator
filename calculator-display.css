@@ -408,7 +408,9 @@ body.light .calc-answer-float .calc-answer-content{background:#e8f2e7}
 }
 .calc-answer-float.is-dragging,
 .calc-answer-float.is-resizing,
-.calc-answer-float:focus-within{
+.calc-answer-float:has(.calc-answer-handle:focus-visible),
+.calc-answer-float:has(.calc-answer-resize:focus-visible),
+.calc-answer-float:has(.calc-answer-close:focus-visible){
   opacity:1!important;
 }
 .calc-answer-float .calc-answer-header{pointer-events:none!important}
