@@ -936,6 +936,48 @@ body[data-menu-shift-colour="orange"]{
 .menu-fit-viewport #display .editable-fraction .menu-math-caret{
   color:#1a5da4;font-weight:800;
 }
+
+/* Slow spatial motion through SHIFT glyphs; no outer device animation. */
+body.shift-ink-galaxy{
+ --menu-shift-gradient:linear-gradient(107deg,#193b77,#62419b,#984ba9,#176180,#193b77)
+}
+body.menu-dark.shift-ink-galaxy{
+ --menu-shift-gradient:linear-gradient(107deg,#9cd5f4,#8d80d7,#d2a8ef,#8fc7e3,#9cd5f4)
+}
+body.shift-ink-rainbow{
+ --menu-shift-gradient:linear-gradient(107deg,#b94146,#a36d07,#287543,#2668aa,#8c429a,#b94146)
+}
+body.menu-dark.shift-ink-rainbow{
+ --menu-shift-gradient:linear-gradient(107deg,#ff9298,#ffe89f,#a0f0b6,#a0cfff,#d1a1f2,#ff9298)
+}
+body:is(.shift-ink-galaxy,.shift-ink-rainbow) .menu-fit-viewport .cw-upper-keys button[data-shift-label]::before,
+body:is(.shift-ink-galaxy,.shift-ink-rainbow) .menu-fit-viewport .cw-number-keys button[data-shift-label]::before,
+body:is(.shift-ink-galaxy,.shift-ink-rainbow) .menu-fit-viewport .cw-shift-ink{
+ background-image:var(--menu-shift-gradient)!important;
+ background-size:330% 100%!important;
+ background-position:0 50%;
+ -webkit-background-clip:text!important;
+ background-clip:text!important;
+ -webkit-text-fill-color:transparent!important;
+ animation:menu-shift-drift 27s ease-in-out infinite!important
+}
+body.shift-ink-rainbow .menu-fit-viewport [data-shift-label]::before,
+body.shift-ink-rainbow .menu-fit-viewport .cw-shift-ink{
+ animation-duration:32s!important
+}
+body.shift-ink-frozen .menu-fit-viewport [data-shift-label]::before,
+body.shift-ink-frozen .menu-fit-viewport .cw-shift-ink{animation-play-state:paused!important}
+@keyframes menu-shift-drift{
+ 0%{background-position:0% 50%}
+ 50%{background-position:100% 50%}
+ 100%{background-position:0% 50%}
+}
+@media(prefers-reduced-motion:reduce){
+ body:is(.shift-ink-galaxy,.shift-ink-rainbow) .menu-fit-viewport [data-shift-label]::before,
+ body:is(.shift-ink-galaxy,.shift-ink-rainbow) .menu-fit-viewport .cw-shift-ink{
+  animation:none!important
+ }
+}
 </style>
 </head>
 <body class="menu-light">
@@ -1051,6 +1093,11 @@ const ledFreeze=document.getElementById("ledFreeze");
 const ledColour=document.getElementById("ledColour");
 const motionPref=window.matchMedia("(prefers-reduced-motion: reduce)");
 let ledMode="off",ledPaused=false,ledAnimation=0,ledStarted=0,ledLastTick=0,ledFrozenAt=0;
+function ledClassState(){
+ document.body.classList.toggle("shift-ink-galaxy",ledMode==="galaxy");
+ document.body.classList.toggle("shift-ink-rainbow",ledMode==="rainbow");
+ document.body.classList.toggle("shift-ink-frozen",ledPaused);
+}
 function clearLedInk(){
  document.body.style.removeProperty("--menu-shift");
  document.body.style.removeProperty("--menu-shift-dark");
@@ -1085,6 +1132,7 @@ function setLedMode(mode){
  if(!["off","rainbow","galaxy","fixed"].includes(mode))return;
  if(ledAnimation)cancelAnimationFrame(ledAnimation);
  ledAnimation=0;ledMode=mode;ledPaused=false;
+ ledClassState();
  if(mode==="off")clearLedInk();
  else if(mode==="fixed"){
   const hex=ledColour.value;
@@ -1101,6 +1149,7 @@ ledFreeze.addEventListener("click",()=>{
  ledPaused=!ledPaused;
  if(ledPaused){ledFrozenAt=performance.now();if(ledAnimation)cancelAnimationFrame(ledAnimation);ledAnimation=0;}
  else{ledStarted+=performance.now()-ledFrozenAt;ledFrame(performance.now());}
+ ledClassState();
  updateLedButtons();
 });
 ledColour.addEventListener("input",()=>setLedMode("fixed"));
