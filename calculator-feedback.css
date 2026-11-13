@@ -222,3 +222,32 @@ body.alpha-engaged .calculator #keys button[data-alpha] .alpha-legend{
   .calculator #keys button .keyname{transition:none!important}
   body.shift-engaged .calculator #keys button .upper{animation:none!important}
 }
+
+/* Keep calculated answers at the RIGHT edge of the LCD, close to the
+   bottom baseline, independently of expression templates or skin changes.
+   For a wide MathML result, auto margin avoids losing its leading digits. */
+html body .calculator .screen:not(.lcd-menu-mode) #result{
+  display:flex!important;
+  flex-direction:row!important;
+  align-items:flex-end!important;
+  justify-content:flex-end!important;
+  box-sizing:border-box!important;
+  width:100%!important;
+  text-align:right!important;
+  padding:0 8px 5px 0!important;
+  min-width:0!important;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+}
+html body .calculator .screen:not(.lcd-menu-mode) #result:has(> *){
+  justify-content:flex-start!important;
+}
+html body .calculator .screen:not(.lcd-menu-mode) #result > *:last-child{
+  margin-left:auto!important;
+  flex:0 0 auto;
+}
+@media(max-width:700px){
+  html body .calculator .screen:not(.lcd-menu-mode) #result{
+    padding:0 4px 4px 0!important;
+  }
+}
