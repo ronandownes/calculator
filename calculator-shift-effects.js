@@ -1,60 +1,73 @@
-/* Scientific calculator: opt-in colour migration through SHIFT ink.
-   The real keys, casing, LCD and existing calculation logic are unchanged. */
+/* Live moving SHIFT ink for the scientific calculator.
+   Galaxy: slowly migrating blues/purples. Rainbow: separate hues moving
+   across key legends. Main key faces, ALPHA red, and SHIFT border do not move. */
 (()=>{
-  "use strict";
-  const buttons=[...document.querySelectorAll("[data-shift-effect]")];
-  const swatches=[...document.querySelectorAll("[data-shift-colour]")];
-  if(!buttons.length||!swatches.length)return;
-  const reduce=window.matchMedia("(prefers-reduced-motion: reduce)");
-  let effect="plain",handle=0,start=0,lastFrame=-Infinity;
-  function visualState(){
-    for(const button of buttons)
-      button.setAttribute("aria-pressed",String(button.dataset.shiftEffect===effect));
-    document.body.classList.toggle("shift-effect-rainbow",effect==="rainbow");
-    document.body.classList.toggle("shift-effect-galaxy",effect==="galaxy");
-    if(effect!=="plain")for(const swatch of swatches)swatch.setAttribute("aria-pressed","false");
-  }
-  function stop(){
-    if(handle)cancelAnimationFrame(handle);
-    handle=0;
-    document.body.style.removeProperty("--chosen-shift");
-    // Keep SHIFT button outlines in their selected solid colour.
-  }
-  function tick(now){
-    if(effect==="plain")return;
-    if(now-lastFrame>=70){
-      const t=(now-start)/1000;
-      const hue=effect==="rainbow" ? ((215+t*360/42)%360) :
-        237+33*Math.sin(t*Math.PI*2/38)+12*Math.sin(t*Math.PI*2/83);
-      const sat=effect==="rainbow"?84:74;
-      const light=document.body.classList.contains("light");
-      const brightness=light ? (effect==="rainbow"?34:38) : (effect==="rainbow"?73:75);
-      const ink="hsl("+hue.toFixed(2)+" "+sat+"% "+brightness+"%)";
-      document.body.style.setProperty("--chosen-shift",ink);
-      // The moving effect applies to lettering only, not keypad outlines.
-      lastFrame=now;
-    }
-    if(!reduce.matches)handle=requestAnimationFrame(tick);
-  }
-  function choose(mode){
-    stop();
-    effect=mode;
-    visualState();
-    if(mode==="plain"){
-      // Reapply the established solid colour without changing calculator skin.
-      document.body.dataset.shiftColour=document.body.dataset.shiftColour||"blue";
-      for(const swatch of swatches)
-        swatch.setAttribute("aria-pressed",String(swatch.dataset.shiftColour===document.body.dataset.shiftColour));
-      return;
-    }
-    start=performance.now();lastFrame=-Infinity;
-    tick(start);
-  }
-  for(const button of buttons)button.addEventListener("click",()=>choose(button.dataset.shiftEffect));
-  for(const swatch of swatches)swatch.addEventListener("click",()=>choose("plain"));
-  reduce.addEventListener?.("change",()=>{
-    if(effect==="plain")return;
-    stop();start=performance.now();lastFrame=-Infinity;tick(start);
-  });
-  visualState();
+ "use strict";
+ const buttons=[...document.querySelectorAll("[data-shift-effect]")];
+ const swatches=[...document.querySelectorAll("[data-shift-colour]")];
+ if(!buttons.length||!swatches.length)return;
+
+ const legends=[...document.querySelectorAll(
+   "#keys button .upper, .calculator .top .roundgroup:first-child .keylabel, .calculator .top .roundgroup em"
+ )].filter(el=>el.textContent.trim()||el.querySelector("svg"));
+ const reduced=window.matchMedia("(prefers-reduced-motion: reduce)");
+ let effect="plain",frame=0,started=0,lastTick=-Infinity;
+
+ function stop(){
+   if(frame)cancelAnimationFrame(frame);
+   frame=0;
+   legends.forEach(label=>label.style.removeProperty("--shift-ink-local"));
+   document.body.style.removeProperty("--chosen-shift");
+ }
+ function updateButtons(){
+   buttons.forEach(button=>
+     button.setAttribute("aria-pressed",String(button.dataset.shiftEffect===effect)));
+   document.body.classList.toggle("shift-effect-galaxy",effect==="galaxy");
+   document.body.classList.toggle("shift-effect-rainbow",effect==="rainbow");
+   swatches.forEach(button=>
+     button.setAttribute("aria-pressed",String(effect==="plain" &&
+       button.dataset.shiftColour===document.body.dataset.shiftColour)));
+ }
+ function animate(now){
+   if(effect==="plain")return;
+   if(now-lastTick>=85){
+     const elapsed=(now-started)/1000;
+     const light=document.body.classList.contains("light");
+     const brightness=light?36:76;
+     const sat=effect==="galaxy"?77:85;
+     // One full rainbow passes slowly across the secondary labels.
+     // Galaxy follows shorter, partly out-of-phase blue/violet oscillations.
+     legends.forEach((label,index)=>{
+       const offset=legends.length?index/legends.length:0;
+       const hue=effect==="rainbow"
+         ?(215+offset*360+elapsed*360/34)%360
+         :230+31*Math.sin(elapsed*Math.PI*2/39+offset*Math.PI*2)
+             +12*Math.sin(elapsed*Math.PI*2/79+offset*Math.PI*4);
+       label.style.setProperty("--shift-ink-local",
+         "hsl("+hue.toFixed(2)+" "+sat+"% "+brightness+"%)");
+     });
+     lastTick=now;
+   }
+   if(!reduced.matches)frame=requestAnimationFrame(animate);
+ }
+ function choose(mode){
+   if(mode!=="galaxy"&&mode!=="rainbow")mode="plain";
+   stop();
+   effect=mode;
+   updateButtons();
+   if(effect==="plain")return;
+   started=performance.now();
+   lastTick=-Infinity;
+   animate(started);
+ }
+ buttons.forEach(button=>button.addEventListener("click",()=>choose(button.dataset.shiftEffect)));
+ // The existing colour selector applies the solid ink before this runs.
+ swatches.forEach(swatch=>swatch.addEventListener("click",()=>choose("plain")));
+ reduced.addEventListener?.("change",()=>{
+   if(effect==="plain")return;
+   stop();
+   started=performance.now();lastTick=-Infinity;
+   animate(started);
+ });
+ choose("plain");
 })();
