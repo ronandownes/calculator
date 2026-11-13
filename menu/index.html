@@ -866,8 +866,29 @@ html body .menu-fit-viewport .cw-control-deck button.menu-key-flash{
 .menu-sidebar .menu-four-dots a:focus-visible{outline:3px solid #2d7dd2;outline-offset:2px;border-radius:4px}
 @media(max-width:700px){.menu-sidebar .menu-four-dots{width:180px}}
 
-/* Optional gently migrating LED colour around the menu calculator rim.
-   Black buttons and the LCD are never recoloured. OFF is the default. */
+
+/* In the classroom the colour migrates through SHIFT legends only.
+   No calculator case, LCD, button face, or outside border is animated. */
+.menu-sidebar .menu-four-dots{width:165px;max-width:165px;gap:1px;padding:5px 6px}
+.menu-sidebar .menu-four-dots a{padding:8px 0;min-height:36px}
+.menu-sidebar .menu-four-dots i{width:18px;height:18px}
+.menu-sidebar .calculator-type-tabs{
+ display:flex;gap:2px;padding:3px;margin:11px 0 8px;max-width:180px;
+ border:1px solid #bac7d5;background:#e9eef4;border-radius:10px
+}
+.menu-sidebar .calculator-type-tabs a{
+ flex:1;min-width:0;display:flex;align-items:center;justify-content:center;
+ min-height:39px;padding:5px 2px;color:#3a5066;text-align:center;
+ text-decoration:none;font:700 10px/1.16 Arial,sans-serif;border-radius:7px
+}
+.menu-sidebar .calculator-type-tabs a[aria-current="page"]{
+ background:#fff;color:#1c3451;box-shadow:0 1px 4px #1020302a
+}
+.menu-sidebar .calculator-type-tabs a:focus-visible{outline:3px solid #2d7dd2;outline-offset:2px}
+.menu-sidebar .menu-shift-picker .shift-orange{background:#eb9929}
+body[data-menu-shift-colour="orange"]{
+ --menu-shift:#ba620a;--menu-shift-dark:#ffd08e;--menu-shift-selected:#d6811a
+}
 .menu-sidebar .menu-led{display:flex;flex-direction:column;gap:6px;max-width:165px}
 .menu-sidebar .led-mode-buttons{display:flex;flex-wrap:wrap;gap:4px}
 .menu-sidebar .led-mode-buttons button,.menu-sidebar .led-fix button{
@@ -882,49 +903,20 @@ html body .menu-fit-viewport .cw-control-deck button.menu-key-flash{
 .menu-sidebar .led-fix{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .menu-sidebar .led-fix label{font:600 10px Arial,sans-serif;color:#69788a}
 .menu-sidebar #ledColour{width:35px;height:29px;min-width:35px;padding:2px;border:1px solid #bbc6d2;border-radius:6px;background:#fff;cursor:pointer}
-.menu-sidebar .menu-led button:focus-visible,.menu-sidebar #ledColour:focus-visible{
- outline:3px solid #2d7dd2;outline-offset:2px
-}
-@property --led-turn{syntax:"<angle>";inherits:false;initial-value:0deg}
-.menu-fit-viewport .device{position:relative}
-.menu-fit-viewport .device::after{
- content:"";position:absolute;z-index:2;inset:-5px;
- border:5px solid transparent;border-radius:inherit;
- pointer-events:none;opacity:0;
- background:var(--led-fixed-colour,#2d7dd2) border-box;
- -webkit-mask:linear-gradient(#000 0 0) padding-box,linear-gradient(#000 0 0);
- -webkit-mask-composite:xor;mask-composite:exclude;
- transition:opacity .3s ease
-}
-body.led-rainbow .menu-fit-viewport .device::after{
- background:conic-gradient(from var(--led-turn),#e63329,#ffb12a,#f7db47,#3fae49,#2d7dd2,#8956ed,#e63329) border-box;
- opacity:.94;animation:menu-led-turn 22s linear infinite
-}
-body.led-galaxy .menu-fit-viewport .device::after{
- background:conic-gradient(from var(--led-turn),#09122e,#5b41bf,#18244b,#a34eb9,#1b6996,#09122e) border-box;
- opacity:.96;animation:menu-led-turn 30s linear infinite
-}
-body.led-fixed .menu-fit-viewport .device::after{
- opacity:.98;background:var(--led-fixed-colour,#2d7dd2) border-box
-}
-body.led-frozen .menu-fit-viewport .device::after{animation-play-state:paused!important}
-@keyframes menu-led-turn{to{--led-turn:360deg}}
+.menu-sidebar .menu-led button:focus-visible,.menu-sidebar #ledColour:focus-visible{outline:3px solid #2d7dd2;outline-offset:2px}
+.menu-fit-viewport .device::after{display:none!important}
 @media(max-width:700px){.menu-sidebar .menu-led{max-width:210px}}
-@media(prefers-reduced-motion:reduce){
- body.led-rainbow .menu-fit-viewport .device::after,
- body.led-galaxy .menu-fit-viewport .device::after{animation:none!important}
-}
 </style>
 </head>
 <body class="menu-light">
 <div class="menu-layout">
 <aside class="menu-sidebar" aria-label="Calculator selection">
-<nav class="menu-four-dots" aria-label="Four-dot Maths navigation"><a class="red" href="https://ronandownes.github.io/calculator/" title="Calculator" aria-label="Red dot: Scientific calculator"><i aria-hidden="true"></i><span>Calc</span></a><a class="green" href="https://ronandownes.github.io/book/" title="Maths Book" aria-label="Green dot: Maths Book"><i aria-hidden="true"></i><span>Book</span></a><a class="blue" href="https://ronandownes.github.io/maths/" title="Maths Apps" aria-label="Blue dot: Maths Apps"><i aria-hidden="true"></i><span>Apps</span></a><a class="black" href="https://ronandownes.github.io/calculator/resources/" title="External Resources" aria-label="Black dot: External Resources"><i aria-hidden="true"></i><span>More</span></a></nav>
-<nav class="calculator-chooser" aria-label="Calculator styles">
+<nav class="menu-four-dots" aria-label="Quick links: A Apps, B Book, C Calculator, D Desmos"><a class="red" href="https://ronandownes.github.io/maths/" title="A · Apps" aria-label="A — Apps"><i aria-hidden="true"></i></a><a class="green" href="https://ronandownes.github.io/book/" title="B · Maths Book" aria-label="B — Maths Book"><i aria-hidden="true"></i></a><a class="blue" href="https://ronandownes.github.io/calculator/" title="C · Calculator" aria-label="C — Calculator"><i aria-hidden="true"></i></a><a class="black" href="https://www.desmos.com/calculator" title="D · Desmos" aria-label="D — Desmos graphing calculator" target="_blank" rel="noopener noreferrer"><i aria-hidden="true"></i></a></nav>
+<nav class="calculator-type-tabs" aria-label="Calculator type"><a href="../" aria-label="Open scientific calculator">Scientific</a><a href="./" aria-current="page" aria-label="Menu-driven calculator, selected">Menu-driven</a><a href="../compare/" aria-label="Compare both calculators side by side">Both</a></nav><nav class="calculator-chooser" aria-label="Calculator styles">
 <div class="model-selector"><span class="skin-label">Scientific</span><div class="model-palette" role="group" aria-label="Scientific colours"><a class="skin-dot skin-red" href="../?skin=pink" title="Scientific pastel pink" aria-label="Scientific pastel pink"></a><a class="skin-dot skin-green" href="../?skin=mint" title="Scientific pastel mint" aria-label="Scientific pastel mint"></a><a class="skin-dot skin-blue" href="../?skin=blue" title="Scientific pastel blue" aria-label="Scientific pastel blue"></a><a class="skin-dot skin-neutral" href="../" title="Scientific dark" aria-label="Scientific dark, homepage"></a></div></div>
-<div class="model-selector"><span class="skin-label">Menu</span><div class="model-palette" role="group" aria-label="Menu colours"><button class="skin-dot skin-red" data-menu-skin="pink" type="button" title="Pastel pink" aria-label="Menu pastel pink"></button><button class="skin-dot skin-green" data-menu-skin="mint" type="button" title="Pastel mint" aria-label="Menu pastel mint"></button><button class="skin-dot skin-blue" data-menu-skin="blue" type="button" title="Pastel blue" aria-label="Menu pastel blue"></button><button class="skin-dot skin-neutral" id="menuNeutralSkin" type="button" title="Toggle Dark / Light" aria-label="Menu dark or light"></button></div><span class="skin-status" id="menuSkinStatus"></span><div class="menu-shift-picker" role="group" aria-label="Second-function colour"><span class="shift-title">SHIFT lettering</span><button class="shift-choice shift-blue" data-menu-shift-colour="blue" type="button" aria-label="Blue SHIFT legends" title="Blue SHIFT legends" aria-pressed="false"></button><button class="shift-choice shift-green" data-menu-shift-colour="green" type="button" aria-label="Green SHIFT legends" title="Green SHIFT legends" aria-pressed="true"></button></div></div>
+<div class="model-selector"><span class="skin-label">Menu</span><div class="model-palette" role="group" aria-label="Menu colours"><button class="skin-dot skin-red" data-menu-skin="pink" type="button" title="Pastel pink" aria-label="Menu pastel pink"></button><button class="skin-dot skin-green" data-menu-skin="mint" type="button" title="Pastel mint" aria-label="Menu pastel mint"></button><button class="skin-dot skin-blue" data-menu-skin="blue" type="button" title="Pastel blue" aria-label="Menu pastel blue"></button><button class="skin-dot skin-neutral" id="menuNeutralSkin" type="button" title="Toggle Dark / Light" aria-label="Menu dark or light"></button></div><span class="skin-status" id="menuSkinStatus"></span><div class="menu-shift-picker" role="group" aria-label="Second-function colour"><span class="shift-title">SHIFT lettering</span><button class="shift-choice shift-blue" data-menu-shift-colour="blue" type="button" aria-label="Blue SHIFT legends" title="Blue SHIFT legends" aria-pressed="false"></button><button class="shift-choice shift-green" data-menu-shift-colour="green" type="button" aria-label="Green SHIFT legends" title="Green SHIFT legends" aria-pressed="true"></button><button class="shift-choice shift-orange" data-menu-shift-colour="orange" type="button" aria-label="Orange SHIFT legends" title="Orange SHIFT legends" aria-pressed="false"></button></div></div>
 </nav>
-<section class="menu-led" aria-label="Optional LED calculator edge colours"><span class="skin-label">LED edge</span><div class="led-mode-buttons" role="group" aria-label="LED effect"><button type="button" data-led="off" aria-pressed="true">Off</button><button type="button" data-led="rainbow" aria-pressed="false">Rainbow</button><button type="button" data-led="galaxy" aria-pressed="false">Galaxy</button><button type="button" data-led="fixed" aria-pressed="false">Fixed</button></div><div class="led-fix"><button type="button" id="ledFreeze" aria-pressed="false" disabled>Freeze</button><label for="ledColour">Colour</label><input id="ledColour" type="color" value="#2d7dd2" aria-label="Choose fixed LED colour"></div></section>
+<section class="menu-led" aria-label="Optional moving SHIFT lettering colours"><span class="skin-label">SHIFT effects</span><div class="led-mode-buttons" role="group" aria-label="LED effect"><button type="button" data-led="off" aria-pressed="true">Plain</button><button type="button" data-led="rainbow" aria-pressed="false">Rainbow</button><button type="button" data-led="galaxy" aria-pressed="false">Galaxy</button><button type="button" data-led="fixed" aria-pressed="false">Fixed</button></div><div class="led-fix"><button type="button" id="ledFreeze" aria-pressed="false" disabled>Freeze</button><label for="ledColour">Colour</label><input id="ledColour" type="color" value="#2d7dd2" aria-label="Choose fixed LED colour"></div></section>
 <div class="menu-view-picker" role="group" aria-label="Menu calculator viewing controls">
  <span class="skin-label">VIEW</span>
  <div class="menu-view-buttons">
@@ -1016,51 +1008,74 @@ neutralMenu.addEventListener("click",()=>applyMenuSkin(menuSkin==="dark"?"light"
 applyMenuSkin(menuSkin);
 const menuShiftButtons=[...document.querySelectorAll("[data-menu-shift-colour]")];
 function applyMenuShiftColour(colour){
- if(!["blue","green"].includes(colour))return;
+ if(!["blue","green","orange"].includes(colour))return;
  document.body.dataset.menuShiftColour=colour;
  menuShiftButtons.forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.menuShiftColour===colour)));
 }
-menuShiftButtons.forEach(b=>b.addEventListener("click",()=>applyMenuShiftColour(b.dataset.menuShiftColour)));
+menuShiftButtons.forEach(b=>b.addEventListener("click",()=>{applyMenuShiftColour(b.dataset.menuShiftColour);setLedMode("off");}));
 applyMenuShiftColour("green");
 
-/* Decorative LED rim. State stored only in this browser; no external service. */
+/* Optional moving ink on SHIFT labels, never on outer case. Plain by default. */
 const ledButtons=[...document.querySelectorAll("[data-led]")];
 const ledFreeze=document.getElementById("ledFreeze");
 const ledColour=document.getElementById("ledColour");
-let ledMode="off",ledPaused=false;
-function ledPersist(){
- try{localStorage.setItem("maths-menu-led-v1",JSON.stringify({mode:ledMode,colour:ledColour.value}));}catch(_){}
+const motionPref=window.matchMedia("(prefers-reduced-motion: reduce)");
+let ledMode="off",ledPaused=false,ledAnimation=0,ledStarted=0,ledLastTick=0,ledFrozenAt=0;
+function clearLedInk(){
+ document.body.style.removeProperty("--menu-shift");
+ document.body.style.removeProperty("--menu-shift-dark");
+ document.body.style.removeProperty("--menu-shift-selected");
 }
-function ledUpdate(){
- document.body.classList.remove("led-rainbow","led-galaxy","led-fixed","led-frozen");
- if(ledMode!=="off")document.body.classList.add("led-"+ledMode);
- if(ledPaused&&["rainbow","galaxy"].includes(ledMode))
-   document.body.classList.add("led-frozen");
- document.body.style.setProperty("--led-fixed-colour",ledColour.value);
- ledButtons.forEach(button=>button.setAttribute("aria-pressed",String(button.dataset.led===ledMode)));
- ledFreeze.disabled=!["rainbow","galaxy"].includes(ledMode);
+function setLedInk(normal,dark){
+ document.body.style.setProperty("--menu-shift",normal);
+ document.body.style.setProperty("--menu-shift-dark",dark);
+ document.body.style.setProperty("--menu-shift-selected",normal);
+}
+function ledFrame(now){
+ if(ledMode!=="rainbow"&&ledMode!=="galaxy")return;
+ if(ledPaused)return;
+ if(now-ledLastTick>85){
+  const t=(now-ledStarted)/1000;
+  const hue=ledMode==="rainbow"?(230+t*360/48)%360:
+    233+37*Math.sin(2*Math.PI*t/41)+9*Math.sin(2*Math.PI*t/89);
+  const saturation=ledMode==="rainbow"?84:72;
+  setLedInk("hsl("+hue+" "+saturation+"% 38%)",
+    "hsl("+hue+" "+saturation+"% 76%)");
+  ledLastTick=now;
+ }
+ if(!motionPref.matches)ledAnimation=requestAnimationFrame(ledFrame);
+}
+function updateLedButtons(){
+ ledButtons.forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.led===ledMode)));
+ ledFreeze.disabled=!["rainbow","galaxy"].includes(ledMode)||motionPref.matches;
  ledFreeze.setAttribute("aria-pressed",String(ledPaused&&!ledFreeze.disabled));
- ledFreeze.textContent=ledPaused&&!ledFreeze.disabled?"Resume":"Freeze";
+ ledFreeze.textContent=ledPaused?"Resume":"Freeze";
 }
-ledButtons.forEach(button=>button.addEventListener("click",()=>{
- ledMode=button.dataset.led;ledPaused=false;ledUpdate();ledPersist();
-}));
+function setLedMode(mode){
+ if(!["off","rainbow","galaxy","fixed"].includes(mode))return;
+ if(ledAnimation)cancelAnimationFrame(ledAnimation);
+ ledAnimation=0;ledMode=mode;ledPaused=false;
+ if(mode==="off")clearLedInk();
+ else if(mode==="fixed"){
+  const hex=ledColour.value;
+  setLedInk(hex,"color-mix(in srgb, "+hex+", white 36%)");
+ }else{
+  ledStarted=performance.now();ledLastTick=-Infinity;
+  ledFrame(ledStarted);
+ }
+ updateLedButtons();
+}
+ledButtons.forEach(b=>b.addEventListener("click",()=>setLedMode(b.dataset.led)));
 ledFreeze.addEventListener("click",()=>{
  if(ledFreeze.disabled)return;
  ledPaused=!ledPaused;
- document.body.classList.toggle("led-frozen",ledPaused);
- ledFreeze.textContent=ledPaused?"Resume":"Freeze";
- ledFreeze.setAttribute("aria-pressed",String(ledPaused));
+ if(ledPaused){ledFrozenAt=performance.now();if(ledAnimation)cancelAnimationFrame(ledAnimation);ledAnimation=0;}
+ else{ledStarted+=performance.now()-ledFrozenAt;ledFrame(performance.now());}
+ updateLedButtons();
 });
-ledColour.addEventListener("input",()=>{
- ledMode="fixed";ledPaused=false;ledUpdate();ledPersist();
-});
-try{
- const stored=JSON.parse(localStorage.getItem("maths-menu-led-v1")||"null");
- if(stored&&["off","rainbow","galaxy","fixed"].includes(stored.mode))ledMode=stored.mode;
- if(stored&&/^#[0-9a-fA-F]{6}$/.test(stored.colour))ledColour.value=stored.colour;
-}catch(_){}
-ledUpdate();
+ledColour.addEventListener("input",()=>setLedMode("fixed"));
+motionPref.addEventListener?.("change",()=>setLedMode(ledMode));
+setLedMode("off");
 </script>
 <script>
 (() => {
