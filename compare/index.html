@@ -93,7 +93,15 @@ header{position:sticky;top:0;z-index:5;background:#fff;box-shadow:0 1px 7px #1d2
  document.getElementById("reset").addEventListener("click",()=>{
    pending=pending.then(async()=>{
      if(ready.scientific)await press("scientific","AC");
-     if(ready.menu)await press("menu","ac");
+     if(ready.menu){
+       const menuDoc=frames.menu.contentDocument;
+       if(!menuDoc.querySelector("#display .expression")){
+         const home=menuDoc.querySelector('[data-cmd="home"]');
+         if(home)home.click();
+         menuDoc.querySelector('#display .home-grid [data-choice="0"]')?.click();
+       }
+       await press("menu","ac");
+     }
      status("Both calculations cleared.");
    });
  });
@@ -112,6 +120,7 @@ header{position:sticky;top:0;z-index:5;background:#fff;box-shadow:0 1px 7px #1d2
      }
      if(el.dataset.cmd==="shift")return null;
      if(!el.closest(".cw-upper-keys,.cw-number-keys"))return null;
+     if(!doc.getElementById("display")?.querySelector(".expression"))return null;
      const shifted=doc.body.classList.contains("shift-active");
      return menuToAction(el.dataset.cmd,shifted);
    }
@@ -123,6 +132,7 @@ header{position:sticky;top:0;z-index:5;background:#fff;box-shadow:0 1px 7px #1d2
      const cmd=normal[key]||key;
      if(!/^[0-9.]$/.test(cmd)&&!["+","−","×","÷","(",")","^","=","DEL"].includes(cmd))return null;
      if(kind==="scientific")return sciToAction(cmd);
+     if(!doc.getElementById("display")?.querySelector(".expression"))return null;
      return menuToAction(cmd==="="? "exe":cmd==="DEL"?"del":cmd,doc.body.classList.contains("shift-active"));
    }
    return null;
@@ -137,7 +147,9 @@ header{position:sticky;top:0;z-index:5;background:#fff;box-shadow:0 1px 7px #1d2
    if(shifted){
      const specials={"7":"pi","sin":"asin","cos":"acos","tan":"atan","sqrt":"cbrt","square":"log","power":"inversepower","log":"ln","ln":"exp"};
      if(specials[cmd])return specials[cmd];
-     // Other shifted keys are not covered by the synchroniser.
+     // The menu software treats the remaining shifted digits as normal digits,
+     // but specialist shifted functions remain unsupported.
+     if(/^[0-9.]$/.test(cmd))return cmd;
      return null;
    }
    const equivalent={"exe":"=","ac":"AC","del":"DEL","power":"^"};
@@ -150,7 +162,7 @@ header{position:sticky;top:0;z-index:5;background:#fff;box-shadow:0 1px 7px #1d2
      const shifted={asin:"sin",acos:"cos",atan:"tan",cbrt:"sqrt",exp:"ln",pi:"tenexp"};
      if(shifted[action])return ["SHIFT",shifted[action]];
      return ({AC:["AC"],DEL:["DEL"],"=":["="],inversepower:["inversepower"],cube:["cube"]})[action]
-       || (document.querySelector("#none")?[]:[action]);
+       || [action];
    }
    const shifted={asin:"sin",acos:"cos",atan:"tan",cbrt:"sqrt",log:"square",ln:"log",inversepower:"power",exp:"ln",pi:"7"};
    if(shifted[action])return ["SHIFT",shifted[action]];
@@ -184,6 +196,9 @@ header{position:sticky;top:0;z-index:5;background:#fff;box-shadow:0 1px 7px #1d2
      const b=frames.menu.contentDocument.getElementById("angle")?.textContent.trim()[0];
      if(a&&b&&a!==b)return status("Angle units differ. Set both calculators to the same units before comparing trigonometry.");
    }
+   if(to==="menu"&&!frames.menu.contentDocument.getElementById("display")?.querySelector(".expression")){
+     return status("Menu calculator is outside Calculate mode. Choose HOME → Calculate, or Clear both.");
+   }
    const steps=sequenceFor(to,action);
    if(!steps?.length)return status("That function stays independent: no reliable equivalent key sequence.");
    const targetDoc=frames[to].contentDocument;
@@ -207,7 +222,12 @@ header{position:sticky;top:0;z-index:5;background:#fff;box-shadow:0 1px 7px #1d2
    const relay=event=>{
      if(!sync||suppressed||event.repeat)return;
      const action=kindEvent(kind,event);
-     if(!action)return;
+     if(!action){
+       const button=event.type==="click"&&event.target instanceof Element
+         ?event.target.closest("#keys button[data-key],.cw-upper-keys button[data-cmd],.cw-number-keys button[data-cmd]"):null;
+       if(button)status("That specialist key is independent; the other calculator was not changed.");
+       return;
+     }
      const token=++serial;
      pending=pending.then(()=>mirror(kind,action,token)).catch(e=>status("Mirroring paused: "+e.message));
    };
