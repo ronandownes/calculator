@@ -470,3 +470,54 @@ body.light .calc-answer-float .calc-answer-content{background:#e8f2e7}
 @media(prefers-reduced-motion:reduce){
   .calc-answer-float{transition:none!important}
 }
+
+/* Four-dot navigation: red calculator, green book, blue apps, black resources.
+   Deliberately small so the site controls never crowd the device. */
+.skin-rail .site-nav.four-dot-links{
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:3px!important;
+  padding:8px 4px!important;
+  max-width:205px!important;
+  width:100%!important;
+  justify-content:center!important;
+  align-items:center!important;
+}
+.skin-rail .four-dot-links .site-nav-link{
+  display:flex!important;
+  flex-direction:column!important;
+  gap:4px!important;
+  padding:4px 0!important;
+  background:transparent!important;
+  border:0!important;
+  font-size:10px!important;
+  font-weight:700!important;
+  color:#344458!important;
+  text-align:center!important;
+  min-width:0!important;
+  width:100%!important;
+}
+.skin-rail .four-dot-links .site-nav-link i{
+  display:block!important;
+  width:17px!important;
+  height:17px!important;
+  flex:0 0 17px!important;
+  border-radius:50%!important;
+  border:2px solid #fff!important;
+  box-shadow:0 0 0 1px #b9c6d1!important;
+  transition:transform 120ms ease;
+}
+.skin-rail .four-dot-links .site-nav-link:hover i{transform:scale(1.13)}
+.skin-rail .four-dot-links .site-nav-link[aria-current="page"] i{
+  outline:2px solid #667b92;outline-offset:2px;
+}
+.skin-rail .four-dot-links .nav-red i{background:#e63329!important}
+.skin-rail .four-dot-links .nav-green i{background:#3fae49!important}
+.skin-rail .four-dot-links .nav-blue i{background:#2d7dd2!important}
+.skin-rail .four-dot-links .nav-black i{background:#171b22!important}
+@media(max-width:760px){
+  .skin-rail .site-nav.four-dot-links{
+    width:210px!important;
+    max-width:210px!important;
+  }
+}
