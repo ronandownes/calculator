@@ -25,12 +25,12 @@ header{position:sticky;top:0;z-index:5;background:#fff;box-shadow:0 1px 7px #1d2
 .pane-head{display:flex;justify-content:space-between;align-items:center;gap:5px;background:#fdfefe;padding:9px 12px;border-bottom:1px solid #dce3e9}
 .pane-head h2{font-size:14px;margin:0}
 .pane-head a{font-size:12px;color:#155d98}
-.pane iframe{display:block;width:100%;height:calc(100dvh - 160px);min-height:510px;border:0;background:#e8e8e8}
+.pane iframe{display:block;width:100%;height:calc(100dvh - 190px);min-height:360px;border:0;background:#e8e8e8}
 .panels.mode-scientific{grid-template-columns:minmax(0,1fr)}
 .panels.mode-menu{grid-template-columns:minmax(0,1fr)}
 .panels.mode-scientific #menu-pane,.panels.mode-menu #scientific-pane{display:none}
 .note{margin:0;padding:8px 14px;background:#fff;border-top:1px solid #dbe2ea;color:#56687b;font-size:12px}
-@media(max-width:850px){.panels.mode-both{grid-template-columns:1fr}.pane iframe{height:65dvh;min-height:520px}.top{padding:8px}.heading{flex:1 1 100%}}
+@media(max-width:850px){.panels.mode-both{grid-template-columns:1fr}.pane iframe{height:65dvh;min-height:480px}.top{padding:8px}.heading{flex:1 1 100%}}
 @media print{header,.note{display:none}.panels{grid-template-columns:1fr 1fr!important}.pane iframe{height:85vh}}
 </style>
 </head>
@@ -67,10 +67,27 @@ header{position:sticky;top:0;z-index:5;background:#fff;box-shadow:0 1px 7px #1d2
  const frames={scientific:document.getElementById("scientific"),menu:document.getElementById("menu")};
  const tabs=[...document.querySelectorAll("[data-view]")];
  const panels=document.getElementById("panels"),message=document.getElementById("message");
+ const header=document.querySelector("header");
  const syncButton=document.getElementById("sync");
  let mode="both",sync=true,pending=Promise.resolve(),serial=0;
  const ready={scientific:false,menu:false};
  const delay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+ let relayoutPending=false;
+ function matchCalculatorHeights(){
+   relayoutPending=false;
+   const available=Math.max(360,innerHeight - Math.max(0,panels.getBoundingClientRect().top) - 47);
+   // Identical iframe heights; each model scales its complete face uniformly to fit.
+   for(const [kind,frame] of Object.entries(frames)){
+     frame.style.height=Math.round(available)+"px";
+     if(ready[kind]){
+       frame.contentWindow.dispatchEvent(new Event("resize"));
+       const fit=frame.contentDocument.getElementById(kind==="scientific"?"fitHeight":"menuFitHeight");
+       if(fit)fit.click();
+     }
+   }
+ }
+ function scheduleFit(){if(relayoutPending)return;relayoutPending=true;requestAnimationFrame(matchCalculatorHeights)}
+ window.addEventListener("resize",scheduleFit,{passive:true});
  function status(text){message.textContent=text;}
  function chooseView(view){
    if(!["both","scientific","menu"].includes(view))return;
@@ -78,10 +95,8 @@ header{position:sticky;top:0;z-index:5;background:#fff;box-shadow:0 1px 7px #1d2
    panels.className="panels mode-"+view;
    tabs.forEach(button=>button.setAttribute("aria-pressed",String(button.dataset.view===view)));
    try{history.replaceState(null,"","#"+view);}catch(_){}
-   // Viewport listeners recalculate their own proportional fit after the panes resize.
-   for(const frame of Object.values(frames)){
-     if(ready[frame.id])frame.contentWindow.dispatchEvent(new Event("resize"));
-   }
+   // Refit after the comparison grid has changed its pane widths.
+   scheduleFit();
  }
  tabs.forEach(button=>button.addEventListener("click",()=>chooseView(button.dataset.view)));
  syncButton.addEventListener("click",()=>{
@@ -109,7 +124,7 @@ header{position:sticky;top:0;z-index:5;background:#fff;box-shadow:0 1px 7px #1d2
    if(event.defaultPrevented&&event.type==="click")return null;
    const doc=frames[kind].contentDocument;
    if(event.type==="click"){
-     const el=event.target instanceof Element?event.target.closest("button"):null;
+     const el=event.target?.closest?.("button")||null;
      if(!el||!doc.contains(el))return null;
      if(kind==="scientific"){
        if(el.id==="shift"||el.id==="alpha"||el.id==="on")return null;
@@ -223,8 +238,7 @@ header{position:sticky;top:0;z-index:5;background:#fff;box-shadow:0 1px 7px #1d2
      if(!sync||suppressed||event.repeat)return;
      const action=kindEvent(kind,event);
      if(!action){
-       const button=event.type==="click"&&event.target instanceof Element
-         ?event.target.closest("#keys button[data-key],.cw-upper-keys button[data-cmd],.cw-number-keys button[data-cmd]"):null;
+       const button=event.type==="click"&&event.target?.closest?.("#keys button[data-key],.cw-upper-keys button[data-cmd],.cw-number-keys button[data-cmd]")||null;
        if(button)status("That specialist key is independent; the other calculator was not changed.");
        return;
      }
@@ -236,14 +250,15 @@ header{position:sticky;top:0;z-index:5;background:#fff;box-shadow:0 1px 7px #1d2
    // Make each calculator larger in a narrow classroom panel and let it scroll vertically.
    const rail=doc.getElementById(kind==="scientific"?"toggleCalculatorRail":"menuRailToggle");
    if(rail)rail.click();
-   const fitWidth=doc.getElementById(kind==="scientific"?"fitWidth":"menuFitWidth");
-   if(kind==="scientific")fitWidth?.click();
+   // Both must use Fit height; Fit width crops the tall menu-driven device.
+   doc.getElementById(kind==="scientific"?"fitHeight":"menuFitHeight")?.click();
    // The menu model starts on Home. Enter Calculate before the first mirrored key.
    if(kind==="menu"){
      const calculate=doc.querySelector("#display .home-grid [data-choice='0']");
      if(calculate)calculate.click();
    }
    ready[kind]=true;
+   scheduleFit();
    if(ready.scientific&&ready.menu)status("Both calculators ready. Work on either; supported keys follow on the other.");
    else status("One calculator ready; loading the second…");
  }
