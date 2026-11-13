@@ -16,7 +16,7 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #2d7d
 .sitebar{max-width:1120px;margin:auto;padding:17px 20px;display:flex;justify-content:space-between;align-items:center;gap:16px}
 .brand{text-decoration:none;color:#1a2531;font-size:14px;font-weight:800}
 .dots{display:flex;gap:5px;align-items:center;flex-wrap:nowrap}
-.dots a{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:55px;text-decoration:none;color:#414d5b;font-size:10px;font-weight:700}
+.dots a{display:flex;align-items:center;justify-content:center;min-width:31px;min-height:32px;text-decoration:none;color:#414d5b}
 .dots i{display:block;width:16px;height:16px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px #bdc7d2}
 .dots a[aria-current="page"] i{outline:3px solid #576575;outline-offset:2px}
 .dots .red i{background:#e63329}.dots .green i{background:#3fae49}.dots .blue i{background:#2d7dd2}.dots .black i{background:#181c22}
@@ -54,11 +54,11 @@ footer{border-top:1px solid #e1e6ee;background:#fff;padding:22px 20px;text-align
 <body>
 <header class="sitebar">
 <a class="brand" href="https://ronandownes.github.io/maths/">JC &amp; LC Maths</a>
-<nav class="dots" aria-label="Four-dot Maths navigation">
-<a class="red" href="../" title="Calculator" aria-label="Red: Calculator"><i aria-hidden="true"></i>Calculator</a>
-<a class="green" href="https://ronandownes.github.io/book/" title="Maths Book" aria-label="Green: Maths Book"><i aria-hidden="true"></i>Book</a>
-<a class="blue" href="https://ronandownes.github.io/maths/" title="Maths Apps" aria-label="Blue: Apps"><i aria-hidden="true"></i>Apps</a>
-<a class="black" href="./" title="External Resources" aria-label="Black: External Resources" aria-current="page"><i aria-hidden="true"></i>Resources</a>
+<nav class="dots" aria-label="Quick links: A Apps, B Book, C Calculator, D Desmos">
+<a class="red" href="https://ronandownes.github.io/maths/" title="A · Apps" aria-label="A — Apps"><i aria-hidden="true"></i></a>
+<a class="green" href="https://ronandownes.github.io/book/" title="B · Maths Book" aria-label="B — Maths Book"><i aria-hidden="true"></i></a>
+<a class="blue" href="../" title="C · Calculator" aria-label="C — Calculator"><i aria-hidden="true"></i></a>
+<a class="black" href="https://www.desmos.com/calculator" target="_blank" rel="noopener noreferrer" title="D · Desmos" aria-label="D — Desmos"><i aria-hidden="true"></i></a>
 </nav>
 </header>
 <section class="hero"><div class="hero-inner">
