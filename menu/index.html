@@ -1833,7 +1833,7 @@ setLedMode("off");
    const windowHeight=window.visualViewport?.height||window.innerHeight;
    const availableHeight=Math.max(250,windowHeight-stage.getBoundingClientRect().top-8);
    const byWidth=availableWidth/naturalWidth;
-   const byHeight=Math.max(.66,Math.min(byWidth,availableHeight/naturalHeight));
+   const byHeight=Math.max(new URLSearchParams(location.search).has("compare")?.32:.66,Math.min(byWidth,availableHeight/naturalHeight));
    scale=clamp(mode==="height"?byHeight:mode==="width"?byWidth:
      mode==="detail"?byWidth*1.7:manualScale);
    shell.style.transform="scale("+scale+")";
