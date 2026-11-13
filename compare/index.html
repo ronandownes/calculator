@@ -34,8 +34,22 @@ header{position:sticky;top:0;z-index:5;background:#fff;box-shadow:0 1px 7px #1d2
 header.minimized .top{padding:4px 9px}
 header.minimized .heading{font-size:13px}
 header.minimized .top .tabs,header.minimized .top .options,header.minimized .sub{display:none}
-#minimizeToolbar:focus-visible,#fitBoth:focus-visible{outline:3px solid #2d7dd2;outline-offset:2px}
-@media(max-width:850px){.panels.mode-both{grid-template-columns:1fr}.pane iframe{height:65dvh;min-height:480px}.top{padding:8px}.heading{flex:1 1 100%}}
+#minimizeToolbar:focus-visible,#fitBoth:focus-visible,#fitWidthBoth:focus-visible{outline:3px solid #2d7dd2;outline-offset:2px}
+#fitBoth,#fitWidthBoth{padding:7px 10px;border:1px solid #cad3dd;background:#fff;color:#30445d;border-radius:7px;cursor:pointer;font-size:12px;font-weight:700}
+#fitBoth[aria-pressed="true"],#fitWidthBoth[aria-pressed="true"]{background:#1d3655;color:#fff;border-color:#1d3655}
+@media(prefers-reduced-motion:reduce){.panels.mode-both{scroll-snap-type:none}}
+
+/* Keep comparison literally side by side. Below 940px allow lateral
+   scrolling instead of deforming or silently stacking the calculators. */
+@media(max-width:940px){
+ .panels.mode-both{grid-template-columns:repeat(2,minmax(420px,1fr));overflow-x:auto;scroll-snap-type:x proximity}
+ .panels.mode-both .pane{scroll-snap-align:start}
+ .top{padding:7px 9px}
+}
+@media(max-width:550px){
+ .panels.mode-both{grid-template-columns:repeat(2,minmax(370px,1fr))}
+ .top{gap:6px}.heading{font-size:15px}
+}
 @media print{header,.note{display:none}.panels{grid-template-columns:1fr 1fr!important}.pane iframe{height:85vh}}
 </style>
 </head>
@@ -50,10 +64,10 @@ header.minimized .top .tabs,header.minimized .top .options,header.minimized .sub
   </nav>
   <div class="options">
    <button type="button" id="sync" aria-pressed="true">Sync on</button>
-   <button type="button" id="reset">Clear both</button><button type="button" id="fitBoth">Fit both</button>
+   <button type="button" id="reset">Clear both</button><button type="button" id="fitBoth" aria-pressed="true">Fit height</button><button type="button" id="fitWidthBoth" aria-pressed="false">Fit width</button>
   </div>
  </div>
- <div class="sub"><span id="message" role="status" aria-live="polite">Loading both calculators…</span><span>Each calculator retains its own keys and layout.</span></div>
+ <div class="sub"><span id="message" role="status" aria-live="polite">Loading both calculators…</span><span id="viewHint">Fit height keeps both devices entirely visible.</span></div>
 </header>
 <main class="panels mode-both" id="panels" aria-label="Calculator comparison">
  <section class="pane" id="scientific-pane">
@@ -81,26 +95,50 @@ header.minimized .top .tabs,header.minimized .top .options,header.minimized .sub
    minimize.textContent=on?"Show controls":"Hide controls";
    scheduleFit();
  });
- document.getElementById("fitBoth").addEventListener("click",scheduleFit);
+ const fitHeightButton=document.getElementById("fitBoth");
+ const fitWidthButton=document.getElementById("fitWidthBoth");
+ let fitMode="height";
+ function setFitMode(next){
+   fitMode=next;
+   fitHeightButton.setAttribute("aria-pressed",String(next==="height"));
+   fitWidthButton.setAttribute("aria-pressed",String(next==="width"));
+   document.getElementById("viewHint").textContent=next==="height"
+     ?"Fit height keeps the complete calculator visible without changing its shape."
+     :"Fit width enlarges the keys; scroll vertically to reach the bottom.";
+   scheduleFit();
+ }
+ fitHeightButton.addEventListener("click",()=>setFitMode("height"));
+ fitWidthButton.addEventListener("click",()=>setFitMode("width"));
  let mode="both",sync=true,pending=Promise.resolve(),serial=0;
  const ready={scientific:false,menu:false};
  const delay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
  let relayoutPending=false;
  function matchCalculatorHeights(){
    relayoutPending=false;
-   const available=Math.max(360,innerHeight - Math.max(0,panels.getBoundingClientRect().top) - 47);
-   // Identical iframe heights; each model scales its complete face uniformly to fit.
-   for(const [kind,frame] of Object.entries(frames)){
-     frame.style.height=Math.round(available)+"px";
-     if(ready[kind]){
+   const available=Math.max(340,Math.floor(window.innerHeight-panels.getBoundingClientRect().top-18));
+   // Both frames get precisely the same height. The child calculator owns its
+   // uniform 2D scaling, so none of the buttons or fonts is squashed.
+   for(const frame of Object.values(frames))frame.style.height=available+"px";
+   requestAnimationFrame(()=>{
+     for(const [kind,frame] of Object.entries(frames)){
+       if(!ready[kind]||frame.getClientRects().length===0)continue;
        frame.contentWindow.dispatchEvent(new Event("resize"));
-       const fit=frame.contentDocument.getElementById(kind==="scientific"?"fitHeight":"menuFitHeight");
-       if(fit)fit.click();
+       const control=frame.contentDocument.getElementById(
+         kind==="scientific"?(fitMode==="height"?"fitHeight":"fitWidth"):
+           (fitMode==="height"?"menuFitHeight":"menuFitWidth"));
+       if(!control)continue;
+       // Fit-width buttons toggle modes; don't accidentally toggle them off.
+       if(fitMode==="height"||control.getAttribute("aria-pressed")!=="true")control.click();
      }
-   }
+   });
  }
  function scheduleFit(){if(relayoutPending)return;relayoutPending=true;requestAnimationFrame(matchCalculatorHeights)}
  window.addEventListener("resize",scheduleFit,{passive:true});
+ if("ResizeObserver" in window){
+   const observer=new ResizeObserver(scheduleFit);
+   observer.observe(header);
+   observer.observe(panels);
+ }
  function status(text){message.textContent=text;}
  function chooseView(view){
    if(!["both","scientific","menu"].includes(view))return;
@@ -288,9 +326,8 @@ header.minimized .top .tabs,header.minimized .top .options,header.minimized .sub
    doc.addEventListener("keydown",relay,true);
    // Make each calculator larger in a narrow classroom panel and let it scroll vertically.
    const rail=doc.getElementById(kind==="scientific"?"toggleCalculatorRail":"menuRailToggle");
-   if(rail)rail.click();
-   // Both must use Fit height; Fit width crops the tall menu-driven device.
-   doc.getElementById(kind==="scientific"?"fitHeight":"menuFitHeight")?.click();
+   if(rail&&rail.getAttribute("aria-expanded")!=="false")rail.click();
+   // Parent owns the common sizing, including optional Fit width.
    // The menu model starts on Home. Enter Calculate before the first mirrored key.
    if(kind==="menu"){
      const calculate=doc.querySelector("#display .home-grid [data-choice='0']");
