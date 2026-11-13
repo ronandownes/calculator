@@ -606,3 +606,58 @@ body.shift-effect-rainbow .calculator .top .roundgroup em{
  body.shift-effect-galaxy #keys button .upper,
  body.shift-effect-rainbow #keys button .upper{transition:none!important}
 }
+
+/* SHIFT colour choices: three fixed inks + optional slowly migrating Galaxy
+   and Rainbow, all in one row. Only the legends move, never the key faces. */
+.skin-rail .shift-colour-picker{
+  gap:8px!important;
+  max-width:205px;
+}
+.skin-rail .shift-colour-picker .shift-effect-option{
+  appearance:none!important;
+  display:inline-block!important;
+  width:23px!important;
+  height:23px!important;
+  min-width:23px!important;
+  min-height:23px!important;
+  padding:0!important;
+  border:2px solid #fff!important;
+  border-radius:50%!important;
+  box-shadow:0 0 0 1px #aebccb!important;
+  cursor:pointer;
+  position:relative;
+  overflow:hidden;
+  flex:0 0 23px;
+}
+.skin-rail .shift-colour-picker .effect-galaxy{
+  background:linear-gradient(120deg,#0d1936,#6040aa,#b04bc0,#244580,#0d1936)!important;
+  background-size:280% 100%!important;
+  animation:shift-swatch-motion 25s linear infinite;
+}
+.skin-rail .shift-colour-picker .effect-rainbow{
+  background:linear-gradient(120deg,#e63329,#f5ac32,#e8d643,#35b36a,#2d7dd2,#8c50c2,#e63329)!important;
+  background-size:280% 100%!important;
+  animation:shift-swatch-motion 30s linear infinite;
+}
+@keyframes shift-swatch-motion{
+  from{background-position:0% 50%}
+  to{background-position:100% 50%}
+}
+.skin-rail .shift-colour-picker .shift-effect-option[aria-pressed="true"]{
+  outline:3px solid #7b96b1!important;
+  outline-offset:2px!important;
+  border-color:#fff!important;
+}
+.skin-rail .shift-colour-picker .shift-effect-option:focus-visible{
+  outline:3px solid #2d7dd2!important;
+  outline-offset:3px!important;
+}
+.skin-rail .shift-colour-picker .shift-effect-hint{
+  margin-top:1px;
+  font:500 10px/1.3 Arial,Helvetica,sans-serif;
+}
+@media(prefers-reduced-motion:reduce){
+  .skin-rail .shift-colour-picker .shift-effect-option{
+    animation:none!important;
+  }
+}
