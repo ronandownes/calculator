@@ -291,7 +291,7 @@ body.light .calc-answer-float .calc-answer-content{background:#e8f2e7}
     width:660px!important;
     min-width:660px!important;
     max-width:none!important;
-    padding:0 28px 27px!important;
+    padding:8px 28px 27px!important;
   }
   html body .calc-viewport .calculator .screenframe{
     padding:13px!important;
@@ -371,5 +371,21 @@ body.light .calc-answer-float .calc-answer-content{background:#e8f2e7}
   html body .calc-viewport .calculator #keys button[data-key="frac"] .keyname svg.fraction-key-icon{
     width:43px!important;
     height:37px!important;
+  }
+}
+
+/* The light skin has its own native casing and LCD height: preserve these
+   as the browser crosses the phone breakpoint too. */
+@media(max-width:700px){
+  html body.light .calc-viewport .calc-stage>.calculator{
+    padding:15px 24px 22px!important;
+  }
+  html body.light .calc-viewport .calculator .screenframe{
+    padding:11px!important;
+    margin:0 0 17px!important;
+  }
+  html body.light .calc-viewport .calculator .screen{
+    height:195px!important;
+    padding:12px 20px 12px!important;
   }
 }
