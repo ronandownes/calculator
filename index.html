@@ -467,7 +467,7 @@ function visibleMath(input){
  const raised=text=>[...text].map(c=>sup[c]||c).join('');
  return String(input)
   .replace(/\basin\(/g,'sin⁻¹(').replace(/\bacos\(/g,'cos⁻¹(').replace(/\batan\(/g,'tan⁻¹(')
-  .replace(/\^\(([+−-]?\d+)\)/g,(_,power)=>'⁽'+raised(power)+'⁾')
+  .replace(/\^\(([+−-]?\d+)\)/g,(_,power)=>raised(power))
   .replace(/\^([+−-]?\d+)/g,(_,power)=>raised(power))
   .replace(/\^([nxyie])/g,(_,power)=>raised(power))
   .replace(/\^(?![\w(])/g,'⁽□⁾');
