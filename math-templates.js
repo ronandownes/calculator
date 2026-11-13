@@ -395,6 +395,18 @@
       return previousHandle(v);
     return append(v);
   };
+  // Always own the fraction-template key, including its FIRST press.
+  // Otherwise a legacy keypad listener can interpret this key as division.
+  keys.addEventListener("click",event=>{
+    const button=event.target.closest("button[data-key='frac']");
+    if(!button||screen.classList.contains("lcd-menu-mode"))return;
+    const command=inverse?"mixed":"frac";
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    if(inverse){inverse=false;render();}
+    handle(command);
+  },true);
+
   // The existing keypad listeners run during bubbling. Only take over once
   // structured entry is active; prior ALPHA and LCD handlers remain intact.
   keys.addEventListener("click",event=>{
