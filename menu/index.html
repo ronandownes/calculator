@@ -1744,7 +1744,7 @@ setLedMode("off");
     if(state.shift&&cmd==="log"){state.shift=false;insert("ln(");return}
     if(state.shift&&cmd==="ln"){state.shift=false;insert("exp(");return}
     state.shift=false;
-    const value=({"x":"x","sqrt":"sqrt(","square":"^2","power":"^","log":"log(","ln":"ln(","pi":"π","percent":"%","ans":"Ans","fraction":"/"})[cmd]||cmd;
+    const value=({"x":"x","sqrt":"sqrt(","square":"^2","power":"^","sin":"sin(","cos":"cos(","tan":"tan(","log":"log(","ln":"ln(","pi":"π","percent":"%","ans":"Ans","fraction":"/"})[cmd]||cmd;
     insert(value);
   }
   document.addEventListener("click",e=>{
