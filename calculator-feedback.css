@@ -1,0 +1,253 @@
+/* UDL scientific keypad refinement — scoped to the rectangular scientific calculator.
+   Preserves the four-dot identity, maths glyphs, LCD, and existing calculation logic. */
+body{
+  --press-accent:#ffbf47;
+  --press-fill:#5b4318;
+  --press-ink:#fff;
+  --press-glow:#ffbf4766;
+}
+body.light{
+  --press-accent:#2d7dd2;
+  --press-fill:#d8eaff;
+  --press-ink:#101b2b;
+  --press-glow:#2d7dd255;
+}
+body.light.skin-pink{
+  --press-accent:#d6427b;
+  --press-fill:#fbdce8;
+  --press-ink:#41152a;
+  --press-glow:#d6427b55;
+}
+body.light.skin-mint{
+  --press-accent:#21844c;
+  --press-fill:#d2f2df;
+  --press-ink:#11341e;
+  --press-glow:#21844c55;
+}
+body.light.skin-blue{
+  --press-accent:#2d7dd2;
+  --press-fill:#d7e9ff;
+  --press-ink:#10233b;
+  --press-glow:#2d7dd255;
+}
+body.light.skin-orange{
+  --press-accent:#d87908;
+  --press-fill:#ffe0b4;
+  --press-ink:#482507;
+  --press-glow:#f4a52c66;
+}
+body.light.skin-orange .calculator{
+  background:#f3e9dd!important;
+  border-color:#dfc8af!important;
+}
+body.light.skin-orange .calculator .top,
+body.light.skin-orange .calculator .keys,
+body.light.skin-orange .calculator #keys{
+  background:#f2e2ce!important;
+  border-color:#e1ccb3!important;
+}
+.skin-rail .model-palette{gap:7px!important}
+.skin-rail .model-palette .skin-orange{background:#ed9427!important}
+.skin-rail .shift-colour-picker .swatch-orange{background:#ed9427!important}
+body[data-shift-colour="orange"]{
+  --chosen-shift:#a85a00;
+  --chosen-shift-ring:#c9770e;
+  --chosen-shift-bg:#fff0d6;
+}
+body:not(.light)[data-shift-colour="orange"]{
+  --chosen-shift:#ffd18a;
+  --chosen-shift-ring:#ffc065;
+  --chosen-shift-bg:#694919;
+}
+
+/* Reduce the black/white areas above and below the glyphs, NOT their size.
+   The extra headroom is automatically used by Fit height / Fit width. */
+.calculator #keys .spanrow:not(.five)>button{
+  height:61px!important;
+  padding:16px 0 3px!important;
+}
+.calculator #keys .spanrow.five>button{
+  height:70px!important;
+  padding:17px 0 3px!important;
+}
+.calculator #keys .spanrow:not(.five)>button .keyname{
+  height:40px!important;
+  min-height:40px!important;
+  padding:1px 2px!important;
+}
+.calculator #keys .spanrow.five>button .keyname{
+  height:49px!important;
+  min-height:49px!important;
+  padding:1px 2px!important;
+}
+.calculator #keys .spanrow{row-gap:2px!important}
+.calculator #keys .spanrow.five{row-gap:2px!important}
+.calculator #keys .spanrow.five button.number .keyname,
+body.light .calculator #keys .spanrow.five button.number .keyname{
+  font-size:clamp(28px,3.8vw,36px)!important;
+  font-weight:800!important;
+}
+.calculator #keys button .keyname{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  line-height:1.05!important;
+  transform-origin:center center;
+  transition:background-color 130ms ease, color 130ms ease,
+    transform 130ms ease, box-shadow 130ms ease;
+}
+.calculator #keys button .upper{
+  overflow:visible!important;
+  height:16px!important;
+  line-height:1.05!important;
+}
+.calculator #keys button .alpha-legend{
+  z-index:2!important;
+}
+.calculator #keys button[data-key="."] .upper{
+  text-align:left!important;
+  padding-left:1px!important;
+  padding-right:0!important;
+  max-width:59%!important;
+  font-size:12px!important;
+}
+.calculator #keys button[data-key="."] .alpha-legend{
+  right:0!important;
+  font-size:12px!important;
+}
+
+/* Key-down feedback is maintained briefly after mouse/touch release.
+   Palette follows the active scientific skin, not the display tint. */
+.calculator #keys button.key-flash .keyname,
+.calculator #keys button:active .keyname{
+  background:var(--press-fill)!important;
+  color:var(--press-ink)!important;
+  outline:2px solid var(--press-accent)!important;
+  outline-offset:-2px!important;
+  box-shadow:0 0 0 2px var(--press-accent),0 0 14px var(--press-glow)!important;
+  transform:translateY(1px) scale(.972)!important;
+}
+.calculator #keys button[data-key="DEL"].key-flash .keyname,
+.calculator #keys button[data-key="AC"].key-flash .keyname,
+.calculator #keys button[data-key="DEL"]:active .keyname,
+.calculator #keys button[data-key="AC"]:active .keyname{
+  background:#ffd16f!important;
+  color:#17120b!important;
+  outline-color:#ed9920!important;
+  box-shadow:0 0 0 2px #ed9920,0 0 14px #ffb44b88!important;
+}
+.calculator #keys button:focus-visible .keyname{
+  outline:3px solid var(--press-accent)!important;
+  outline-offset:2px!important;
+}
+.calculator .top .roundgroup>button.key-flash,
+.calculator .top .roundgroup>button:active,
+.calculator .top .nav button.key-flash,
+.calculator .top .nav button:active{
+  box-shadow:0 0 0 3px var(--press-accent),0 0 14px var(--press-glow)!important;
+  filter:brightness(1.22);
+}
+
+/* SHIFT makes upper functions easier to locate and read. Only the legends
+   animate once; the key grid does not jump or reflow. */
+body.shift-engaged .calculator #keys button[data-altkey]:not([data-altkey=""]) .upper:not(:empty),
+body.shift-engaged .calculator #keys button[data-key="DEL"] .upper:not(:empty){
+  font-size:15px!important;
+  font-weight:900!important;
+  transform:scale(1.08);
+  transform-origin:50% 100%;
+  z-index:3;
+  animation:maths-shift-on 650ms ease-out 1;
+  text-shadow:0 0 1px currentColor;
+}
+body.shift-engaged .calculator #keys .shift-notation{
+  font-size:17px!important;
+}
+body.shift-engaged .calculator #keys button[data-altkey]:not([data-altkey=""]) .keyname{
+  transform:scaleY(.965);
+}
+body.shift-engaged .calculator #keys button.key-flash .keyname,
+body.shift-engaged .calculator #keys button:active .keyname{
+  transform:translateY(1px) scale(.972)!important;
+}
+body.shift-engaged .calculator #keys button[data-key="."] .upper{
+  font-size:12px!important;
+  transform-origin:left bottom;
+}
+body.shift-engaged .calculator #keys button[data-key="sqrt"] .upper svg,
+body.shift-engaged .calculator #keys button[data-key="frac"] .upper svg,
+body.shift-engaged .calculator #keys button[data-key="^"] .upper svg{
+  transform:translateY(-4px) scale(1.08);
+}
+body.alpha-engaged .calculator #keys button[data-alpha] .alpha-legend{
+  font-size:15px!important;
+  text-shadow:0 0 1px currentColor;
+}
+@keyframes maths-shift-on{
+  0%{transform:scale(1);opacity:.82}
+  45%{transform:scale(1.16);opacity:1}
+  100%{transform:scale(1.08);opacity:1}
+}
+@media(max-width:700px){
+  .calculator #keys .spanrow:not(.five)>button{
+    height:56px!important;
+    padding:15px 0 3px!important;
+  }
+  .calculator #keys .spanrow.five>button{
+    height:64px!important;
+    padding:16px 0 3px!important;
+  }
+  .calculator #keys .spanrow:not(.five)>button .keyname{
+    height:36px!important;min-height:36px!important;
+  }
+  .calculator #keys .spanrow.five>button .keyname{
+    height:45px!important;min-height:45px!important;
+  }
+  .calculator #keys .spanrow.five button.number .keyname{
+    font-size:clamp(25px,6vw,31px)!important;
+  }
+  body.shift-engaged .calculator #keys button[data-altkey]:not([data-altkey=""]) .upper:not(:empty){
+    font-size:clamp(11px,2.6vw,14px)!important;
+  }
+  body.shift-engaged .calculator #keys .shift-notation{
+    font-size:clamp(11px,3vw,15px)!important;
+  }
+  .calculator #keys button[data-key="."] .upper,
+  .calculator #keys button[data-key="."] .alpha-legend{
+    font-size:10px!important;
+  }
+  .skin-rail .model-palette{gap:5px!important}
+}
+@media(prefers-reduced-motion:reduce){
+  .calculator #keys button .keyname{transition:none!important}
+  body.shift-engaged .calculator #keys button .upper{animation:none!important}
+}
+
+/* Keep calculated answers at the RIGHT edge of the LCD, close to the
+   bottom baseline, independently of expression templates or skin changes.
+   For a wide MathML result, auto margin avoids losing its leading digits. */
+html body .calculator .screen:not(.lcd-menu-mode) #result{
+  display:flex!important;
+  flex-direction:row!important;
+  align-items:flex-end!important;
+  justify-content:flex-end!important;
+  box-sizing:border-box!important;
+  width:100%!important;
+  text-align:right!important;
+  padding:0 8px 5px 0!important;
+  min-width:0!important;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+}
+html body .calculator .screen:not(.lcd-menu-mode) #result:has(> *){
+  justify-content:flex-start!important;
+}
+html body .calculator .screen:not(.lcd-menu-mode) #result > *:last-child{
+  margin-left:auto!important;
+  flex:0 0 auto;
+}
+@media(max-width:700px){
+  html body .calculator .screen:not(.lcd-menu-mode) #result{
+    padding:0 4px 4px 0!important;
+  }
+}
