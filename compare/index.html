@@ -51,6 +51,13 @@ header.minimized .top .tabs,header.minimized .top .options,header.minimized .sub
  .top{gap:6px}.heading{font-size:15px}
 }
 @media print{header,.note{display:none}.panels{grid-template-columns:1fr 1fr!important}.pane iframe{height:85vh}}
+.dual-sequence{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;padding:5px 9px;background:#eaf0f6;border-top:1px solid #d1dce7}
+.dual-seq{display:flex;gap:8px;align-items:center;min-width:0;padding:6px 9px;background:#fff;border:1px solid #d0dbe5;border-radius:7px;font:12px Arial,sans-serif}
+.dual-seq>span:first-child{font-weight:800;white-space:nowrap}
+.dual-seq strong{flex:1;min-width:0;overflow-x:auto;white-space:nowrap;font:700 13px Arial,sans-serif;color:#294f77}
+.dual-seq output{font-size:13px;white-space:nowrap;max-width:40%;text-overflow:ellipsis;overflow:hidden;color:#1e563b;font-weight:800}
+.dual-seq.dual-source{border-color:#679cc6;box-shadow:inset 3px 0 #2d7dd2}
+@media(max-width:640px){.dual-sequence{grid-template-columns:1fr}.dual-seq{padding:4px 8px}}
 </style>
 </head>
 <body>
@@ -63,11 +70,15 @@ header.minimized .top .tabs,header.minimized .top .options,header.minimized .sub
    <button type="button" data-view="both" aria-pressed="true">Both side by side</button>
   </nav>
   <div class="options">
-   <button type="button" id="sync" aria-pressed="true">Sync on</button>
+   <button type="button" id="sync" aria-pressed="true" aria-label="Dual Control linked. Click to operate independently" title="Mirror supported actions in both directions">Dual Control: linked</button>
    <button type="button" id="reset">Clear both</button><button type="button" id="fitBoth" aria-pressed="true">Fit height</button><button type="button" id="fitWidthBoth" aria-pressed="false">Fit width</button>
   </div>
  </div>
  <div class="sub"><span id="message" role="status" aria-live="polite">Loading both calculators…</span><span id="viewHint">Fit height keeps both devices entirely visible.</span></div>
+<div class="dual-sequence" role="region" aria-label="Key-sequence demonstration">
+<div class="dual-seq" id="seqScientific"><span>Scientific</span><strong id="seqScientificKeys">—</strong><output id="seqScientificResult"></output></div>
+<div class="dual-seq" id="seqMenu"><span>Menu-driven</span><strong id="seqMenuKeys">—</strong><output id="seqMenuResult"></output></div>
+</div>
 </header>
 <main class="panels mode-both" id="panels" aria-label="Calculator comparison">
  <section class="pane" id="scientific-pane">
@@ -88,6 +99,32 @@ header.minimized .top .tabs,header.minimized .top .options,header.minimized .sub
  const panels=document.getElementById("panels"),message=document.getElementById("message");
  const header=document.querySelector("header");
  const syncButton=document.getElementById("sync");
+ const dualDisplay={
+   scientific:{pane:document.getElementById("seqScientific"),keys:document.getElementById("seqScientificKeys"),result:document.getElementById("seqScientificResult")},
+   menu:{pane:document.getElementById("seqMenu"),keys:document.getElementById("seqMenuKeys"),result:document.getElementById("seqMenuResult")}
+ };
+ const demonstrated={scientific:[],menu:[]};
+ function record(kind,steps){
+   if(!steps?.length)return;
+   demonstrated[kind].push(...steps);
+   demonstrated[kind]=demonstrated[kind].slice(-16);
+   dualDisplay[kind].keys.textContent=demonstrated[kind].join(" → ");
+ }
+ function showOutputs(){
+   for(const [kind,slots] of Object.entries(dualDisplay)){
+     if(!ready[kind])continue;
+     const doc=frames[kind].contentDocument;
+     const result=kind==="scientific"
+       ?doc.getElementById("result")?.textContent?.trim()
+       :doc.querySelector("#display .result")?.textContent?.trim();
+     slots.result.textContent=result?"= "+result:"";
+   }
+ }
+ function sourceFocus(kind){
+   for(const [name,slots] of Object.entries(dualDisplay))
+     slots.pane.classList.toggle("dual-source",name===kind);
+ }
+
  const minimize=document.getElementById("minimizeToolbar");
  minimize.addEventListener("click",()=>{
    const on=header.classList.toggle("minimized");
@@ -153,7 +190,8 @@ header.minimized .top .tabs,header.minimized .top .options,header.minimized .sub
  syncButton.addEventListener("click",()=>{
    sync=!sync;
    syncButton.setAttribute("aria-pressed",String(sync));
-   syncButton.textContent=sync?"Sync on":"Sync off";
+   syncButton.textContent=sync?"Dual Control: linked":"Dual Control: independent";
+   syncButton.setAttribute("aria-label",sync?"Dual Control linked. Click to operate independently":"Dual Control independent. Click to link");
    status(sync?"Two-way key mirroring is on.":"Independent operation: each calculator keeps its own input.");
  });
  document.getElementById("reset").addEventListener("click",()=>{
@@ -168,6 +206,7 @@ header.minimized .top .tabs,header.minimized .top .options,header.minimized .sub
        }
        await press("menu","ac");
      }
+     for(const kind of Object.keys(demonstrated)){demonstrated[kind]=[];dualDisplay[kind].keys.textContent="—";dualDisplay[kind].result.textContent="";}
      status("Both calculations cleared.");
    });
  });
@@ -304,6 +343,8 @@ header.minimized .top .tabs,header.minimized .top .options,header.minimized .sub
      if(!found)return status("The equivalent "+action+" key is not available on the "+to+" calculator.");
      if(i<steps.length-1)await delay(135);
    }
+   record(to,steps);
+   showOutputs();
    status((from==="scientific"?"Scientific":"Menu-driven")+" → "+(to==="scientific"?"Scientific":"Menu-driven")+": "+action+
      (steps.length>1?" ("+steps.map(x=>x==="SHIFT"?"SHIFT":x).join(" then ")+")":""));
  }
@@ -312,13 +353,19 @@ header.minimized .top .tabs,header.minimized .top .options,header.minimized .sub
    if(!doc)return;
    // Capturing input avoids modifying the calculators' existing calculation engines.
    const relay=event=>{
-     if(!sync||suppressed||event.repeat)return;
+     if(suppressed||event.repeat)return;
+     // Keyboard activation of a focused button also generates a click; mirror once.
+     if(event.type==="keydown"&&doc.activeElement?.closest?.("button"))return;
      const action=kindEvent(kind,event);
      if(!action){
        const button=event.type==="click"&&event.target?.closest?.("#keys button[data-key],.cw-upper-keys button[data-cmd],.cw-number-keys button[data-cmd]")||null;
        if(button)status("That specialist key is independent; the other calculator was not changed.");
        return;
      }
+     sourceFocus(kind);
+     record(kind,sequenceFor(kind,action)||[action]);
+     requestAnimationFrame(showOutputs);
+     if(!sync)return;
      const token=++serial;
      pending=pending.then(()=>mirror(kind,action,token)).catch(e=>status("Mirroring paused: "+e.message));
    };
@@ -334,8 +381,10 @@ header.minimized .top .tabs,header.minimized .top .options,header.minimized .sub
      if(calculate)calculate.click();
    }
    ready[kind]=true;
+   const resultNode=kind==="scientific"?doc.getElementById("result"):doc.getElementById("display");
+   if(resultNode)new MutationObserver(()=>requestAnimationFrame(showOutputs)).observe(resultNode,{childList:true,subtree:true,characterData:true});
    scheduleFit();
-   if(ready.scientific&&ready.menu)status("Both calculators ready. Work on either; supported keys follow on the other.");
+   if(ready.scientific&&ready.menu){status("Both calculators ready. Work on either; supported keys follow on the other.");showOutputs();}
    else status("One calculator ready; loading the second…");
  }
  for(const [kind,frame] of Object.entries(frames))
