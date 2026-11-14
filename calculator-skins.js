@@ -22,7 +22,7 @@
  neutral?.addEventListener("click",()=>apply(selected==="dark"?"light":"dark"));
  const shiftButtons=[...document.querySelectorAll("[data-shift-colour]")];
  function applyShiftColour(colour){
-   if(!["blue","green","orange"].includes(colour))return;
+   if(!["blue","green","orange","neutral"].includes(colour))return;
    document.body.dataset.shiftColour=colour;
    for(const button of shiftButtons)
      button.setAttribute("aria-pressed",String(button.dataset.shiftColour===colour));
