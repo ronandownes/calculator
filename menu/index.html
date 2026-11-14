@@ -1107,10 +1107,15 @@ function ledClassState(){
  document.body.classList.toggle("shift-ink-rainbow",ledMode==="rainbow");
  document.body.classList.toggle("shift-ink-frozen",ledPaused);
 }
+const movingLegends=[...document.querySelectorAll(".keys button.key[data-shift-label]")];
 function clearLedInk(){
  document.body.style.removeProperty("--menu-shift");
  document.body.style.removeProperty("--menu-shift-dark");
  document.body.style.removeProperty("--menu-shift-selected");
+ for(const button of movingLegends){
+   button.style.removeProperty("--menu-shift");
+   button.style.removeProperty("--menu-shift-dark");
+ }
 }
 function setLedInk(normal,dark){
  document.body.style.setProperty("--menu-shift",normal);
@@ -1122,17 +1127,35 @@ function ledFrame(now){
  if(ledPaused)return;
  if(now-ledLastTick>85){
   const t=(now-ledStarted)/1000;
-  const hue=ledMode==="rainbow"?(230+t*360/48)%360:
-    233+37*Math.sin(2*Math.PI*t/41)+9*Math.sin(2*Math.PI*t/89);
+  const shell=document.querySelector(".menu-fit-viewport .device");
+  const base=shell?.getBoundingClientRect();
   const saturation=ledMode==="rainbow"?84:72;
-  setLedInk("hsl("+hue+" "+saturation+"% 38%)",
-    "hsl("+hue+" "+saturation+"% 76%)");
+  function hueAt(x,y){
+    return ledMode==="rainbow"
+      ?((230+360*(.61*x+.47*y+t/48))%360+360)%360
+      :233+37*Math.sin(2*Math.PI*(.54*x+.33*y-t/41))
+        +9*Math.sin(2*Math.PI*(.27*x-.41*y+t/89));
+  }
+  const rootHue=hueAt(0,0);
+  setLedInk("hsl("+rootHue+" "+saturation+"% 38%)",
+    "hsl("+rootHue+" "+saturation+"% 76%)");
+  if(base){
+    for(const button of movingLegends){
+      const r=button.getBoundingClientRect();
+      const x=(r.left+r.width/2-base.left)/Math.max(1,base.width);
+      const y=(r.top+r.height/2-base.top)/Math.max(1,base.height);
+      const hue=hueAt(x,y);
+      button.style.setProperty("--menu-shift","hsl("+hue+" "+saturation+"% 38%)");
+      button.style.setProperty("--menu-shift-dark","hsl("+hue+" "+saturation+"% 76%)");
+    }
+  }
   ledLastTick=now;
  }
  if(!motionPref.matches)ledAnimation=requestAnimationFrame(ledFrame);
 }
 function updateLedButtons(){
  ledButtons.forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.led===ledMode)));
+ menuShiftButtons.forEach(b=>b.setAttribute("aria-pressed",String(ledMode==="off"&&b.dataset.menuShiftColour===document.body.dataset.menuShiftColour)));
  ledFreeze.disabled=!["rainbow","galaxy"].includes(ledMode)||motionPref.matches;
  ledFreeze.setAttribute("aria-pressed",String(ledPaused&&!ledFreeze.disabled));
  ledFreeze.textContent=ledPaused?"Resume":"Freeze";
@@ -1144,6 +1167,7 @@ function setLedMode(mode){
  ledClassState();
  if(mode==="off")clearLedInk();
  else{
+  clearLedInk();
   ledStarted=performance.now();ledLastTick=-Infinity;
   ledFrame(ledStarted);
  }
