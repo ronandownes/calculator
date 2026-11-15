@@ -31,9 +31,12 @@ header{position:sticky;top:0;z-index:5;background:#fff;box-shadow:0 1px 7px #1d2
 .panels.mode-scientific #menu-pane,.panels.mode-menu #scientific-pane{display:none}
 .note{margin:0;padding:8px 14px;background:#fff;border-top:1px solid #dbe2ea;color:#56687b;font-size:12px}
 #minimizeToolbar{padding:6px 9px;border:1px solid #cdd7e1;border-radius:7px;background:#fff;color:#38516a;cursor:pointer;font-size:12px}
-header.minimized .top{padding:4px 9px}
+header.minimized .top{padding:3px 8px;min-height:30px;flex-wrap:nowrap}
+header.minimized #minimizeToolbar{margin-left:auto;padding:4px 8px}
+.pane-head{padding:4px 9px}.pane-head h2{font-size:12px}.pane-head a{font-size:11px}
+.panels{gap:4px;padding:4px}.pane{border-radius:7px}
 header.minimized .heading{font-size:13px}
-header.minimized .top .tabs,header.minimized .top .options,header.minimized .sub{display:none}
+header.minimized .top .tabs,header.minimized .top .options,header.minimized .sub,header.minimized .dual-sequence{display:none}
 #minimizeToolbar:focus-visible,#fitBoth:focus-visible,#fitWidthBoth:focus-visible{outline:3px solid #2d7dd2;outline-offset:2px}
 #fitBoth,#fitWidthBoth{padding:7px 10px;border:1px solid #cad3dd;background:#fff;color:#30445d;border-radius:7px;cursor:pointer;font-size:12px;font-weight:700}
 #fitBoth[aria-pressed="true"],#fitWidthBoth[aria-pressed="true"]{background:#1d3655;color:#fff;border-color:#1d3655}
@@ -70,7 +73,7 @@ header.minimized .top .tabs,header.minimized .top .options,header.minimized .sub
    <button type="button" data-view="both" aria-pressed="true">Both side by side</button>
   </nav>
   <div class="options">
-   <button type="button" id="sync" aria-pressed="true" aria-label="Dual Control linked. Click to operate independently" title="Mirror supported actions in both directions">Dual Control: linked</button>
+   <button type="button" id="sync" aria-pressed="true" aria-label="Dual Control linked. Click to operate independently" title="Mirror supported actions in both directions">Dual Control</button>
    <button type="button" id="reset">Clear both</button><button type="button" id="fitBoth" aria-pressed="true">Fit height</button><button type="button" id="fitWidthBoth" aria-pressed="false">Fit width</button>
   </div>
  </div>
@@ -146,13 +149,17 @@ header.minimized .top .tabs,header.minimized .top .options,header.minimized .sub
  }
  fitHeightButton.addEventListener("click",()=>setFitMode("height"));
  fitWidthButton.addEventListener("click",()=>setFitMode("width"));
+ // Default to compact comparison, with controls a click away.
+ header.classList.add("minimized");
+ minimize.setAttribute("aria-pressed","true");
+ minimize.textContent="Show controls";
  let mode="both",sync=true,pending=Promise.resolve(),serial=0;
  const ready={scientific:false,menu:false};
  const delay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
  let relayoutPending=false;
  function matchCalculatorHeights(){
    relayoutPending=false;
-   const available=Math.max(340,Math.floor(window.innerHeight-panels.getBoundingClientRect().top-18));
+   const available=Math.max(340,Math.floor(window.innerHeight-panels.getBoundingClientRect().top-6));
    // Both frames get precisely the same height. The child calculator owns its
    // uniform 2D scaling, so none of the buttons or fonts is squashed.
    for(const frame of Object.values(frames))frame.style.height=available+"px";
@@ -177,6 +184,36 @@ header.minimized .top .tabs,header.minimized .top .options,header.minimized .sub
    observer.observe(panels);
  }
  function status(text){message.textContent=text;}
+ function installComparisonStyle(kind){
+  const doc=frames[kind].contentDocument;
+  if(!doc||doc.getElementById("compare-embedded-style"))return;
+  const style=doc.createElement("style");
+  style.id="compare-embedded-style";
+  style.textContent=`
+   body{padding-top:0!important}
+   #keys button.compare-key-active .keyname{
+    outline:3px solid #3193f3!important;outline-offset:1px!important;
+    background:#214e82!important;color:#fff!important;
+    box-shadow:0 0 0 2px #98d3ff!important}
+   .cw-upper-keys button.compare-key-active,.cw-number-keys button.compare-key-active{
+    outline:3px solid #3193f3!important;outline-offset:1px!important;
+    box-shadow:0 0 0 2px #98d3ff!important}`;
+  doc.head.append(style);
+ }
+ function highlight(kind,action){
+  const doc=frames[kind].contentDocument;
+  if(!doc||!action||action.startsWith("fraction-"))return;
+  const key=kind==="scientific"?action:({"=":"exe","AC":"ac","DEL":"del","frac":"fraction","^":"power"}[action]||action);
+  const selector=kind==="scientific"?'#keys button[data-key="'+CSS.escape(key)+'"]':
+    '.cw-upper-keys button[data-cmd="'+CSS.escape(key)+'"],.cw-number-keys button[data-cmd="'+CSS.escape(key)+'"]';
+  const button=doc.querySelector(selector);
+  if(!button)return;
+  button.classList.remove("compare-key-active");
+  void button.offsetWidth;
+  button.classList.add("compare-key-active");
+  clearTimeout(button._compareFlashTimer);
+  button._compareFlashTimer=setTimeout(()=>button.classList.remove("compare-key-active"),360);
+ }
  function chooseView(view){
    if(!["both","scientific","menu"].includes(view))return;
    mode=view;
@@ -190,8 +227,9 @@ header.minimized .top .tabs,header.minimized .top .options,header.minimized .sub
  syncButton.addEventListener("click",()=>{
    sync=!sync;
    syncButton.setAttribute("aria-pressed",String(sync));
-   syncButton.textContent=sync?"Dual Control: linked":"Dual Control: independent";
-   syncButton.setAttribute("aria-label",sync?"Dual Control linked. Click to operate independently":"Dual Control independent. Click to link");
+   syncButton.textContent=sync?"Dual Control":"Decoupled — link inputs";
+   syncButton.setAttribute("aria-label",sync?"Decouple inputs":"Link inputs");
+   syncButton.title=sync?"Both calculators respond together. Click to decouple inputs.":"Independent inputs. Click to link.";
    status(sync?"Two-way key mirroring is on.":"Independent operation: each calculator keeps its own input.");
  });
  document.getElementById("reset").addEventListener("click",()=>{
@@ -344,14 +382,16 @@ header.minimized .top .tabs,header.minimized .top .options,header.minimized .sub
      if(i<steps.length-1)await delay(135);
    }
    record(to,steps);
-   showOutputs();
+    highlight(to,action);
+    showOutputs();
    status((from==="scientific"?"Scientific":"Menu-driven")+" → "+(to==="scientific"?"Scientific":"Menu-driven")+": "+action+
      (steps.length>1?" ("+steps.map(x=>x==="SHIFT"?"SHIFT":x).join(" then ")+")":""));
  }
  function observe(kind){
    const frame=frames[kind],doc=frame.contentDocument;
    if(!doc)return;
-   // Capturing input avoids modifying the calculators' existing calculation engines.
+   installComparisonStyle(kind);
+    // Capturing input avoids modifying the calculators' existing calculation engines.
    const relay=event=>{
      if(suppressed||event.repeat)return;
      // Keyboard activation of a focused button also generates a click; mirror once.
@@ -363,7 +403,8 @@ header.minimized .top .tabs,header.minimized .top .options,header.minimized .sub
        return;
      }
      sourceFocus(kind);
-     record(kind,sequenceFor(kind,action)||[action]);
+      highlight(kind,action);
+      record(kind,sequenceFor(kind,action)||[action]);
      requestAnimationFrame(showOutputs);
      if(!sync)return;
      const token=++serial;
