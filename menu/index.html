@@ -1864,7 +1864,7 @@ setLedMode("off");
     }
     if(m==="angle"){
       if(i<0||i>2)return;
-      state.angle=["deg","rad","grad"][i];returnFromSetup();return;
+      state.angle=["deg","rad","grad"][i];state.back="calculate";returnFromSetup();return;
     }
     if(m==="number"){
       if(i<0||i>2)return;
@@ -1882,7 +1882,7 @@ setLedMode("off");
     }
     if(simpleSetupMenus[m]){
       if(i<0||i>1)return;
-      if(m==="fractionResult")state.fractionResult=i===0?"mixed":"improper";
+      if(m==="fractionResult"){state.fractionResult=i===0?"mixed":"improper";state.back="calculate";}
       if(m==="statisticsSetup")state.freqOn=i===0;
       if(m==="tableSetup")state.tableMode=i===0?"single":"both";
       if(m==="decimalMark")state.decimalMark=i===0?"dot":"comma";
