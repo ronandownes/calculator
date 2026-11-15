@@ -562,9 +562,28 @@ body.menu-dark[data-menu-shift-colour] .cw-shift-key{
 .menu-fit-viewport.detail-zoom{cursor:grab;touch-action:pan-x pan-y;}
 .menu-fit-viewport.detail-zoom.is-dragging{cursor:grabbing;user-select:none;}
 
+/* Accessible mathematics sizing: MathML fractions use display-style proportions.
+   Keep digits large until the viewport genuinely requires shrink-to-fit. */
+.menu-fit-viewport #display .expression{
+  font-size:clamp(40px,4vw,58px)!important;
+  min-height:60px!important;
+}
+.menu-fit-viewport #display .expression math,
+.menu-fit-viewport #display .result math,
+.menu-fit-viewport #display .result mfrac{
+  math-style:normal!important;
+}
+.menu-fit-viewport #display .result math{
+  font-size:inherit!important;
+  display:inline-block;
+  vertical-align:middle;
+}
+@media(max-width:430px){
+ .menu-fit-viewport #display .expression{font-size:40px!important;min-height:48px!important}
+}
 /* Show the entered expression prominently; large single answers get the remaining space. */
 .menu-fit-viewport #display .expression{
-  font-size:clamp(29px,3vw,42px)!important;
+  font-size:clamp(40px,4vw,58px)!important;
   line-height:1.12!important;
   white-space:nowrap!important;
   overflow-x:auto!important;
@@ -1983,6 +2002,15 @@ setLedMode("off");
     }else{state.view="home";state.selection=0;render()}
   }
   function press(cmd){
+    // Decimal execution must precede the fraction editor's ordinary EXE handler.
+    if(cmd==="exe"&&state.shift&&state.view==="calculate"){
+      state.shift=false;
+      state.decimal=true;
+      if(state.mathEditor){mathPress("exe");}
+      else if(state.answer===null){calculate();}
+      else{state.factorText=null;render();}
+      return;
+    }
     if((cmd==="fraction"||state.mathEditor)&&mathPress(cmd))return;
     if(state.logDraft){
       if(editLogDraft(cmd))return;
@@ -2016,12 +2044,6 @@ setLedMode("off");
       const count=state.view==="home"?home.length:itemsForMenu(state.menu).length;
       if(!count)return;
       state.selection=(state.selection+(cmd==="up"?count-1:1))%count;render();return;
-    }
-    if(cmd==="exe"&&state.shift&&state.view==="calculate"){
-      state.shift=false;state.decimal=true;
-      if(state.answer===null)calculate();
-      else{state.factorText=null;render();}
-      return;
     }
     if(cmd==="ok"||cmd==="exe"){
       if(["home","menu"].includes(state.view)){select(state.selection);return}
@@ -2276,7 +2298,7 @@ setLedMode("off");
    const expression=display.querySelector(".expression");
    const room=Math.max(32,display.clientHeight-(expression?.offsetHeight||0)-18);
    const width=Math.max(45,display.clientWidth-5);
-   for(let px=88;px>=24;px-=2){
+   for(let px=112;px>=26;px-=2){
      answer.style.setProperty("--menu-answer-size",px+"px");
      const math=answer.querySelector("math");
      const w=Math.max(answer.scrollWidth,math?.getBoundingClientRect().width||0);
