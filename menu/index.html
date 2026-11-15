@@ -2039,6 +2039,9 @@ setLedMode("off");
       state.contrast=Math.max(1,Math.min(9,state.contrast+delta));render();return;
     }
     if(cmd==="back"){back();return}
+    // Navigation arrows are controls, never literal expression tokens.
+    // Fraction-template movement is handled earlier by mathPress().
+    if(state.view==="calculate"&&["up","down","right"].includes(cmd))return;
     if(["up","down","right"].includes(cmd)&&["home","menu"].includes(state.view)){
       if(state.view==="menu"&&["numberFix","numberSci","contrast"].includes(state.menu))return;
       if(cmd==="right"){select(state.selection);return}
