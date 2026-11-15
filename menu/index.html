@@ -17,7 +17,9 @@
 .dotline i{width:11px;height:11px;border-radius:50%}.dotline i:nth-child(1){background:#e63329}.dotline i:nth-child(2){background:#3fae49}.dotline i:nth-child(3){background:#2d7dd2}.dotline i:nth-child(4){background:#1a1a1a}
 .lcd-frame{padding:8px;background:#c5ccd4;border-radius:20px;border:1px solid #b3bcc7;margin-bottom:15px}
 .lcd{height:210px;border-radius:12px;background:#dbe6dc;border:1px solid #adbfb2;padding:11px 15px;color:#141e17;display:flex;flex-direction:column;overflow:hidden}
-.indicators{display:flex;gap:12px;font:700 13px Georgia,serif;min-height:19px}.indicators .hint{margin-left:auto;font-size:11px}
+.indicators{display:flex;gap:12px;font:700 13px Georgia,serif;min-height:19px}
+.indicators #angle{display:inline-flex;align-items:center;justify-content:center;font:800 13px/1 Georgia,serif;
+ min-width:20px;height:20px;border:1.5px solid #243128;border-radius:50%;margin-left:5px}.indicators .hint{margin-left:auto;font-size:11px}
 #display{flex:1;overflow:auto;scrollbar-width:thin}
 .home-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;padding:3px 0}
 .home-grid button{background:#eef4ed;border:1px solid #a9bcae;min-height:45px;border-radius:8px;color:#172a1c;font-weight:700;font-size:15px;cursor:pointer;text-align:left;padding:6px 9px}
@@ -1210,12 +1212,12 @@ setLedMode("off");
   "use strict";
   const $=id=>document.getElementById(id);
   const display=$("display"), angleLabel=$("angle"), shiftLabel=$("shift-state"), hint=$("screen-hint");
-  const state={view:"home",selection:0,menu:null,back:"calculate",angle:"deg",shift:false,
+  const state={view:"calculate",selection:0,menu:null,back:"calculate",angle:"deg",shift:false,
     ans:0,expr:"",answer:null,decimal:false,numberFormat:"norm",fixedDigits:3,sciDigits:5,normMode:1,
     inputOutput:"MathI/MathO",fractionResult:"improper",freqOn:false,tableMode:"both",
     decimalMark:"dot",digitSeparator:false,multiLineFont:"normal",contrast:5,
-    stats:"",message:"",factorText:null,tableRows:[],box:"",ratio:null,logDraft:null};
-  const home=[["Calculate","Basic calculations"],["Statistics","Mean and spread"],["Table","Function values"],["Math Box","Dice and coin"]];
+    stats:"",statsMode:1,message:"",factorText:null,tableRows:[],box:"",ratio:null,logDraft:null};
+  const home=[["Calculate","Basic calculations"],["Statistics","Mean and spread"],["Table","Function values"],["Math Box","Random experiments"]];
   // fx-82CW / fx-85CW / fx-350CW CATALOG order (official CW manual,
   // Advanced Calculations, pp. 43–50). This is NOT the EX catalogue.
   const catalogue=[
@@ -1276,6 +1278,7 @@ setLedMode("off");
     ["MultiLine Font","Normal or small"],["Contrast","Light or dark"]
   ];
   const angleItems=[["Degree","D"],["Radian","R"],["Gradian","G"]];
+  const statsModes=[["1-Variable","Single observations"],["2-Variable","Paired (x,y) observations"]];
   const numberItems=[["Fix","0 to 9 decimal places"],["Sci","0 to 9 significant digits"],["Norm","Normal format 1 or 2"]];
   const normItems=[["Norm 1","Exponents below 0.01"],["Norm 2","Exponents below 10⁻⁹"]];
   const inputItems=[["MathI/MathO","Exact output"],["MathI/DecimalO","Decimal output"],
@@ -1784,6 +1787,7 @@ setLedMode("off");
       if(m==="catalog"){items=catalogue;title="CATALOG"}
       else if(m?.startsWith("functions:")){title=m.slice("functions:".length);items=functions[title]}
       else if(m==="settings"){title="SETUP";items=settings}
+       else if(m==="statsMode"){title="Statistics";items=statsModes}
       else if(m==="angle"){title="Angle Unit";items=angleItems}
       else if(m==="number"){title="Number Format";items=numberItems}
       else if(m==="numberNorm"){title="Norm";items=normItems}
@@ -1814,13 +1818,13 @@ setLedMode("off");
       }
     } else if(state.view==="calculate")display.innerHTML=calcDisplay();
     else if(state.view==="stats"){
-      display.innerHTML='<div class="lcd-title">Statistics</div><div class="mini"><p>'+
-        (state.freqOn?'Enter value:frequency pairs, e.g. 2:3,4:1.':
+      display.innerHTML='<div class="lcd-title">Statistics · '+state.statsMode+'-Variable</div><div class="mini"><p>'+
+        (state.statsMode===2?'Enter paired values x:y, separated by commas (e.g. 1:2,2:4,3:5).':state.freqOn?'Enter value:frequency pairs, e.g. 2:3,4:1.':
           'Enter values separated by commas, then EXE.')+
-        '</p></div><div class="expression">'+escapeHtml(state.stats||"0")+
+        '</p></div><div class="expression">'+escapeHtml(state.stats||"")+
         '</div>'+(state.message?'<div class="mini">'+escapeHtml(state.message)+'</div>':"");
     } else if(state.view==="table"){
-      display.innerHTML='<div class="lcd-title">Table of values</div>'+
+      display.innerHTML='<div class="lcd-title">Table of values</div><p class="mini">Example: f(x) = x²; g(x) = x + 1. Edit to generate the table.</p>'+
         '<div class="mini field"><label for="table-e">f(x)</label><input id="table-e" value="x^2" aria-label="Function of x"></div>'+
         (state.tableMode==="both"?'<div class="mini field"><label for="table-g">g(x)</label><input id="table-g" value="x+1" aria-label="Second function"></div>':"")+
         '<div class="mini field"><label for="table-start">Start</label><input id="table-start" type="number" value="0"></div>'+
@@ -1830,16 +1834,21 @@ setLedMode("off");
     } else if(state.view==="ratio"){
       display.innerHTML='<div class="lcd-title">Ratio a : b = c : x</div><div class="mini field"><label for="ra">a</label><input type="number" id="ra" value="2"></div><div class="mini field"><label for="rb">b</label><input type="number" id="rb" value="3"></div><div class="mini field"><label for="rc">c</label><input type="number" id="rc" value="8"></div><button class="mini-action" data-special="ratio">Find x</button>'+(state.ratio!==null?'<strong class="mini">x = '+escapeHtml(fmt(state.ratio))+'</strong>':"");
     } else if(state.view==="box"){
-      display.innerHTML='<div class="lcd-title">Maths Box</div><button class="mini-action" data-special="dice">Roll a die</button><button class="mini-action" data-special="coin">Flip a coin</button><p class="result">'+escapeHtml(state.box||"")+'</p>';
+      display.innerHTML='<div class="lcd-title">Maths Box</div><button class="mini-action" data-special="dice">Random integer 1–6</button><button class="mini-action" data-special="coin">Random choice 1–2</button><p class="result">'+escapeHtml(state.box||"")+'</p>';
     }
   }
   function select(i){
     if(state.view==="home"){
       if(i<0||i>=home.length)return;
+      if(i===1){state.view="menu";state.menu="statsMode";state.selection=0;state.message="";render();return;}
       state.view=["calculate","stats","table","box"][i];state.selection=0;state.message="";render();return;
     }
     if(state.view!=="menu")return;
     const m=state.menu;
+    if(m==="statsMode"){
+      if(i<0||i>1)return;
+      state.statsMode=i+1;state.stats="";state.message="";state.view="stats";state.menu=null;state.selection=0;render();return;
+    }
     if(m==="catalog"){
       if(i<0||i>=catalogue.length)return;
       state.menu="functions:"+catalogue[i][0];state.selection=0;state.message="";render();return;
@@ -1967,6 +1976,20 @@ setLedMode("off");
   function statsResult(){
     try{
       let pairs;
+      if(state.statsMode===2){
+        const rows=state.stats.split(",").map(part=>part.trim().split(":").map(Number));
+        if(!state.stats.trim()||rows.length<2||rows.some(row=>row.length!==2||row.some(v=>!Number.isFinite(v))))
+          throw Error("Enter at least two x:y pairs, e.g. 1:2,2:4");
+        const n=rows.length;
+        const mx=rows.reduce((a,row)=>a+row[0],0)/n;
+        const my=rows.reduce((a,row)=>a+row[1],0)/n;
+        const sxx=rows.reduce((a,row)=>a+(row[0]-mx)**2,0);
+        const syy=rows.reduce((a,row)=>a+(row[1]-my)**2,0);
+        const sxy=rows.reduce((a,row)=>a+(row[0]-mx)*(row[1]-my),0);
+        state.message="n = "+n+"   x̄ = "+fmt(mx)+"   ȳ = "+fmt(my)+
+          "   r = "+(sxx>0&&syy>0?fmt(sxy/Math.sqrt(sxx*syy)):"undefined");
+        render();return;
+      }
       if(state.freqOn){
         pairs=state.stats.split(",").map(part=>{
           const match=part.trim().match(/^(-?\d+(?:\.\d+)?):(\d+)$/);
@@ -2086,7 +2109,7 @@ setLedMode("off");
       select(start+Number(cmd)-1);return;
     }
     if(state.view==="stats"){
-      if((state.freqOn?/^[\d.,:−]$/:/^[\d.,−]$/).test(cmd))state.stats+=cmd==="−"?"-":cmd;
+      if((state.statsMode===2||state.freqOn?/^[\d.,:−]$/:/^[\d.,−]$/).test(cmd))state.stats+=cmd==="−"?"-":cmd;
       render();return;
     }
     if(state.view!=="calculate")return;
@@ -2112,7 +2135,7 @@ setLedMode("off");
     if(target.dataset.cmd){press(target.dataset.cmd);return}
     if(target.dataset.choice!==undefined){select(Number(target.dataset.choice));return}
     const special=target.dataset.special;
-    if(special==="coin"){state.box=Math.random()<.5?"Heads":"Tails";render()}
+    if(special==="coin"){state.box=String(Math.floor(Math.random()*2)+1);render()}
     else if(special==="dice"){state.box=String(Math.floor(Math.random()*6)+1);render()}
     else if(special==="ratio"){
       const a=Number($("ra").value),b=Number($("rb").value),c=Number($("rc").value);
