@@ -1464,6 +1464,7 @@ setLedMode("off");
     return markup+'</div>';
   }
   function itemsForMenu(menu){
+    if(menu==="statsMode")return statsModes;
     if(menu==="catalog")return catalogue;
     if(menu?.startsWith("functions:"))return functions[menu.slice("functions:".length)]||[];
     if(menu==="settings")return settingsRoot;
