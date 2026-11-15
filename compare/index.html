@@ -109,6 +109,14 @@ header.minimized .top .tabs,header.minimized .top .options,header.minimized .sub
  const demonstrated={scientific:[],menu:[]};
  function record(kind,steps){
    if(!steps?.length)return;
+   // AC starts a fresh trial. Linked mode mirrors AC, resetting both records.
+   // Decoupled mode clears only the calculator being operated.
+   if(steps.some(step=>step==="AC"||step==="ac")){
+     demonstrated[kind]=[];
+     dualDisplay[kind].keys.textContent="—";
+     dualDisplay[kind].result.textContent="";
+     return;
+   }
    demonstrated[kind].push(...steps);
    demonstrated[kind]=demonstrated[kind].slice(-16);
    dualDisplay[kind].keys.textContent=demonstrated[kind].join(" → ");
