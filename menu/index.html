@@ -1754,7 +1754,8 @@ setLedMode("off");
     if(common)return '<math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi mathvariant="normal">'+
       common[1]+'</mi><mo>(</mo><mtext>'+escapeHtml(common[2]||"□")+
       '</mtext><mo>)</mo></mrow></math>';
-    return escapeHtml(pretty||"0");
+    // A fresh calculation has an empty input field, not a synthetic zero.
+    return escapeHtml(pretty||"");
   }
   function calcDisplay(){
     const raw=state.expr.replace(/asin\(/g,"sin⁻¹(").replace(/acos\(/g,"cos⁻¹(").replace(/atan\(/g,"tan⁻¹(").replace(/sqrt\(/g,"√(").replace(/ran#/g,"Ran#");
