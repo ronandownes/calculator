@@ -1216,7 +1216,7 @@ setLedMode("off");
     ans:0,expr:"",answer:null,decimal:false,numberFormat:"norm",fixedDigits:3,sciDigits:5,normMode:1,
     inputOutput:"MathI/MathO",fractionResult:"improper",freqOn:false,tableMode:"both",
     decimalMark:"dot",digitSeparator:false,multiLineFont:"normal",contrast:5,
-    stats:"",statsMode:1,message:"",factorText:null,tableRows:[],box:"",ratio:null,logDraft:null};
+    stats:"",statsMode:1,message:"",factorText:null,tableRows:[],box:"",randomMin:1,randomMax:6,randomCount:1,ratio:null,logDraft:null};
   const home=[["Calculate","Basic calculations"],["Statistics","Mean and spread"],["Table","Function values"],["Math Box","Random experiments"]];
   // fx-82CW / fx-85CW / fx-350CW CATALOG order (official CW manual,
   // Advanced Calculations, pp. 43–50). This is NOT the EX catalogue.
@@ -1270,6 +1270,7 @@ setLedMode("off");
     ]
   };
   // SETUP reference: official fx-82EX/85EX/350EX manual, page 6.
+  const settingsRoot=[["Calc Settings","Calculation, input and output"],["System Settings","System preferences"],["Reset","Reset calculator settings"],["Get Started","Calculator guidance"]];
   const settings=[
     ["Input/Output","Natural or linear notation"],["Angle Unit","Degrees, radians, gradians"],
     ["Number Format","Fix, Sci, Norm"],["Fraction Result","Mixed or improper"],
@@ -1465,7 +1466,11 @@ setLedMode("off");
   function itemsForMenu(menu){
     if(menu==="catalog")return catalogue;
     if(menu?.startsWith("functions:"))return functions[menu.slice("functions:".length)]||[];
-    if(menu==="settings")return settings;
+    if(menu==="settings")return settingsRoot;
+    if(menu==="calcSettings")return settings;
+    if(menu==="systemSettings")return [["Contrast","Screen contrast"]];
+    if(menu==="resetConfirm")return [["Cancel","Keep settings"],["Reset","Restore default settings"]];
+    if(menu==="getStarted")return [["Calculate","Return to calculation"],["Home","Choose an application"]];
     if(menu==="angle")return angleItems;
     if(menu==="number")return numberItems;
     if(menu==="numberNorm")return normItems;
@@ -1786,7 +1791,11 @@ setLedMode("off");
       let items=[],title="";
       if(m==="catalog"){items=catalogue;title="CATALOG"}
       else if(m?.startsWith("functions:")){title=m.slice("functions:".length);items=functions[title]}
-      else if(m==="settings"){title="SETUP";items=settings}
+      else if(m==="settings"){title="SETTINGS";items=settingsRoot}
+       else if(m==="calcSettings"){title="Calc Settings";items=settings}
+       else if(m==="systemSettings"){title="System Settings";items=itemsForMenu(m)}
+       else if(m==="resetConfirm"){title="Reset settings?";items=itemsForMenu(m)}
+       else if(m==="getStarted"){title="Get Started";items=itemsForMenu(m)}
        else if(m==="statsMode"){title="Statistics";items=statsModes}
       else if(m==="angle"){title="Angle Unit";items=angleItems}
       else if(m==="number"){title="Number Format";items=numberItems}
@@ -1812,7 +1821,7 @@ setLedMode("off");
         decimalMark:"Decimal Mark",digitSeparator:"Digit Separator",
         multiLineFont:"MultiLine Font"})[m];items=simpleSetupMenus[m]}
       else if(m==="format"){title="FORMAT";items=fmtItems}
-      display.innerHTML=list(items,title,m==="settings"||m==="catalog"||m==="format"||m?.startsWith("functions:"));
+      display.innerHTML=list(items,title,m==="settings"||m==="calcSettings"||m==="catalog"||m==="format"||m?.startsWith("functions:"));
       if(m?.startsWith("functions:")&&state.message){
         display.insertAdjacentHTML("beforeend",'<p class="catalog-notice" role="status">'+escapeHtml(state.message)+'</p>');
       }
@@ -1834,7 +1843,15 @@ setLedMode("off");
     } else if(state.view==="ratio"){
       display.innerHTML='<div class="lcd-title">Ratio a : b = c : x</div><div class="mini field"><label for="ra">a</label><input type="number" id="ra" value="2"></div><div class="mini field"><label for="rb">b</label><input type="number" id="rb" value="3"></div><div class="mini field"><label for="rc">c</label><input type="number" id="rc" value="8"></div><button class="mini-action" data-special="ratio">Find x</button>'+(state.ratio!==null?'<strong class="mini">x = '+escapeHtml(fmt(state.ratio))+'</strong>':"");
     } else if(state.view==="box"){
-      display.innerHTML='<div class="lcd-title">Maths Box</div><button class="mini-action" data-special="dice">Random integer 1–6</button><button class="mini-action" data-special="coin">Random choice 1–2</button><p class="result">'+escapeHtml(state.box||"")+'</p>';
+      display.innerHTML='<div class="lcd-title">Math Box · Random numbers</div>'+
+        '<div class="mini field"><label for="random-min">Minimum</label><input id="random-min" type="number" step="1" value="'+state.randomMin+'"></div>'+
+        '<div class="mini field"><label for="random-max">Maximum</label><input id="random-max" type="number" step="1" value="'+state.randomMax+'"></div>'+
+        '<div class="mini field"><label for="random-count">How many?</label><input id="random-count" type="number" min="1" max="30" step="1" value="'+state.randomCount+'"></div>'+
+        '<button class="mini-action" data-special="randomGenerate">Generate</button>'+
+        '<button class="mini-action" data-special="dice">1–6</button>'+
+        '<button class="mini-action" data-special="coin">1–2</button>'+
+        '<p class="mini">Uniform random integers, inclusive of both endpoints.</p>'+
+        '<div class="result" aria-live="polite">'+escapeHtml(state.box||"")+'</div>';
     }
   }
   function select(i){
@@ -1866,6 +1883,23 @@ setLedMode("off");
       insert(items[i][1]);return;
     }
     if(m==="settings"){
+      if(i===0){state.menu="calcSettings";state.selection=0;render();return;}
+      if(i===1){state.menu="systemSettings";state.selection=0;render();return;}
+      if(i===2){state.menu="resetConfirm";state.selection=0;render();return;}
+      if(i===3){state.menu="getStarted";state.selection=0;render();return;}
+      return;
+    }
+    if(m==="systemSettings"){if(i===0){state.menu="contrast";state.selection=0;render();}return;}
+    if(m==="resetConfirm"){
+      if(i===1){
+        Object.assign(state,{angle:"deg",inputOutput:"MathI/MathO",fractionResult:"improper",numberFormat:"norm",decimalMark:"dot",digitSeparator:false});
+      }
+      state.view="calculate";state.menu=null;state.selection=0;render();return;
+    }
+    if(m==="getStarted"){
+      state.view=i===1?"home":"calculate";state.menu=null;state.selection=0;render();return;
+    }
+    if(m==="calcSettings"){
       if(i<0||i>=settings.length)return;
       state.menu=["inputOutput","angle","number","fractionResult","statisticsSetup",
         "tableSetup","decimalMark","digitSeparator","multiLineFont","contrast"][i];
@@ -2013,6 +2047,9 @@ setLedMode("off");
   function back(){
     if(state.view==="menu"){
       if(state.menu?.startsWith("functions:")){state.menu="catalog";state.selection=0;state.message=""}
+      else if(["calcSettings","systemSettings","resetConfirm","getStarted"].includes(state.menu)){
+        state.menu="settings";state.selection=0;
+      }
       else if(["numberFix","numberSci","numberNorm"].includes(state.menu)){
         state.menu="number";state.selection=0;
       }
@@ -2020,7 +2057,7 @@ setLedMode("off");
         "decimalMark","digitSeparator","multiLineFont","contrast"].includes(state.menu)){
         const selected=["inputOutput","angle","number","fractionResult","statisticsSetup","tableSetup",
           "decimalMark","digitSeparator","multiLineFont","contrast"].indexOf(state.menu);
-        state.menu="settings";state.selection=Math.max(selected,0);
+        state.menu="calcSettings";state.selection=Math.max(selected,0);
       } else {state.view=state.back;state.menu=null;state.selection=0}
       render();
     }else{state.view="home";state.selection=0;render()}
@@ -2061,14 +2098,22 @@ setLedMode("off");
       const delta=["contrast-light","back"].includes(cmd)?-1:1;
       state.contrast=Math.max(1,Math.min(9,state.contrast+delta));render();return;
     }
-    if(cmd==="back"){back();return}
+    if(cmd==="back"){
+      if(state.view==="home"){state.selection=(state.selection+3)%home.length;render();}
+      else back();
+      return;
+    }
     // Navigation arrows are controls, never literal expression tokens.
     // Fraction-template movement is handled earlier by mathPress().
     if(state.view==="calculate"&&["up","down","right"].includes(cmd))return;
     if(["up","down","right"].includes(cmd)&&["home","menu"].includes(state.view)){
       if(state.view==="menu"&&["numberFix","numberSci","contrast"].includes(state.menu))return;
+      if(state.view==="home"){
+        const shift=cmd==="up"?-2:cmd==="down"?2:1;
+        state.selection=(state.selection+shift+home.length)%home.length;render();return;
+      }
       if(cmd==="right"){select(state.selection);return}
-      const count=state.view==="home"?home.length:itemsForMenu(state.menu).length;
+      const count=itemsForMenu(state.menu).length;
       if(!count)return;
       state.selection=(state.selection+(cmd==="up"?count-1:1))%count;render();return;
     }
@@ -2099,12 +2144,12 @@ setLedMode("off");
       }
       returnFromSetup();return;
     }
-    if(state.view==="menu"&&state.menu==="settings"&&/^[1-4]$/.test(cmd)){
+    if(state.view==="menu"&&["settings","calcSettings"].includes(state.menu)&&/^[1-4]$/.test(cmd)){
       const start=Math.floor(state.selection/4)*4;
       select(start+Number(cmd)-1);return;
     }
-    if((state.view==="home"||state.view==="menu")&&/^[1-9]$/.test(cmd)){
-      const start=state.view==="menu"&&["settings","catalog","format"].includes(state.menu)?
+    if(state.view==="menu"&&/^[1-9]$/.test(cmd)){
+      const start=state.view==="menu"&&["settings","calcSettings","catalog","format"].includes(state.menu)?
         Math.floor(state.selection/4)*4:0;
       select(start+Number(cmd)-1);return;
     }
@@ -2135,7 +2180,17 @@ setLedMode("off");
     if(target.dataset.cmd){press(target.dataset.cmd);return}
     if(target.dataset.choice!==undefined){select(Number(target.dataset.choice));return}
     const special=target.dataset.special;
-    if(special==="coin"){state.box=String(Math.floor(Math.random()*2)+1);render()}
+    if(special==="randomGenerate"){
+      const min=Number($("random-min").value),max=Number($("random-max").value),count=Number($("random-count").value);
+      if(![min,max,count].every(Number.isSafeInteger)||max<min||max-min>1000000||count<1||count>30){
+        state.box="Choose integer bounds (range ≤ 1,000,000) and 1–30 draws.";
+      }else{
+        state.randomMin=min;state.randomMax=max;state.randomCount=count;
+        const range=max-min+1;
+        state.box=Array.from({length:count},()=>String(min+Math.floor(Math.random()*range))).join(", ");
+      }
+      render();
+    }else if(special==="coin"){state.randomMin=1;state.randomMax=2;state.randomCount=1;state.box=String(Math.floor(Math.random()*2)+1);render()}
     else if(special==="dice"){state.box=String(Math.floor(Math.random()*6)+1);render()}
     else if(special==="ratio"){
       const a=Number($("ra").value),b=Number($("rb").value),c=Number($("rc").value);
