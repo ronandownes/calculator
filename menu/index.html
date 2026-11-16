@@ -1010,7 +1010,37 @@ body[data-menu-shift-colour="neutral"]{--menu-shift:#535b65;--menu-shift-dark:#d
 .menu-sidebar .menu-shift-picker .shift-freeze[aria-pressed="true"]{background:#22384f;color:#fff}
 .menu-sidebar .menu-shift-picker .shift-freeze:disabled{opacity:.45;cursor:default}
 </style>
-</head>
+<style id="angle-indicator-position-20261116">
+/* Matching quarter-width angle indicator, with a root-template icon in Calculate. */
+.lcd .indicators{
+  position:relative!important;display:block!important;flex:none!important;
+  min-height:44px!important;
+}
+.lcd .indicators #angle{
+  position:absolute!important;left:25%!important;top:0!important;
+  transform:translateX(-50%)!important;margin:0!important;
+  width:42px!important;height:42px!important;min-width:42px!important;
+  border:none!important;border-radius:2px!important;
+  background:#101010!important;color:#fff!important;
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  font:900 30px/1 Georgia,"Times New Roman",serif!important;
+}
+.lcd .indicators #calc-root-indicator{
+  position:absolute!important;left:calc(25% - 72px)!important;top:1px!important;
+  display:none!important;align-items:center;justify-content:center;
+  width:52px;height:40px;color:#111;
+}
+body.calc-mode-active .lcd .indicators #calc-root-indicator{display:inline-flex!important}
+.lcd .indicators #calc-root-indicator svg{width:49px;height:39px;display:block}
+.lcd .indicators #shift-state{
+  position:absolute!important;left:calc(25% + 34px)!important;top:10px!important;
+  font-size:20px!important;font-weight:850!important;
+}
+.lcd .indicators #screen-hint{
+  position:absolute!important;right:0!important;top:10px!important;
+  font-size:11px!important;
+}
+</style></head>
 <body class="menu-light">
 <div class="menu-layout">
 <aside class="menu-sidebar" aria-label="Calculator selection">
@@ -1034,7 +1064,7 @@ body[data-menu-shift-colour="neutral"]{--menu-shift:#535b65;--menu-shift-dark:#d
   <main class="device" aria-label="Menu calculator with circular keys">
     <div class="dotline" role="img" aria-label="Four coloured dots"><i></i><i></i><i></i><i></i></div>
     <div class="lcd-frame"><div class="lcd" aria-live="polite">
-      <div class="indicators"><span id="angle">D</span><span id="shift-state"></span><span class="hint" id="screen-hint"></span></div>
+      <div class="indicators"><span id="calc-root-indicator" aria-hidden="true"><svg viewBox="0 0 52 40" xmlns="http://www.w3.org/2000/svg" focusable="false"><path d="M2 20 H10 L17 35 L28 5 H50" fill="none" stroke="currentColor" stroke-width="3.7" stroke-linejoin="miter"/><rect x="34" y="12" width="12" height="13" fill="none" stroke="currentColor" stroke-width="2.7"/></svg></span><span id="angle">D</span><span id="shift-state"></span><span class="hint" id="screen-hint"></span></div>
       <div id="display"></div>
     </div></div>
     <div class="cw-control-deck" aria-label="Menu calculator navigation and controls">
@@ -1776,6 +1806,7 @@ setLedMode("off");
   }
   function render(){
     angleLabel.textContent=angle();
+    document.body.classList.toggle("calc-mode-active",state.view==="calculate");
     shiftLabel.textContent=state.shift?"S":"";
     document.body.classList.toggle("shift-active",state.shift);
     hint.textContent=state.view==="calculate"&&state.numberFormat!=="norm"?
