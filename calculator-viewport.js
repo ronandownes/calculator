@@ -19,15 +19,20 @@
     railButton.setAttribute("aria-expanded",String(!collapse));
     railButton.setAttribute("aria-label",collapse?"Show calculator controls":"Hide calculator controls");
     // Do not retain a cropped magnification when controls are hidden.
-    requestAnimationFrame(()=>{fitHeight();});
+    requestAnimationFrame(()=>{
+      if(mode==="compact")fitCompact();
+      else fitHeight();
+    });
   });
 
   if(!viewport||!stage||!calculator||!fit||!plus||!minus)return;
 
   const MIN=0.25,MAX=5,clamp=x=>Math.min(MAX,Math.max(MIN,x));
   let scale=1;
-  // Always start by fitting the complete fixed-shape calculator, even in a narrow window.
-  let mode="height";
+  // Start compact so the instrument leaves breathing room for the surrounding page.
+  // Fit height / fit width remain deliberate, full-size user choices.
+  let mode="compact";
+  const COMPACT_HEIGHT_RATIO=0.78;
   let gesture=null,drag=null,space=false,blockClick=false,queued=false;
   const NATIVE_WIDTH=660;
   let baseWidth=NATIVE_WIDTH,baseHeight=900;
@@ -78,6 +83,17 @@
     mode=null;
     change(next,x,y);
   }
+  function fitCompact(){
+    measure();
+    mode="compact";
+    const target=Math.min(
+      COMPACT_HEIGHT_RATIO*viewportHeight()/baseHeight,
+      0.95*viewport.clientWidth/baseWidth
+    );
+    scale=Math.round(clamp(target)*1000)/1000;
+    draw();
+    viewport.scrollTo({left:0,top:0,behavior:"instant"});
+  }
   function fitHeight(){
     measure();
     mode="height";
@@ -116,7 +132,8 @@
     if(on)fitWidth();
     else{
       measure();
-      if(previousMode==="height")fitHeight();
+      if(previousMode==="compact")fitCompact();
+      else if(previousMode==="height")fitHeight();
       else if(previousMode==="width")fitWidth();
       else{
         mode=previousMode;scale=previousScale;draw();
@@ -143,7 +160,8 @@
     requestAnimationFrame(()=>{
       queued=false;
       measure();
-      if(mode==="height")fitHeight();
+      if(mode==="compact")fitCompact();
+      else if(mode==="height")fitHeight();
       else if(mode==="width")fitWidth();
       else draw();
     });
@@ -230,6 +248,7 @@
   },{passive:false});
 
   measure();
-  if(mode==="height")requestAnimationFrame(fitHeight);
+  if(mode==="compact")requestAnimationFrame(fitCompact);
+  else if(mode==="height")requestAnimationFrame(fitHeight);
   else draw();
 })();
