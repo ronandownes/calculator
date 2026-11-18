@@ -1,35 +1,44 @@
-/* Left-rail skins; independent of the four LCD tint dots. */
+/* Each colour swatch switches between the dark and light case in that hue.
+   Neutral preserves the original graphite/grey design. */
 (() => {
  "use strict";
- const neutral=document.getElementById("toggleNeutralSkin");
  const buttons=[...document.querySelectorAll("[data-science-skin]")];
  const status=document.getElementById("scienceSkinStatus");
- const skins=["dark","light","pink","mint","blue","orange"];
- let selected="dark"; // Every new visit to /calculator/ starts here.
- function apply(skin){
-   if(!skins.includes(skin))return;
-   selected=skin;
-   document.body.classList.toggle("dark",skin==="dark");
-   document.body.classList.toggle("light",skin!=="dark");
-   document.body.classList.remove("skin-pink","skin-mint","skin-blue","skin-orange");
-   if(["pink","mint","blue","orange"].includes(skin))document.body.classList.add("skin-"+skin);
-   for(const b of buttons)b.setAttribute("aria-pressed",String(b.dataset.scienceSkin===skin));
-   neutral.setAttribute("aria-pressed",String(skin==="dark"||skin==="light"));
-   neutral.setAttribute("aria-label",skin==="dark"?"Scientific dark skin, click for light":"Scientific light skin, click for dark");
-   if(status)status.textContent=({dark:"Dark",light:"Light",pink:"Pastel pink",mint:"Pastel green",blue:"Pastel blue",orange:"Warm orange"})[skin];
+ const families=["red","green","blue","pink","neutral"];
+ let family="neutral",tone="dark";
+ function apply(nextFamily,nextTone){
+   if(!families.includes(nextFamily)||!["dark","light"].includes(nextTone))return;
+   family=nextFamily;tone=nextTone;
+   document.body.classList.toggle("dark",tone==="dark");
+   document.body.classList.toggle("light",tone==="light");
+   document.body.classList.remove("skin-red","skin-pink","skin-mint","skin-green","skin-blue","skin-orange");
+   if(family!=="neutral")document.body.classList.add("skin-"+(family==="green"?"mint":family));
+   document.body.dataset.caseFamily=family;
+   document.body.dataset.caseTone=tone;
+   for(const b of buttons){
+     const name=b.dataset.scienceSkin;
+     const chosen=name===family;
+     const label=name==="neutral"?"Grey":name[0].toUpperCase()+name.slice(1);
+     b.setAttribute("aria-pressed",String(chosen));
+     b.setAttribute("aria-label",label+" case, "+(chosen?tone:"not selected")+". "+(chosen?"Click for "+(tone==="dark"?"light":"dark"):"Click for dark")+".");
+     b.title=label+(chosen?" · "+tone:"")+" · "+(chosen?"switch to "+(tone==="dark"?"light":"dark"):"select dark");
+   }
+   if(status)status.textContent=(tone==="dark"?"Dark ":"Light ")+(family==="neutral"?"grey":family);
  }
- for(const b of buttons)b.addEventListener("click",()=>apply(b.dataset.scienceSkin));
- neutral?.addEventListener("click",()=>apply(selected==="dark"?"light":"dark"));
+ for(const b of buttons)b.addEventListener("click",()=>{
+   const selected=b.dataset.scienceSkin;
+   apply(selected,selected===family?(tone==="dark"?"light":"dark"):"dark");
+ });
  const shiftButtons=[...document.querySelectorAll("[data-shift-colour]")];
  function applyShiftColour(colour){
    if(!["blue","green","orange","neutral"].includes(colour))return;
    document.body.dataset.shiftColour=colour;
-   for(const button of shiftButtons)
-     button.setAttribute("aria-pressed",String(button.dataset.shiftColour===colour));
+   for(const b of shiftButtons)b.setAttribute("aria-pressed",String(b.dataset.shiftColour===colour));
  }
- for(const button of shiftButtons)
-   button.addEventListener("click",()=>applyShiftColour(button.dataset.shiftColour));
+ for(const b of shiftButtons)b.addEventListener("click",()=>applyShiftColour(b.dataset.shiftColour));
  applyShiftColour("blue");
  const requested=new URLSearchParams(location.search).get("skin");
- apply(["pink","mint","blue","orange","light"].includes(requested)?requested:"dark");
+ const legacy={dark:["neutral","dark"],light:["neutral","light"],mint:["green","light"],orange:["red","light"],pink:["pink","light"],blue:["blue","light"]};
+ const pair=legacy[requested]||(/^((?:red|green|blue|pink|neutral))-(dark|light)$/.exec(requested||"")||[]).slice(1);
+ apply(pair?.[0]||"neutral",pair?.[1]||"dark");
 })();

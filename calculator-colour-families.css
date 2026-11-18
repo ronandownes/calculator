@@ -1,0 +1,57 @@
+/* Five case colours, each with a dark/light version.
+   This stylesheet changes only the case/bed colour and menu label contrast;
+   the LCD tint, key functions, key faces, and SHIFT/ALPHA choices stay independent. */
+body[data-case-family="red"][data-case-tone="dark"]{--case-shell:#762c32;--case-bed:#923c44;--case-outline:#572026;--case-ink:#ffffff}
+body[data-case-family="red"][data-case-tone="light"]{--case-shell:#f4d8d8;--case-bed:#efd0ce;--case-outline:#be8889;--case-ink:#1b2534}
+body[data-case-family="pink"][data-case-tone="dark"]{--case-shell:#763451;--case-bed:#995571;--case-outline:#51243d;--case-ink:#ffffff}
+body[data-case-family="pink"][data-case-tone="light"]{--case-shell:#f4dfe9;--case-bed:#ecd0dd;--case-outline:#c79bac;--case-ink:#1b2534}
+body[data-case-family="green"][data-case-tone="dark"]{--case-shell:#22513f;--case-bed:#326b52;--case-outline:#163d30;--case-ink:#ffffff}
+body[data-case-family="green"][data-case-tone="light"]{--case-shell:#e0efe5;--case-bed:#d1e6d9;--case-outline:#9abdab;--case-ink:#1b2534}
+body[data-case-family="blue"][data-case-tone="dark"]{--case-shell:#203f71;--case-bed:#2e578e;--case-outline:#142c51;--case-ink:#ffffff}
+body[data-case-family="blue"][data-case-tone="light"]{--case-shell:#dae6f7;--case-bed:#c9dcf2;--case-outline:#9ab3d8;--case-ink:#1b2534}
+
+/* The fifth, black swatch remains the existing neutral dark-grey/light-grey case. */
+.skin-rail .model-palette .skin-pink{background:#de8fb0!important}
+.menu-sidebar .model-palette .skin-pink{background:#de8fb0!important}
+.skin-rail .model-palette .skin-dot,.menu-sidebar .model-palette .skin-dot{touch-action:manipulation}
+
+/* Scientific case only — deliberately do not recolour the LCD or the keys. */
+html body[data-case-family]:not([data-case-family="neutral"]) .calc-viewport .calculator{
+  background:var(--case-shell)!important;border-color:var(--case-outline)!important;
+}
+html body[data-case-family]:not([data-case-family="neutral"]) .calc-viewport .calculator .top,
+html body[data-case-family]:not([data-case-family="neutral"]) .calc-viewport .calculator .keys,
+html body[data-case-family]:not([data-case-family="neutral"]) .calc-viewport .calculator #keys{
+  background:var(--case-bed)!important;border-color:var(--case-outline)!important;
+}
+html body[data-case-family]:not([data-case-family="neutral"])[data-case-tone="dark"] .calc-viewport .calculator .roundgroup .keylabel:not(.unused){
+  color:var(--case-ink)!important;
+}
+/* Preserve the separately chosen SHIFT and red ALPHA lettering. */
+html body[data-case-family]:not([data-case-family="neutral"])[data-case-tone="dark"] .calc-viewport .calculator .roundgroup:first-child .keylabel{
+  color:var(--chosen-shift,#84beff)!important;
+}
+html body[data-case-family]:not([data-case-family="neutral"])[data-case-tone="dark"] .calc-viewport .calculator .roundgroup.alpha .keylabel{
+  color:#ff9ca2!important;
+}
+
+/* Menu-driven case and key bed, without changing circular keys or layout. */
+html body[data-case-family]:not([data-case-family="neutral"]) .menu-fit-viewport .device{
+  background:var(--case-shell)!important;border-color:var(--case-outline)!important;
+}
+html body[data-case-family]:not([data-case-family="neutral"]) .menu-fit-viewport .cw-control-deck,
+html body[data-case-family]:not([data-case-family="neutral"]) .menu-fit-viewport .cw-functions,
+html body[data-case-family]:not([data-case-family="neutral"]) .menu-fit-viewport .cw-upper-keys,
+html body[data-case-family]:not([data-case-family="neutral"]) .menu-fit-viewport .cw-number-keys{
+  background:var(--case-bed)!important;
+}
+/* MENU/SETUP/ON/VARIABLE/FUNCTION/CATALOG/TOOLS are ordinary case legends;
+   only SHIFT legends use the independently selected SHIFT colour. */
+html body.menu-dark .menu-fit-viewport .cw-label,
+html body.menu-dark .menu-fit-viewport .cw-function-label:not(.cw-shift-ink){
+  color:var(--case-ink,#ffffff)!important;
+}
+html body.menu-light .menu-fit-viewport .cw-label,
+html body.menu-light .menu-fit-viewport .cw-function-label:not(.cw-shift-ink){
+  color:#1b2534!important;
+}
