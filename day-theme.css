@@ -1978,6 +1978,12 @@ html body .calculator .screen #result{
   line-height:1.1!important;
   text-align:right!important;
 }
+/* Compact stacked fractions fit the fixed-height input and answer rows. */
+html body .calculator .screen #expression math mfrac,
+html body .calculator .screen #result math mfrac{
+  math-style:compact;
+  font-size:min(1em,30px);
+}
 html body .calculator .screen #result:has(math mfrac){padding-top:0!important}
 html body .calculator .screen #result math{
   font-size:inherit!important;
