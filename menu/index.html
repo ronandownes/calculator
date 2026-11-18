@@ -1042,8 +1042,8 @@ body:not(.calc-mode-active) .lcd .indicators #angle{margin-left:auto}
 <div class="menu-view-picker" role="group" aria-label="Menu calculator viewing controls">
  <span class="skin-label">VIEW</span>
  <div class="menu-view-buttons">
-  <button type="button" id="menuFitHeight" aria-pressed="false">↕ Fit height</button>
-  <button type="button" id="menuFitWidth" aria-pressed="true">↔ Fit width</button>
+  <button type="button" id="menuFitHeight" aria-pressed="true">↕ Fit height</button>
+  <button type="button" id="menuFitWidth" aria-pressed="false">↔ Fit width</button>
   <button type="button" id="menuZoomDetail" aria-pressed="false">＋ Zoom</button>
   <button type="button" id="menuFullScreen" aria-pressed="false">⛶ Full screen</button>
  </div>
@@ -2291,8 +2291,8 @@ setLedMode("off");
  const exit=document.getElementById("menuExitFullScreen");
  if(!stage||!shell||!fitH||!fitW||!zoom||!full||!exit)return;
  const naturalWidth=500,clamp=(x)=>Math.max(.4,Math.min(6,x));
- let mode="width",manualScale=1,scale=1,pending=false,drag=null;
- let priorMode="width",priorScale=1,priorX=0,priorY=0;
+ let mode="height",manualScale=1,scale=1,pending=false,drag=null;
+ let priorMode="height",priorScale=1,priorX=0,priorY=0;
  function fit(){
    pending=false;
    shell.style.transform="none";
