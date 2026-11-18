@@ -81,8 +81,8 @@
     return [token(value)];
   }
   function template(type){
-    if(!editor)createEditor();
-    if(editor.calculated)createEditor();
+    const useAnswer=justCalculated&&(type==="sqrt"||type==="cbrt");
+    if(!editor||editor.calculated||useAnswer)createEditor();
     const nodes=rootNodes();
     const at=editor.cursor;
     // Consume a preceding numerator only when the caret is at the end.
@@ -92,7 +92,7 @@
     if(type==="frac"){n.top=numerator;n.bottom=[];}
     else if(type==="mixed"){n.whole=[];n.top=[];n.bottom=[];}
     else if(type==="logbase"){n.base=[];n.arg=[];}
-    else n.body=[];
+    else n.body=useAnswer?[token("Ans")]:[];
     nodes.splice(editor.cursor,0,n);
     editor.cursor++;
     // A completed numerator makes the denominator the next input field.
@@ -104,8 +104,17 @@
   function literal(v){
     if(!editor)createEditor();
     if(editor.calculated){
-      const chaining=/^[+−×÷^]$/.test(v);
-      editor={nodes:chaining?[token("Ans")]:[],path:[],cursor:chaining?1:0,calculated:false};
+      createEditor();
+      if(answerFunctions.has(v)){
+        editor.nodes.push(token(v+"(Ans)"));
+        editor.cursor=1;
+        sync();
+        return;
+      }
+      if(answerOperators.has(v)){
+        editor.nodes.push(token("Ans"));
+        editor.cursor=1;
+      }
     }
     if(v==="negate")v="−";
     else if(v==="square")v="^2";
