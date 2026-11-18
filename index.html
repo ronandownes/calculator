@@ -384,6 +384,10 @@ html body .calc-viewport .calculator #keys button[data-key="log"] .keyname{
  html body .calc-viewport .calculator #keys button[data-key="inversepower"] .keyname{font-size:23px!important}
 }
 </style><style id="lcd-status-indicators">
+/* Give the status row the full LCD width, even when the expression is empty. */
+.calc-viewport .calculator .screen:not(.lcd-menu-mode){
+  grid-template-columns:minmax(0,1fr);
+}
 .calc-viewport .calculator .screen .status{
   display:flex;align-items:center;gap:5px;min-height:18px;flex:none;
 }
