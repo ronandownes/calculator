@@ -1030,13 +1030,13 @@ body[data-menu-shift-colour="neutral"]{--menu-shift:#535b65;--menu-shift-dark:#d
 .lcd .indicators #screen-hint:empty{display:none}
 body.calc-mode-active .lcd .indicators #calc-root-indicator{display:block}
 body:not(.calc-mode-active) .lcd .indicators #angle{margin-left:auto}
-</style></head>
+</style><link rel="stylesheet" href="../calculator-colour-families.css?v=1"></head>
 <body class="menu-light">
 <div class="menu-layout">
 <aside class="menu-sidebar" aria-label="Calculator selection">
 <nav class="menu-four-dots" aria-label="Quick links: A Apps, B Book, C Calculator, D Desmos"><a class="red" href="https://ronandownes.github.io/maths/" title="A · Apps" aria-label="A — Apps"><i aria-hidden="true"></i></a><a class="green" href="https://ronandownes.github.io/book/" title="B · Maths Book" aria-label="B — Maths Book"><i aria-hidden="true"></i></a><a class="blue" href="https://ronandownes.github.io/calculator/" title="C · Calculator" aria-label="C — Calculator"><i aria-hidden="true"></i></a><a class="black" href="https://www.desmos.com/calculator" title="D · Desmos" aria-label="D — Desmos graphing calculator" target="_blank" rel="noopener noreferrer"><i aria-hidden="true"></i></a></nav>
 <nav class="calculator-type-tabs" aria-label="Calculator type"><a href="../" aria-label="Open scientific calculator">Scientific</a><a href="./" aria-current="page" aria-label="Menu-driven calculator, selected">Menu-driven</a><a href="../compare/" aria-label="Compare both calculators side by side">Both</a></nav><nav class="calculator-chooser" aria-label="Calculator styles">
-<div class="model-selector"><span class="skin-label">Calculator colour</span><div class="model-palette" role="group" aria-label="Menu colours"><button class="skin-dot skin-red" data-menu-skin="pink" type="button" title="Pastel pink" aria-label="Menu pastel pink"></button><button class="skin-dot skin-green" data-menu-skin="mint" type="button" title="Pastel mint" aria-label="Menu pastel mint"></button><button class="skin-dot skin-blue" data-menu-skin="blue" type="button" title="Pastel blue" aria-label="Menu pastel blue"></button><button class="skin-dot skin-neutral" id="menuNeutralSkin" type="button" title="Toggle Dark / Light" aria-label="Menu dark or light"></button></div><span class="skin-status" id="menuSkinStatus"></span><div class="menu-shift-picker" role="group" aria-label="Second-function colour"><span class="shift-title">SHIFT lettering</span><button class="shift-choice shift-blue" data-menu-shift-colour="blue" type="button" aria-label="Blue SHIFT legends" title="Blue SHIFT legends" aria-pressed="false"></button><button class="shift-choice shift-green" data-menu-shift-colour="green" type="button" aria-label="Green SHIFT legends" title="Green SHIFT legends" aria-pressed="true"></button><button class="shift-choice shift-neutral" data-menu-shift-colour="neutral" type="button" aria-label="Neutral grey SHIFT lettering" title="Neutral grey SHIFT lettering" aria-pressed="false"></button><button class="shift-choice shift-galaxy" data-led="galaxy" type="button" aria-label="Galaxy: moving SHIFT colours" title="Galaxy: moving SHIFT colours" aria-pressed="false"></button><button class="shift-choice shift-rainbow" data-led="rainbow" type="button" aria-label="Rainbow: moving SHIFT colours" title="Rainbow: moving SHIFT colours" aria-pressed="false"></button><button id="ledFreeze" class="shift-freeze" type="button" aria-pressed="false" disabled>Freeze</button></div></div>
+<div class="model-selector"><span class="skin-label">Calculator colour</span><div class="model-palette" role="group" aria-label="Menu colours; click the selected colour again to switch dark and light"><button type="button" class="skin-dot skin-red" data-menu-skin="red" aria-label="Red calculator colour" title="Red · click for dark/light" aria-pressed="false"></button><button type="button" class="skin-dot skin-green" data-menu-skin="green" aria-label="Green calculator colour" title="Green · click for dark/light" aria-pressed="false"></button><button type="button" class="skin-dot skin-blue" data-menu-skin="blue" aria-label="Blue calculator colour" title="Blue · click for dark/light" aria-pressed="false"></button><button type="button" class="skin-dot skin-pink" data-menu-skin="pink" aria-label="Pink calculator colour" title="Pink · click for dark/light" aria-pressed="false"></button><button type="button" class="skin-dot skin-neutral" data-menu-skin="neutral" id="menuNeutralSkin" aria-label="Grey calculator colour" title="Grey · click for dark/light" aria-pressed="true"></button></div><span class="skin-status" id="menuSkinStatus"></span><div class="menu-shift-picker" role="group" aria-label="Second-function colour"><span class="shift-title">SHIFT lettering</span><button class="shift-choice shift-blue" data-menu-shift-colour="blue" type="button" aria-label="Blue SHIFT legends" title="Blue SHIFT legends" aria-pressed="false"></button><button class="shift-choice shift-green" data-menu-shift-colour="green" type="button" aria-label="Green SHIFT legends" title="Green SHIFT legends" aria-pressed="true"></button><button class="shift-choice shift-neutral" data-menu-shift-colour="neutral" type="button" aria-label="Neutral grey SHIFT lettering" title="Neutral grey SHIFT lettering" aria-pressed="false"></button><button class="shift-choice shift-galaxy" data-led="galaxy" type="button" aria-label="Galaxy: moving SHIFT colours" title="Galaxy: moving SHIFT colours" aria-pressed="false"></button><button class="shift-choice shift-rainbow" data-led="rainbow" type="button" aria-label="Rainbow: moving SHIFT colours" title="Rainbow: moving SHIFT colours" aria-pressed="false"></button><button id="ledFreeze" class="shift-freeze" type="button" aria-pressed="false" disabled>Freeze</button></div></div>
 </nav>
 
 <div class="menu-view-picker" role="group" aria-label="Menu calculator viewing controls">
@@ -1108,26 +1108,35 @@ body:not(.calc-mode-active) .lcd .indicators #angle{margin-left:auto}
 <script>
 /* URL selection only: /menu/?skin=dark or /menu/?skin=light.
    Does not share state with or redirect the scientific home page. */
-const allowed=["dark","light","pink","mint","blue"];
-const fromUrl=(new URLSearchParams(location.search)).get("skin");
-let menuSkin=allowed.includes(fromUrl)?fromUrl:"dark";
+const menuFamilies=["red","green","blue","pink","neutral"];
 const menuColourButtons=[...document.querySelectorAll("[data-menu-skin]")];
-const neutralMenu=document.getElementById("menuNeutralSkin");
-function applyMenuSkin(skin){
- if(!allowed.includes(skin))return;
- menuSkin=skin;
- document.body.classList.toggle("menu-dark",skin==="dark");
- document.body.classList.toggle("menu-light",skin!=="dark");
- document.body.classList.remove("menu-pink","menu-mint","menu-blue");
- if(["pink","mint","blue"].includes(skin))document.body.classList.add("menu-"+skin);
- menuColourButtons.forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.menuSkin===skin)));
- neutralMenu.setAttribute("aria-pressed",String(skin==="dark"||skin==="light"));
- neutralMenu.setAttribute("aria-label",skin==="dark"?"Menu dark, click for light":"Menu light, click for dark");
- document.getElementById("menuSkinStatus").textContent=({dark:"Dark",light:"Light",pink:"Pastel pink",mint:"Pastel green",blue:"Pastel blue"})[skin];
+let menuFamily="neutral",menuTone="dark";
+function applyMenuSkin(family,tone){
+ if(!menuFamilies.includes(family)||!["dark","light"].includes(tone))return;
+ menuFamily=family;menuTone=tone;
+ document.body.classList.toggle("menu-dark",tone==="dark");
+ document.body.classList.toggle("menu-light",tone==="light");
+ document.body.classList.remove("menu-red","menu-pink","menu-mint","menu-green","menu-blue");
+ if(family!=="neutral")document.body.classList.add("menu-"+(family==="green"?"mint":family));
+ document.body.dataset.caseFamily=family;
+ document.body.dataset.caseTone=tone;
+ for(const b of menuColourButtons){
+   const name=b.dataset.menuSkin,chosen=name===family;
+   const label=name==="neutral"?"Grey":name[0].toUpperCase()+name.slice(1);
+   b.setAttribute("aria-pressed",String(chosen));
+   b.setAttribute("aria-label",label+" case, "+(chosen?tone:"not selected")+". "+(chosen?"Click for "+(tone==="dark"?"light":"dark"):"Click for dark")+".");
+   b.title=label+(chosen?" · "+tone:"")+" · "+(chosen?"switch to "+(tone==="dark"?"light":"dark"):"select dark");
+ }
+ document.getElementById("menuSkinStatus").textContent=(tone==="dark"?"Dark ":"Light ")+(family==="neutral"?"grey":family);
 }
-menuColourButtons.forEach(b=>b.addEventListener("click",()=>applyMenuSkin(b.dataset.menuSkin)));
-neutralMenu.addEventListener("click",()=>applyMenuSkin(menuSkin==="dark"?"light":"dark"));
-applyMenuSkin(menuSkin);
+menuColourButtons.forEach(b=>b.addEventListener("click",()=>{
+ const chosen=b.dataset.menuSkin;
+ applyMenuSkin(chosen,chosen===menuFamily?(menuTone==="dark"?"light":"dark"):"dark");
+}));
+const menuRequested=(new URLSearchParams(location.search)).get("skin");
+const menuLegacy={dark:["neutral","dark"],light:["neutral","light"],mint:["green","light"],pink:["pink","light"],blue:["blue","light"],orange:["red","light"]};
+const menuPair=menuLegacy[menuRequested]||(/^((?:red|green|blue|pink|neutral))-(dark|light)$/.exec(menuRequested||"")||[]).slice(1);
+applyMenuSkin(menuPair?.[0]||"neutral",menuPair?.[1]||"dark");
 const menuShiftButtons=[...document.querySelectorAll("[data-menu-shift-colour]")];
 function applyMenuShiftColour(colour){
  if(!["blue","green","orange","neutral"].includes(colour))return;
