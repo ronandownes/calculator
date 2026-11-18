@@ -1010,36 +1010,26 @@ body[data-menu-shift-colour="neutral"]{--menu-shift:#535b65;--menu-shift-dark:#d
 .menu-sidebar .menu-shift-picker .shift-freeze[aria-pressed="true"]{background:#22384f;color:#fff}
 .menu-sidebar .menu-shift-picker .shift-freeze:disabled{opacity:.45;cursor:default}
 </style>
-<style id="angle-indicator-position-20261116">
-/* Matching quarter-width angle indicator, with a root-template icon in Calculate. */
+<style id="lcd-status-indicators">
 .lcd .indicators{
-  position:relative!important;display:block!important;flex:none!important;
-  min-height:44px!important;
+  display:flex;align-items:center;gap:5px;min-height:18px;flex:none;
 }
-.lcd .indicators #angle{
-  position:absolute!important;left:25%!important;top:0!important;
-  transform:translateX(-50%)!important;margin:0!important;
-  width:42px!important;height:42px!important;min-width:42px!important;
-  border:none!important;border-radius:2px!important;
-  background:#101010!important;color:#fff!important;
-  display:inline-flex!important;align-items:center!important;justify-content:center!important;
-  font:900 30px/1 Georgia,"Times New Roman",serif!important;
-}
+.lcd .indicators #shift-state{order:-2;font:800 12px/1 Georgia,serif}
 .lcd .indicators #calc-root-indicator{
-  position:absolute!important;left:calc(25% - 72px)!important;top:1px!important;
-  display:none!important;align-items:center;justify-content:center;
-  width:52px;height:40px;color:#111;
+  display:none;
+  margin-left:auto;width:20px;height:16px;color:inherit;
 }
-body.calc-mode-active .lcd .indicators #calc-root-indicator{display:inline-flex!important}
-.lcd .indicators #calc-root-indicator svg{width:49px;height:39px;display:block}
-.lcd .indicators #shift-state{
-  position:absolute!important;left:calc(25% + 34px)!important;top:10px!important;
-  font-size:20px!important;font-weight:850!important;
+.lcd .indicators #calc-root-indicator svg{display:block;width:100%;height:100%}
+.lcd .indicators #angle{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:16px;height:16px;margin:0;padding:0;border:0;border-radius:2px;
+  background:#101010;color:#fff;
+  font:800 12px/1 Georgia,serif;
 }
-.lcd .indicators #screen-hint{
-  position:absolute!important;right:0!important;top:10px!important;
-  font-size:11px!important;
-}
+.lcd .indicators #screen-hint{order:-1;margin:0}
+.lcd .indicators #screen-hint:empty{display:none}
+body.calc-mode-active .lcd .indicators #calc-root-indicator{display:block}
+body:not(.calc-mode-active) .lcd .indicators #angle{margin-left:auto}
 </style></head>
 <body class="menu-light">
 <div class="menu-layout">
@@ -1064,7 +1054,7 @@ body.calc-mode-active .lcd .indicators #calc-root-indicator{display:inline-flex!
   <main class="device" aria-label="Menu calculator with circular keys">
     <div class="dotline" role="img" aria-label="Four coloured dots"><i></i><i></i><i></i><i></i></div>
     <div class="lcd-frame"><div class="lcd" aria-live="polite">
-      <div class="indicators"><span id="calc-root-indicator" aria-hidden="true"><svg viewBox="0 0 52 40" xmlns="http://www.w3.org/2000/svg" focusable="false"><path d="M2 20 H10 L17 35 L28 5 H50" fill="none" stroke="currentColor" stroke-width="3.7" stroke-linejoin="miter"/><rect x="34" y="12" width="12" height="13" fill="none" stroke="currentColor" stroke-width="2.7"/></svg></span><span id="angle">D</span><span id="shift-state"></span><span class="hint" id="screen-hint"></span></div>
+      <div class="indicators"><span id="calc-root-indicator" role="img" aria-label="Calculate mode"><svg viewBox="0 0 52 40" xmlns="http://www.w3.org/2000/svg" focusable="false"><path d="M2 20 H10 L17 35 L28 5 H50" fill="none" stroke="currentColor" stroke-width="3.7" stroke-linejoin="miter"/><rect x="34" y="12" width="12" height="13" fill="none" stroke="currentColor" stroke-width="2.7"/></svg></span><span id="angle">D</span><span id="shift-state"></span><span class="hint" id="screen-hint"></span></div>
       <div id="display"></div>
     </div></div>
     <div class="cw-control-deck" aria-label="Menu calculator navigation and controls">
@@ -1811,7 +1801,7 @@ setLedMode("off");
     document.body.classList.toggle("shift-active",state.shift);
     hint.textContent=state.view==="calculate"&&state.numberFormat!=="norm"?
       (state.numberFormat==="fix"?"FIX "+state.fixedDigits:"SCI "+state.sciDigits):
-      state.view==="home"?"HOME":state.view==="calculate"?"Calculate":state.view==="menu"?"MENU":state.view;
+      state.view==="home"?"HOME":state.view==="calculate"?"":state.view==="menu"?"MENU":state.view;
     display.style.filter="contrast("+(0.74+state.contrast*0.055)+")";
     display.classList.toggle("compact-font",
       state.multiLineFont==="small"&&state.inputOutput.startsWith("LineI"));
